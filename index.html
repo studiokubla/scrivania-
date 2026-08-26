@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="description" content="Pan &amp; Gea Spazzoliamo — platform arcade per bambini a tema dentistico, con i personaggi Pangea.">
+<meta name="theme-color" content="#A8CBB5">
+<!--ARTIFACT-HEAD-START-->
+<title>Pan e Gea Spazzoliamo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+  /* ---- Token: mondo Pangea (tema unico e deliberato: la bocca è sempre luminosa) ---- */
+  :root{
+    --menta:#A8CBB5;
+    --menta-scura:#8FB9A1;
+    --menta-chiara:#C4DDCE;
+    --giallo:#F4D35F;
+    --giallo-bordo:#B4850E;
+    --lilla:#CCB2D7;
+    --lilla-bordo:#877792;
+    --smalto:#FFFFFF;
+    --gengiva:#E19AA0;
+    --gengiva-scura:#C77B84;
+    --inchiostro:#4A4152;
+    --carie:#7A5230;
+    --animalicolo:#4F8F73;
+    --ombra:rgba(74,65,82,.18);
+    --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+    --testo:"Nunito","Trebuchet MS",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{height:100%;margin:0;padding:0}
+  body{
+    background:var(--menta);
+    color:var(--inchiostro);
+    font-family:var(--testo);
+    overflow:hidden;
+    overscroll-behavior:none;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  #app{
+    position:fixed;inset:0;display:flex;flex-direction:column;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* ---- Palcoscenico ---- */
+  #stage{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}
+  #gioco{display:block;width:100%;height:100%}
+  #insegna{
+    flex:0 0 auto;display:none;justify-content:center;align-items:baseline;gap:8px;
+    font-family:var(--display);font-weight:600;color:var(--inchiostro);
+    padding:10px 16px 12px;letter-spacing:-.2px;
+  }
+  #insegna b{font-size:20px}
+  #insegna span{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--lilla-bordo)}
+  @media (orientation:portrait){
+    #app{justify-content:space-between}
+    #insegna{display:flex}
+    #stage{
+      flex:0 1 auto;width:100%;aspect-ratio:12/14;max-height:64vh;
+      border-radius:26px;
+      border:3px solid var(--inchiostro);
+      box-shadow:0 6px 0 var(--ombra);
+    }
+    .tasto{width:84px;height:84px;border-radius:26px;font-size:30px}
+    .tasto.salto{width:118px;font-size:19px}
+  }
+
+  /* ---- HUD ---- */
+  #hud{
+    position:absolute;top:0;left:0;right:0;
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;font-family:var(--display);
+    pointer-events:none;
+  }
+  .pill{
+    display:flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.82);
+    border:2px solid var(--inchiostro);
+    border-radius:999px;padding:4px 12px;
+    font-size:15px;font-weight:600;line-height:1.4;
+    box-shadow:0 2px 0 var(--ombra);
+    font-variant-numeric:tabular-nums;
+  }
+  #vite{gap:3px;padding:4px 10px}
+  #hud .spinta{margin-left:auto;pointer-events:auto}
+  .tondo{
+    width:38px;height:38px;border-radius:50%;
+    border:2px solid var(--inchiostro);background:rgba(255,255,255,.82);
+    box-shadow:0 2px 0 var(--ombra);
+    display:grid;place-items:center;font-size:17px;cursor:pointer;
+    font-family:var(--display);color:var(--inchiostro);
+  }
+  .tondo:active{transform:translateY(2px);box-shadow:none}
+  .tondo:focus-visible,button:focus-visible{outline:3px solid var(--inchiostro);outline-offset:3px}
+
+  /* ---- Comandi ---- */
+  #pad{
+    flex:0 0 auto;display:flex;align-items:flex-end;justify-content:space-between;
+    gap:12px;padding:14px 16px 18px;
+  }
+  .frecce{display:flex;gap:12px}
+  .tasto{
+    width:74px;height:74px;border-radius:24px;
+    border:3px solid var(--inchiostro);
+    background:var(--smalto);
+    box-shadow:0 4px 0 var(--ombra);
+    display:grid;place-items:center;
+    font-family:var(--display);font-size:26px;color:var(--inchiostro);
+    cursor:pointer;touch-action:none;
+  }
+  .tasto.salto{width:104px;background:var(--giallo);border-color:var(--giallo-bordo);font-size:17px;font-weight:600}
+  .tasto.premuto{transform:translateY(4px);box-shadow:none;filter:brightness(.96)}
+  @media (orientation:landscape) and (max-height:560px){
+    #pad{position:absolute;left:0;right:0;bottom:0;padding:0 18px 16px;pointer-events:none}
+    #pad>*{pointer-events:auto}
+    .tasto{width:64px;height:64px;opacity:.92}
+    .tasto.salto{width:92px}
+  }
+
+  /* ---- Schermate ---- */
+  .schermata{
+    position:fixed;inset:0;display:none;z-index:5;
+    flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;padding:22px;text-align:center;
+    background:rgba(168,203,181,.94);
+    backdrop-filter:blur(2px);
+    overflow-y:auto;
+  }
+  .schermata.aperta{display:flex}
+  .carta{
+    background:var(--smalto);
+    border:3px solid var(--inchiostro);
+    border-radius:26px;
+    box-shadow:0 6px 0 var(--ombra);
+    padding:20px 22px;max-width:min(430px,92vw);
+    display:flex;flex-direction:column;gap:12px;align-items:center;
+  }
+  h1{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(28px,7.5vw,42px);line-height:.98;margin:0;
+    text-wrap:balance;letter-spacing:-.5px;
+  }
+  h1 .riga2{display:block;color:var(--giallo-bordo)}
+  h2{font-family:var(--display);font-size:clamp(20px,5.6vw,26px);margin:0;font-weight:600;text-wrap:balance}
+  p{margin:0;font-size:15px;line-height:1.5;max-width:34ch}
+  .occhiello{
+    font-family:var(--display);text-transform:uppercase;letter-spacing:.14em;
+    font-size:11px;font-weight:600;color:var(--lilla-bordo);margin:0;
+  }
+  .scelta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;width:100%}
+  .eroe{
+    flex:1 1 130px;max-width:160px;
+    background:var(--menta-chiara);
+    border:3px solid var(--inchiostro);border-radius:22px;
+    padding:10px 8px 12px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    box-shadow:0 4px 0 var(--ombra);
+    font-family:var(--display);
+  }
+  .eroe canvas{width:96px;height:96px}
+  .eroe .nome{font-size:20px;font-weight:600}
+  .eroe .ruolo{font-family:var(--testo);font-size:12px;line-height:1.35;color:var(--lilla-bordo);font-weight:700}
+  .eroe[data-eroe="pan"]{background:#FBEFC4}
+  .eroe[data-eroe="gea"]{background:#EEE4F2}
+  .eroe:active{transform:translateY(3px);box-shadow:none}
+  .eroe.scelto{outline:4px solid var(--inchiostro);outline-offset:3px}
+  button.azione{
+    font-family:var(--display);font-size:19px;font-weight:600;
+    padding:12px 26px;border-radius:999px;cursor:pointer;
+    border:3px solid var(--inchiostro);
+    background:var(--giallo);color:var(--inchiostro);
+    box-shadow:0 4px 0 var(--ombra);
+  }
+  button.azione.secondaria{background:var(--smalto)}
+  button.azione:active{transform:translateY(4px);box-shadow:none}
+  .istruzioni{display:flex;flex-direction:column;gap:7px;text-align:left;font-size:14px;width:100%}
+  .istruzioni div{display:flex;gap:9px;align-items:flex-start;line-height:1.4}
+  .istruzioni b{font-family:var(--display);font-weight:600}
+  .punteggio{font-family:var(--display);font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+  .record{font-size:13px;color:var(--lilla-bordo);font-weight:700}
+  .nota{font-size:12px;color:var(--lilla-bordo);font-weight:700;max-width:32ch}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<!--ARTIFACT-HEAD-END-->
+</head>
+<body>
+<!--ARTIFACT-BODY-START-->
+<div id="app">
+  <div id="insegna" hidden><b>Pan &amp; Gea</b><span>Spazzoliamo</span></div>
+
+  <div id="stage">
+    <canvas id="gioco"></canvas>
+
+    <div id="hud" hidden>
+      <div class="pill" id="vite" aria-label="Vite"></div>
+      <div class="pill"><span id="punti">0</span></div>
+      <div class="pill" id="livelloPill">Bocca 1</div>
+      <button class="tondo spinta" id="btnPausa" aria-label="Pausa">II</button>
+      <button class="tondo" id="btnAudio" aria-label="Audio">♪</button>
+    </div>
+
+  </div>
+
+  <!-- Titolo + scelta personaggio -->
+  <section class="schermata aperta" id="scMenu">
+    <div class="carta">
+      <p class="occhiello">Studio Pangea · Il mondo degli Animalicoli</p>
+      <h1>Spazzoliamo!<span class="riga2">Pan &amp; Gea</span></h1>
+      <p>Gli Animalicoli hanno fatto festa nella Valle dei Denti. Salta sopra i batteri, schiaccia le carie e arriva allo spazzolino gigante.</p>
+      <p class="occhiello">Scegli chi porti con te</p>
+      <div class="scelta" id="scelta">
+        <button class="eroe scelto" data-eroe="pan" aria-pressed="true">
+          <canvas width="192" height="192" data-ritratto="pan"></canvas>
+          <span class="nome">Pan</span>
+          <span class="ruolo">Salta più in alto</span>
+        </button>
+        <button class="eroe" data-eroe="gea" aria-pressed="false">
+          <canvas width="192" height="192" data-ritratto="gea"></canvas>
+          <span class="nome">Gea</span>
+          <span class="ruolo">Corre più veloce</span>
+        </button>
+      </div>
+      <button class="azione" id="btnGioca">Si parte</button>
+      <p class="record" id="recordMenu"></p>
+    </div>
+  </section>
+
+  <!-- Pausa -->
+  <section class="schermata" id="scPausa">
+    <div class="carta">
+      <h2>Pausa</h2>
+      <div class="istruzioni">
+        <div><b>◀ ▶</b><span>Muoviti nella bocca.</span></div>
+        <div><b>SALTA</b><span>Tienilo premuto per saltare più in alto.</span></div>
+        <div><b>Salta sopra</b><span>Carie e Animalicoli si puliscono così.</span></div>
+        <div><b>Bolle</b><span>Dentifricio: 10 punti l'una.</span></div>
+        <div><b>Spazzolino</b><span>8 secondi di super pulizia.</span></div>
+      </div>
+      <button class="azione" id="btnRiprendi">Riprendi</button>
+      <button class="azione secondaria" id="btnEsci">Torna al menu</button>
+    </div>
+  </section>
+
+  <!-- Fine livello -->
+  <section class="schermata" id="scLivello">
+    <div class="carta">
+      <p class="occhiello" id="livelloOcchiello">Bocca pulita</p>
+      <h2 id="livelloTitolo">Che sorriso!</h2>
+      <p class="punteggio" id="livelloPunti">0</p>
+      <p id="livelloTesto"></p>
+      <button class="azione" id="btnAvanti">Continua</button>
+    </div>
+  </section>
+
+  <!-- Game over / vittoria -->
+  <section class="schermata" id="scFine">
+    <div class="carta">
+      <h2 id="fineTitolo">Ops!</h2>
+      <p id="fineTesto"></p>
+      <p class="punteggio" id="finePunti">0</p>
+      <p class="record" id="fineRecord"></p>
+      <button class="azione" id="btnRigioca">Gioca ancora</button>
+      <p class="nota">Ricordati: lo spazzolino vero si usa due volte al giorno, per due minuti.</p>
+    </div>
+  </section>
+
+  <div id="pad" hidden>
+    <div class="frecce">
+      <button class="tasto" data-cmd="sinistra" aria-label="Sinistra">◀</button>
+      <button class="tasto" data-cmd="destra" aria-label="Destra">▶</button>
+    </div>
+    <button class="tasto salto" data-cmd="salta" aria-label="Salta">SALTA</button>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ================================================================
+   Pan & Gea — Spazzoliamo!
+   Platform arcade per Studio Pangea. Personaggi e palette dal
+   file di brand pangeapersonaggi.ai; nemici e lessico dalle favole
+   "Pan e il mondo segreto degli Animalicoli".
+   ================================================================ */
+
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r){
+    const rr = Math.min(typeof r === 'number' ? r : 0, w/2, h/2);
+    this.moveTo(x + rr, y);
+    this.arcTo(x + w, y, x + w, y + h, rr);
+    this.arcTo(x + w, y + h, x, y + h, rr);
+    this.arcTo(x, y + h, x, y, rr);
+    this.arcTo(x, y, x + w, y, rr);
+    this.closePath();
+    return this;
+  };
+}
+
+const T = 32;                    // lato tile in unità mondo
+const COL = {
+  menta:'#A8CBB5', mentaScura:'#8FB9A1', mentaChiara:'#C4DDCE',
+  smalto:'#FFFFFF', smaltoOmbra:'#E6EFE9',
+  gengiva:'#E19AA0', gengivaScura:'#C77B84',
+  inchiostro:'#4A4152',
+  giallo:'#F4D35F', gialloBordo:'#B4850E',
+  lilla:'#CCB2D7', lillaBordo:'#877792',
+  carie:'#7A5230', cariePelle:'#9A6C42',
+  animalicolo:'#4F8F73', animalicoloBordo:'#31654F'
+};
+
+const EROI = {
+  pan: { nome:'Pan',  corpo:COL.giallo, bordo:COL.gialloBordo, pupilla:COL.gialloBordo, salto:620, velocita:196 },
+  gea: { nome:'Gea',  corpo:COL.lilla,  bordo:COL.lillaBordo,  pupilla:COL.lillaBordo,  salto:575, velocita:228 }
+};
+
+/* ---------------- Livelli ----------------
+   ground : [colInizio, colFine)  fascia di denti dalla riga 9 alla 10
+   plat   : [col, riga, lunghezza]
+   bolle  : [col, riga]
+   spazz  : [col, riga]   power-up
+   carie  : [col, riga]   nemico che cammina
+   animal : [col, riga]   nemico che saltella
+------------------------------------------ */
+const RIGHE = 11;
+const LIVELLI = [
+  {
+    nome:'La Valle dei Denti',
+    testo:'Gli Animalicoli si erano appena messi comodi.',
+    larghezza:132,
+    ground:[[0,28],[30,58],[60,90],[92,132]],
+    plat:[[10,6,4],[18,4,3],[36,6,5],[46,4,3],[66,6,4],[74,5,3],[100,6,4],[110,4,4]],
+    bolle:[[11,5],[12,5],[13,5],[19,3],[20,3],[24,8],[25,8],[37,5],[38,5],[39,5],[47,3],[48,3],[67,5],[68,5],[75,4],[76,4],[101,5],[102,5],[111,3],[112,3],[120,8],[121,8],[122,8]],
+    spazz:[[46,3]],
+    carie:[[14,8],[44,8],[104,8]],
+    animal:[[24,8],[84,8]],
+    start:[2,8], goal:[128,8]
+  },
+  {
+    nome:'La Festa della Placca',
+    testo:'Le casette appiccicose non piacciono a nessuno.',
+    larghezza:150,
+    ground:[[0,20],[22,40],[42,62],[64,84],[86,112],[114,150]],
+    plat:[[8,7,3],[14,5,3],[27,6,4],[33,4,3],[48,7,3],[54,5,4],[70,6,3],[76,4,3],[92,7,4],[99,5,3],[105,3,3],[120,6,4],[128,4,3],[136,6,4]],
+    bolle:[[9,6],[15,4],[16,4],[28,5],[29,5],[34,3],[35,3],[49,6],[55,4],[56,4],[71,5],[77,3],[78,3],[93,6],[94,6],[100,4],[106,2],[107,2],[121,5],[122,5],[129,3],[137,5],[138,5],[144,8],[145,8]],
+    spazz:[[54,4],[105,2]],
+    carie:[[10,8],[30,8],[52,8],[74,8],[96,8],[124,8],[140,8]],
+    animal:[[17,8],[36,8],[58,8],[80,8],[104,8],[132,8]],
+    start:[2,8], goal:[147,8]
+  },
+  {
+    nome:'La Grande Spazzolata',
+    testo:'Ultimo giro: la bocca deve brillare.',
+    larghezza:164,
+    ground:[[0,16],[18,32],[34,48],[50,66],[68,84],[86,104],[106,126],[128,164]],
+    plat:[[6,7,3],[11,5,2],[23,6,3],[28,4,2],[39,7,3],[44,5,2],[55,6,3],[60,4,3],[73,7,3],[78,5,2],[91,6,3],[96,4,3],[101,2,3],[111,7,3],[117,5,3],[133,6,4],[141,4,3],[149,6,3]],
+    bolle:[[7,6],[12,4],[24,5],[29,3],[40,6],[45,4],[56,5],[61,3],[62,3],[74,6],[79,4],[92,5],[97,3],[102,1],[103,1],[112,6],[118,4],[119,4],[134,5],[135,5],[142,3],[150,5],[156,8],[157,8],[158,8]],
+    spazz:[[60,3],[101,1],[141,3]],
+    carie:[[8,8],[26,8],[42,8],[58,8],[76,8],[94,8],[114,8],[136,8],[152,8]],
+    animal:[[13,8],[30,8],[46,8],[64,8],[82,8],[100,8],[122,8],[146,8]],
+    start:[2,8], goal:[161,8]
+  }
+];
+
+/* ---------------- Canvas & scala ---------------- */
+const cvs = document.getElementById('gioco');
+const ctxMondo = cvs.getContext('2d');
+let ctx = ctxMondo;   // contesto attivo: viene scambiato per i ritratti del menu
+function conContesto(g, fn){ const prec = ctx; ctx = g; g.save(); try{ fn(); } finally { g.restore(); ctx = prec; } }
+let vistaW = 0, vistaH = 0, scala = 1;
+
+function ridimensiona(){
+  const r = cvs.parentElement.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  cvs.width  = Math.max(1, Math.round(r.width  * dpr));
+  cvs.height = Math.max(1, Math.round(r.height * dpr));
+  scala = Math.min(r.width / (12 * T), r.height / (RIGHE * T));
+  vistaW = r.width  / scala;
+  vistaH = r.height / scala;
+  ctxMondo.setTransform(dpr * scala, 0, 0, dpr * scala, 0, 0);
+  ctxMondo.imageSmoothingEnabled = true;
+}
+window.addEventListener('resize', ridimensiona);
+window.addEventListener('orientationchange', () => setTimeout(ridimensiona, 120));
+
+/* ---------------- Audio ---------------- */
+let ac = null, audioOn = true;
+function suono(freq, dur = .12, tipo = 'sine', vol = .16, glide = 0){
+  if(!audioOn) return;
+  try{
+    if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    if(ac.state === 'suspended') ac.resume();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = tipo; o.frequency.setValueAtTime(freq, ac.currentTime);
+    if(glide) o.frequency.exponentialRampToValueAtTime(Math.max(40, freq + glide), ac.currentTime + dur);
+    g.gain.setValueAtTime(vol, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime + dur);
+  }catch(e){ /* audio non disponibile: il gioco continua */ }
+}
+const SFX = {
+  salto:   () => suono(430, .13, 'sine', .14, 260),
+  bolla:   () => suono(880, .09, 'triangle', .12, 320),
+  pulito:  () => suono(300, .16, 'square', .10, 420),
+  ahia:    () => suono(220, .28, 'sawtooth', .12, -120),
+  power:   () => { suono(520,.1,'triangle',.14,180); setTimeout(()=>suono(780,.16,'triangle',.14,240),90); },
+  vittoria:() => { [523,659,784,1046].forEach((f,i)=>setTimeout(()=>suono(f,.18,'triangle',.15),i*110)); }
+};
+
+/* ---------------- Stato ---------------- */
+const S = { MENU:'menu', GIOCO:'gioco', PAUSA:'pausa', LIVELLO:'livello', FINE:'fine' };
+let stato = S.MENU;
+let eroeScelto = 'pan';
+let livelloIdx = 0, punti = 0, vite = 3, tempo = 0;
+let mappa = null, giocatore = null, camX = 0, camY = 0;
+let nemici = [], bolle = [], spazzolini = [], scintille = [];
+
+const tasti = { sinistra:false, destra:false, salta:false };
+let saltoBuffer = 0, coyote = 0, saltoTenuto = false;
+
+/* ---------------- Costruzione mappa ---------------- */
+function costruisci(def){
+  const w = def.larghezza;
+  const griglia = Array.from({length:RIGHE}, () => new Array(w).fill(0));
+  for(const [a,b] of def.ground){
+    for(let c = a; c < b; c++){ griglia[9][c] = 1; griglia[10][c] = 2; }
+  }
+  for(const [c,r,len] of def.plat){
+    for(let i = 0; i < len; i++) if(c+i < w) griglia[r][c+i] = 3;
+  }
+  return { griglia, larghezza:w, def };
+}
+function solido(c, r){
+  if(r < 0 || r >= RIGHE) return false;
+  if(c < 0 || c >= mappa.larghezza) return false;
+  return mappa.griglia[r][c] !== 0;
+}
+
+function caricaLivello(i){
+  const def = LIVELLI[i];
+  vite = 3;
+  mappa = costruisci(def);
+  bolle = def.bolle.map(([c,r]) => ({ x:c*T + T/2, y:r*T + T/2, presa:false, fase:Math.random()*6.28 }));
+  spazzolini = def.spazz.map(([c,r]) => ({ x:c*T + T/2, y:r*T + T/2, presa:false, fase:Math.random()*6.28 }));
+  nemici = [
+    ...def.carie.map(([c,r]) => nemico('carie', c, r)),
+    ...def.animal.map(([c,r]) => nemico('animalicolo', c, r))
+  ];
+  scintille = [];
+  giocatore = {
+    x:def.start[0]*T, y:def.start[1]*T, w:28, h:38, vx:0, vy:0,
+    aTerra:false, guarda:1, passo:0, potere:0, invulnerabile:0, vivo:true,
+    sicuroX:def.start[0]*T, sicuroY:def.start[1]*T, tSicuro:0
+  };
+  camX = 0; camY = 0; tempo = 0;
+  document.getElementById('livelloPill').textContent = 'Bocca ' + (i+1);
+  aggiornaHud();
+}
+
+function nemico(tipo, c, r){
+  const base = { tipo, x:c*T + 3, y:r*T + 6, vx:0, vy:0, vivo:true, fase:Math.random()*6.28, dir: Math.random() < .5 ? -1 : 1 };
+  if(tipo === 'carie'){ base.w = 26; base.h = 24; base.vx = 38 * base.dir; }
+  else { base.w = 24; base.h = 24; base.timer = Math.random(); base.vx = 34 * base.dir; }
+  return base;
+}
+
+/* ---------------- Collisioni ---------------- */
+function muoviAsse(e, dx, dy){
+  if(dx){
+    e.x += dx;
+    const c0 = Math.floor(e.x / T), c1 = Math.floor((e.x + e.w) / T);
+    const r0 = Math.floor(e.y / T), r1 = Math.floor((e.y + e.h - 1) / T);
+    for(let r = r0; r <= r1; r++){
+      for(let c = c0; c <= c1; c++){
+        if(!solido(c,r)) continue;
+        if(dx > 0){ e.x = c*T - e.w; e.urtoX = 1; }
+        else      { e.x = (c+1)*T;   e.urtoX = -1; }
+        e.vx = 0;
+      }
+    }
+  }
+  if(dy){
+    e.y += dy;
+    e.aTerra = false;
+    const c0 = Math.floor(e.x / T), c1 = Math.floor((e.x + e.w - 1) / T);
+    const r0 = Math.floor(e.y / T), r1 = Math.floor((e.y + e.h) / T);
+    for(let r = r0; r <= r1; r++){
+      for(let c = c0; c <= c1; c++){
+        if(!solido(c,r)) continue;
+        if(dy > 0){ e.y = r*T - e.h; e.aTerra = true; }
+        else      { e.y = (r+1)*T; }
+        e.vy = 0;
+      }
+    }
+  }
+}
+const sovrapposti = (a,b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+/* ---------------- Aggiornamento ---------------- */
+function aggiorna(dt){
+  const p = giocatore, eroe = EROI[eroeScelto];
+  tempo += dt;
+
+  /* movimento orizzontale */
+  const dir = (tasti.destra ? 1 : 0) - (tasti.sinistra ? 1 : 0);
+  const vMax = eroe.velocita * (p.potere > 0 ? 1.15 : 1);
+  if(dir){
+    p.vx += dir * 1500 * dt;
+    p.vx = Math.max(-vMax, Math.min(vMax, p.vx));
+    p.guarda = dir;
+    if(p.aTerra) p.passo += Math.abs(p.vx) * dt * .05;
+  }else{
+    const attrito = 1700 * dt;
+    p.vx = Math.abs(p.vx) <= attrito ? 0 : p.vx - Math.sign(p.vx) * attrito;
+  }
+
+  /* salto con coyote time e buffer: perdonare è più divertente */
+  coyote = p.aTerra ? .10 : Math.max(0, coyote - dt);
+  saltoBuffer = Math.max(0, saltoBuffer - dt);
+  if(saltoBuffer > 0 && coyote > 0){
+    p.vy = -eroe.salto; p.aTerra = false; coyote = 0; saltoBuffer = 0;
+    saltoTenuto = true; SFX.salto();
+  }
+  if(!tasti.salta && saltoTenuto && p.vy < -170){ p.vy = -170; saltoTenuto = false; }
+
+  p.vy = Math.min(p.vy + 1500 * dt, 780);
+  muoviAsse(p, p.vx * dt, 0);
+  muoviAsse(p, 0, p.vy * dt);
+
+  p.tSicuro -= dt;
+  if(p.aTerra && p.tSicuro <= 0){
+    const cSotto = Math.floor((p.x + p.w/2) / T), rSotto = Math.floor((p.y + p.h + 4) / T);
+    if(solido(cSotto, rSotto)){ p.sicuroX = p.x; p.sicuroY = p.y - 2; p.tSicuro = 1.2; }
+  }
+  if(p.potere > 0) p.potere = Math.max(0, p.potere - dt);
+  if(p.invulnerabile > 0) p.invulnerabile = Math.max(0, p.invulnerabile - dt);
+
+  /* caduta fuori dalla bocca */
+  if(p.y > RIGHE * T + 80) colpito(true);
+
+  /* nemici */
+  for(const n of nemici){
+    if(!n.vivo) continue;
+    if(Math.abs(n.x - p.x) > vistaW) continue;      // fuori scena: dorme
+    n.fase += dt * 6;
+    if(n.tipo === 'carie'){
+      n.vy = Math.min(n.vy + 1500 * dt, 700);
+      n.urtoX = 0;
+      muoviAsse(n, n.vx * dt, 0);
+      muoviAsse(n, 0, n.vy * dt);
+      const avanti = Math.floor((n.x + (n.vx > 0 ? n.w + 2 : -2)) / T);
+      const sotto  = Math.floor((n.y + n.h + 4) / T);
+      if(n.urtoX || (n.aTerra && !solido(avanti, sotto))) n.vx *= -1;
+    }else{
+      n.timer -= dt;
+      if(n.aTerra && n.timer <= 0){ n.vy = -360; n.timer = 1.1 + Math.random()*.5; }
+      n.vy = Math.min(n.vy + 1500 * dt, 700);
+      n.urtoX = 0;
+      muoviAsse(n, n.vx * dt, 0);
+      muoviAsse(n, 0, n.vy * dt);
+      const avanti = Math.floor((n.x + (n.vx > 0 ? n.w + 2 : -2)) / T);
+      const sotto  = Math.floor((n.y + n.h + 4) / T);
+      if(n.urtoX || (n.aTerra && !solido(avanti, sotto))) n.vx *= -1;
+    }
+    if(!sovrapposti(p, n)) continue;
+    const schiaccia = p.vy > 60 && (p.y + p.h) - n.y < 20;
+    if(schiaccia || p.potere > 0){
+      n.vivo = false;
+      punti += 50;
+      p.vy = schiaccia ? -380 : p.vy;
+      esplosione(n.x + n.w/2, n.y + n.h/2, n.tipo === 'carie' ? COL.carie : COL.animalicolo);
+      SFX.pulito(); aggiornaHud();
+    }else{
+      colpito(false);
+    }
+  }
+
+  /* bolle di dentifricio */
+  for(const b of bolle){
+    if(b.presa) continue;
+    b.fase += dt * 3;
+    if(Math.abs(b.x - p.x) < 26 && Math.abs(b.y - (p.y + p.h/2)) < 28){
+      b.presa = true; punti += 10; esplosione(b.x, b.y, COL.smalto, 6);
+      SFX.bolla(); aggiornaHud();
+    }
+  }
+  /* spazzolini */
+  for(const s of spazzolini){
+    if(s.presa) continue;
+    s.fase += dt * 3;
+    if(Math.abs(s.x - p.x) < 30 && Math.abs(s.y - (p.y + p.h/2)) < 32){
+      s.presa = true; p.potere = 8; punti += 30;
+      esplosione(s.x, s.y, COL.giallo, 14); SFX.power(); aggiornaHud();
+    }
+  }
+
+  /* traguardo */
+  const g = mappa.def.goal;
+  if(p.x + p.w > g[0]*T - 6 && p.x < g[0]*T + T + 6 && p.y + p.h > (g[1]-2)*T){
+    fineLivello();
+    return;
+  }
+
+  /* scintille */
+  for(const s of scintille){ s.vita -= dt; s.x += s.vx*dt; s.y += s.vy*dt; s.vy += 420*dt; }
+  scintille = scintille.filter(s => s.vita > 0);
+
+  /* camera */
+  const bersaglioX = Math.max(0, Math.min(p.x + p.w/2 - vistaW/2, mappa.larghezza*T - vistaW));
+  camX += (bersaglioX - camX) * Math.min(1, dt * 8);
+  camY = RIGHE*T - vistaH;
+}
+
+function esplosione(x, y, colore, n = 10){
+  for(let i = 0; i < n; i++){
+    scintille.push({
+      x, y, colore,
+      vx:(Math.random()-.5) * 230, vy:-Math.random()*220 - 40,
+      vita:.45 + Math.random()*.3, r:2 + Math.random()*3
+    });
+  }
+}
+
+function colpito(caduta){
+  const p = giocatore;
+  if(p.invulnerabile > 0 && !caduta) return;
+  vite--;
+  SFX.ahia();
+  esplosione(p.x + p.w/2, p.y + p.h/2, EROI[eroeScelto].corpo, 12);
+  aggiornaHud();
+  if(vite <= 0){ fineGioco(false); return; }
+  p.x = p.sicuroX; p.y = p.sicuroY; p.vx = 0; p.vy = 0; p.invulnerabile = 1.6;
+}
+
+/* ---------------- Disegno mondo ---------------- */
+function disegna(){
+  ctx.save();
+  ctx.fillStyle = COL.menta;
+  ctx.fillRect(0, 0, vistaW, vistaH);
+  cielo();
+  colline();
+  ctx.translate(-camX, -camY);
+  tiles();
+  traguardo();
+  for(const b of bolle) if(!b.presa) bolla(b);
+  for(const s of spazzolini) if(!s.presa) spazzolino(s);
+  for(const n of nemici) if(n.vivo && Math.abs(n.x - camX - vistaW/2) < vistaW) disegnaNemico(n);
+  disegnaEroe();
+  for(const s of scintille){
+    ctx.globalAlpha = Math.max(0, s.vita * 2);
+    ctx.fillStyle = s.colore;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+/* colline bianche e lucide della favola, in parallasse */
+function cielo(){
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,.22)';
+  const passoN = 300, offN = camX * .12;
+  for(let i = Math.floor(offN / passoN) - 1; i * passoN - offN < vistaW + passoN; i++){
+    const x = i * passoN - offN;
+    const y = 34 + ((i * 97) % 120);
+    const r = 30 + ((i * 53) % 26);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 6.2832);
+    ctx.arc(x + r * .85, y + r * .18, r * .72, 0, 6.2832);
+    ctx.arc(x - r * .8, y + r * .22, r * .6, 0, 6.2832);
+    ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(255,255,255,.30)';
+  const passoB = 150, offB = camX * .3;
+  for(let i = Math.floor(offB / passoB) - 1; i * passoB - offB < vistaW + passoB; i++){
+    const x = i * passoB - offB;
+    const y = 60 + ((i * 137) % 200) + Math.sin(tempo * .8 + i) * 6;
+    if(y > vistaH - 150) continue;
+    ctx.beginPath(); ctx.arc(x, y, 4 + (i % 3) * 2, 0, 6.2832); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function colline(){
+  ctx.save();
+  ctx.fillStyle = COL.mentaChiara;
+  const off = camX * .25;
+  ctx.beginPath();
+  ctx.moveTo(0, vistaH);
+  for(let x = -1; x <= vistaW / 60 + 2; x++){
+    const cx = x * 60 - (off % 60);
+    ctx.lineTo(cx, vistaH - 120 - Math.sin(x * 1.3) * 22);
+    ctx.quadraticCurveTo(cx + 30, vistaH - 190 - Math.cos(x) * 26, cx + 60, vistaH - 120 - Math.sin((x+1) * 1.3) * 22);
+  }
+  ctx.lineTo(vistaW, vistaH); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = COL.mentaScura;
+  const off2 = camX * .5;
+  ctx.beginPath();
+  ctx.moveTo(0, vistaH);
+  for(let x = -1; x <= vistaW / 90 + 2; x++){
+    const cx = x * 90 - (off2 % 90);
+    ctx.lineTo(cx, vistaH - 60);
+    ctx.quadraticCurveTo(cx + 45, vistaH - 118 - Math.sin(x * .8) * 16, cx + 90, vistaH - 60);
+  }
+  ctx.lineTo(vistaW, vistaH); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function tiles(){
+  const c0 = Math.max(0, Math.floor(camX / T) - 1);
+  const c1 = Math.min(mappa.larghezza - 1, Math.ceil((camX + vistaW) / T) + 1);
+  for(let r = 0; r < RIGHE; r++){
+    for(let c = c0; c <= c1; c++){
+      const t = mappa.griglia[r][c];
+      if(!t) continue;
+      const x = c*T, y = r*T;
+      if(t === 2){                       // gengiva
+        ctx.fillStyle = COL.gengiva; ctx.fillRect(x, y, T, T);
+        ctx.fillStyle = COL.gengivaScura; ctx.fillRect(x, y + T - 6, T, 6);
+      }else{                             // smalto
+        const cima = !solido(c, r-1);
+        ctx.fillStyle = COL.smalto;
+        arrotondato(x, y, T, T, cima ? [10,10,3,3] : [3,3,3,3]);
+        ctx.fill();
+        ctx.strokeStyle = COL.smaltoOmbra; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x + 4, y + T - 3); ctx.lineTo(x + T - 4, y + T - 3); ctx.stroke();
+        if(cima){                        // due cuspidi da molare
+          ctx.fillStyle = COL.smaltoOmbra;
+          ctx.beginPath(); ctx.arc(x + T*.3, y + 7, 3.2, 0, 6.2832); ctx.fill();
+          ctx.beginPath(); ctx.arc(x + T*.7, y + 7, 3.2, 0, 6.2832); ctx.fill();
+        }
+      }
+    }
+  }
+}
+
+function arrotondato(x, y, w, h, r){
+  const [a,b,c,d] = r;
+  ctx.beginPath();
+  ctx.moveTo(x + a, y);
+  ctx.lineTo(x + w - b, y); ctx.quadraticCurveTo(x + w, y, x + w, y + b);
+  ctx.lineTo(x + w, y + h - c); ctx.quadraticCurveTo(x + w, y + h, x + w - c, y + h);
+  ctx.lineTo(x + d, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - d);
+  ctx.lineTo(x, y + a); ctx.quadraticCurveTo(x, y, x + a, y);
+  ctx.closePath();
+}
+
+function bolla(b){
+  const y = b.y + Math.sin(b.fase) * 3;
+  ctx.save();
+  ctx.fillStyle = COL.smalto; ctx.strokeStyle = COL.mentaScura; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(b.x, y, 8, 0, 6.2832); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = COL.mentaChiara;
+  ctx.beginPath(); ctx.arc(b.x - 2.5, y - 2.5, 2.6, 0, 6.2832); ctx.fill();
+  ctx.restore();
+}
+
+function spazzolino(s){
+  ctx.save();
+  ctx.translate(s.x, s.y + Math.sin(s.fase) * 3);
+  ctx.rotate(-.4);
+  ctx.fillStyle = COL.giallo; ctx.strokeStyle = COL.gialloBordo; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.roundRect(-13, -4, 26, 8, 4); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = COL.smalto;
+  ctx.beginPath(); ctx.roundRect(6, -9, 11, 7, 3); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function traguardo(){
+  const [c,r] = mappa.def.goal;
+  const x = c*T, y = (r+1)*T;
+  ctx.save();
+  ctx.translate(x + T/2, y);
+  ctx.strokeStyle = COL.inchiostro; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+  ctx.fillStyle = COL.lilla;
+  ctx.beginPath(); ctx.roundRect(-9, -74, 18, 74, 9); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = COL.smalto;
+  ctx.beginPath(); ctx.roundRect(-14, -104, 28, 32, 8); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = COL.mentaScura; ctx.lineWidth = 3;
+  for(let i = 0; i < 3; i++){
+    ctx.beginPath(); ctx.moveTo(-8 + i*8, -100); ctx.lineTo(-8 + i*8, -78); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ---------------- Personaggi ---------------- */
+/* corpo a blocco irregolare, un occhio solo, guanti bianchi:
+   ricalcato dal foglio personaggi del brand Pangea */
+const CORPO = [[0.14,0.30],[0.55,0.02],[0.98,0.25],[0.93,0.88],[0.36,1.00],[0.02,0.74]];
+
+function poligonoMorbido(pts, w, h, r){
+  const P = pts.map(([x,y]) => [x*w, y*h]);
+  const n = P.length;
+  const mid = (a,b) => [(a[0]+b[0])/2, (a[1]+b[1])/2];
+  const s = mid(P[n-1], P[0]);
+  ctx.beginPath();
+  ctx.moveTo(s[0], s[1]);
+  for(let i = 0; i < n; i++){
+    const cur = P[i], nx = P[(i+1) % n], m = mid(cur, nx);
+    ctx.arcTo(cur[0], cur[1], m[0], m[1], r);
+  }
+  ctx.closePath();
+}
+
+/* disegna un personaggio Pangea in un box w×h con origine in alto a sinistra */
+function personaggio(o, w, h, opt){
+  const s = opt || {};
+  const passo = s.passo || 0, aria = s.aria || false, bocca = s.bocca || 'sorriso';
+  const lw = Math.max(1.6, h * .055);
+  ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = o.bordo;
+
+  const oscilla = Math.sin(passo) , oscilla2 = Math.cos(passo);
+
+  /* gambe (dietro al corpo) */
+  ctx.strokeStyle = o.bordo; ctx.lineWidth = h * .105;
+  ctx.beginPath();
+  if(aria){
+    ctx.moveTo(w*.38, h*.92); ctx.quadraticCurveTo(w*.30, h*1.06, w*.20, h*1.02);
+    ctx.moveTo(w*.62, h*.90); ctx.quadraticCurveTo(w*.74, h*1.04, w*.82, h*.96);
+  }else{
+    ctx.moveTo(w*.38, h*.92); ctx.quadraticCurveTo(w*.34 + oscilla*w*.10, h*1.08, w*.28 + oscilla*w*.20, h*1.16);
+    ctx.moveTo(w*.62, h*.90); ctx.quadraticCurveTo(w*.66 - oscilla*w*.10, h*1.06, w*.72 - oscilla*w*.20, h*1.14);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = o.corpo; ctx.lineWidth = h * .105 - lw*1.4;
+  ctx.stroke();
+
+  /* braccio dietro */
+  ctx.strokeStyle = o.bordo; ctx.lineWidth = h * .095;
+  ctx.beginPath();
+  ctx.moveTo(w*.16, h*.52);
+  ctx.quadraticCurveTo(w*.02, h*(aria ? .30 : .62 + oscilla2*.06), w*-.06, h*(aria ? .18 : .70 + oscilla2*.08));
+  ctx.stroke();
+  ctx.strokeStyle = o.corpo; ctx.lineWidth = h*.095 - lw*1.4; ctx.stroke();
+  guanto(w*-.06, h*(aria ? .18 : .70 + oscilla2*.08), h*.10, o, lw);
+
+  /* corpo */
+  ctx.lineWidth = lw;
+  ctx.fillStyle = o.corpo; ctx.strokeStyle = o.bordo;
+  poligonoMorbido(CORPO, w, h, h*.085);
+  ctx.fill(); ctx.stroke();
+
+  /* occhio */
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath(); ctx.ellipse(w*.62, h*.34, w*.15, h*.155, 0, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = o.pupilla;
+  const px = w*.64 + (s.sguardo || 0) * w*.03;
+  ctx.beginPath(); ctx.ellipse(px, h*.36, w*.062, h*.075, 0, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath(); ctx.arc(px + w*.03, h*.32, w*.022, 0, 6.2832); ctx.fill();
+
+  /* bocca */
+  ctx.strokeStyle = o.bordo; ctx.lineWidth = lw;
+  if(bocca === 'oh'){
+    ctx.fillStyle = o.bordo;
+    ctx.beginPath(); ctx.ellipse(w*.58, h*.62, w*.09, h*.075, 0, 0, 6.2832); ctx.fill();
+  }else if(bocca === 'largo'){
+    ctx.fillStyle = o.bordo;
+    ctx.beginPath(); ctx.ellipse(w*.58, h*.60, w*.15, h*.085, 0, 0, 3.1416); ctx.fill();
+  }else{
+    ctx.beginPath();
+    ctx.moveTo(w*.48, h*.58);
+    ctx.quadraticCurveTo(w*.58, h*.68, w*.70, h*.575);
+    ctx.stroke();
+  }
+
+  /* braccio davanti */
+  ctx.strokeStyle = o.bordo; ctx.lineWidth = h*.095;
+  ctx.beginPath();
+  ctx.moveTo(w*.88, h*.48);
+  ctx.quadraticCurveTo(w*1.02, h*(aria ? .24 : .58 - oscilla2*.06), w*1.10, h*(aria ? .12 : .66 - oscilla2*.08));
+  ctx.stroke();
+  ctx.strokeStyle = o.corpo; ctx.lineWidth = h*.095 - lw*1.4; ctx.stroke();
+  guanto(w*1.10, h*(aria ? .12 : .66 - oscilla2*.08), h*.105, o, lw);
+}
+
+function guanto(x, y, r, o, lw){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = o.bordo; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.ellipse(0, 0, r*1.15, r, -.3, 0, 6.2832); ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(-r*.5, -r*.75, r*.42, r*.62, -.5, 0, 6.2832); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function disegnaEroe(){
+  const p = giocatore, o = EROI[eroeScelto];
+  if(p.invulnerabile > 0 && Math.floor(p.invulnerabile * 12) % 2 === 0) return;
+  ctx.save();
+  ctx.translate(p.x + p.w/2, p.y);
+  if(p.guarda < 0) ctx.scale(-1, 1);
+  if(p.potere > 0){                       // aura super spazzolino
+    ctx.save();
+    ctx.globalAlpha = .35 + Math.sin(tempo*10) * .12;
+    ctx.fillStyle = COL.smalto;
+    ctx.beginPath(); ctx.ellipse(0, p.h*.5, p.w*1.05, p.h*.72, 0, 0, 6.2832); ctx.fill();
+    ctx.restore();
+  }
+  ctx.translate(-p.w/2, 0);
+  personaggio(o, p.w, p.h, {
+    passo: p.passo,
+    aria: !p.aTerra,
+    bocca: !p.aTerra ? 'oh' : (Math.abs(p.vx) > 40 ? 'largo' : 'sorriso'),
+    sguardo: 1
+  });
+  ctx.restore();
+}
+
+function disegnaNemico(n){
+  ctx.save();
+  ctx.translate(n.x + n.w/2, n.y + n.h/2);
+  const w = n.w, h = n.h;
+  ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  if(n.tipo === 'carie'){
+    ctx.fillStyle = COL.carie; ctx.strokeStyle = COL.inchiostro;
+    ctx.beginPath();
+    for(let i = 0; i <= 12; i++){
+      const a = i / 12 * 6.2832;
+      const rr = (w/2) * (0.82 + Math.sin(a*3 + n.fase*.3) * .16);
+      const px = Math.cos(a) * rr, py = Math.sin(a) * rr * .92;
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = COL.cariePelle;
+    ctx.beginPath(); ctx.ellipse(w*.12, -h*.05, w*.16, h*.13, .3, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-w*.16, -h*.14, w*.13, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(w*.14, -h*.18, w*.11, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = COL.inchiostro;
+    ctx.beginPath(); ctx.arc(-w*.16 + (n.vx>0?2:-2), -h*.14, w*.06, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(w*.14 + (n.vx>0?2:-2), -h*.18, w*.05, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = COL.inchiostro; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-w*.16, h*.22); ctx.lineTo(-w*.05, h*.13); ctx.lineTo(w*.06, h*.24); ctx.lineTo(w*.17, h*.14);
+    ctx.stroke();
+  }else{
+    const sq = 1 + Math.sin(n.fase) * .07;
+    ctx.fillStyle = COL.animalicolo; ctx.strokeStyle = COL.animalicoloBordo;
+    ctx.beginPath(); ctx.ellipse(0, 0, w*.5, h*.46 * sq, 0, 0, 6.2832); ctx.fill(); ctx.stroke();
+    ctx.lineWidth = 2.2;                     // ciglia
+    for(let i = 0; i < 7; i++){
+      const a = 3.6 + i * .55;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * w*.46, Math.sin(a) * h*.42);
+      ctx.lineTo(Math.cos(a) * w*.66, Math.sin(a) * h*.62 + Math.sin(n.fase + i) * 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-w*.13, -h*.08, w*.14, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(w*.15, -h*.08, w*.14, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = COL.inchiostro;
+    ctx.beginPath(); ctx.arc(-w*.13 + (n.vx>0?2:-2), -h*.06, w*.07, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(w*.15 + (n.vx>0?2:-2), -h*.06, w*.07, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = COL.animalicoloBordo; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(w*.01, h*.14, w*.14, .2, 2.94); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ---------------- HUD e schermate ---------------- */
+const el = id => document.getElementById(id);
+const hud = el('hud'), pad = el('pad'), insegna = el('insegna');
+
+function aggiornaHud(){
+  el('punti').textContent = punti;
+  const v = el('vite');
+  v.innerHTML = '';
+  for(let i = 0; i < 3; i++){
+    const s = document.createElement('span');
+    s.textContent = i < vite ? '🦷' : '·';
+    s.style.opacity = i < vite ? '1' : '.35';
+    v.appendChild(s);
+  }
+}
+function mostra(idSchermata){
+  ['scMenu','scPausa','scLivello','scFine'].forEach(id => el(id).classList.toggle('aperta', id === idSchermata));
+}
+function nascondiSchermate(){ mostra(null); }
+
+function record(){ 
+  try{ return parseInt(localStorage.getItem('pangea_record') || '0', 10) || 0; }catch(e){ return 0; }
+}
+function salvaRecord(p){
+  try{ if(p > record()) localStorage.setItem('pangea_record', String(p)); }catch(e){}
+}
+
+function avvia(){
+  tasti.sinistra = tasti.destra = tasti.salta = false;
+  document.querySelectorAll('.tasto').forEach(t => t.classList.remove('premuto'));
+  livelloIdx = 0; punti = 0; vite = 3;
+  caricaLivello(0);
+  stato = S.GIOCO;
+  nascondiSchermate();
+  hud.hidden = false; pad.hidden = false; insegna.hidden = false;
+}
+function fineLivello(){
+  stato = S.LIVELLO;
+  punti += 100 + vite * 50;
+  SFX.vittoria(); aggiornaHud();
+  const ultimo = livelloIdx >= LIVELLI.length - 1;
+  el('livelloOcchiello').textContent = ultimo ? 'Bocca splendente' : 'Bocca ' + (livelloIdx+1) + ' pulita';
+  el('livelloTitolo').textContent = ultimo ? 'Che sorriso!' : 'Bravo!';
+  el('livelloPunti').textContent = punti;
+  el('livelloTesto').textContent = ultimo
+    ? 'Hai spazzolato tutta la valle. Pan e Gea ti aspettano stasera davanti al lavandino.'
+    : (LIVELLI[livelloIdx+1] ? LIVELLI[livelloIdx+1].testo : '');
+  el('btnAvanti').textContent = ultimo ? 'Vedi il punteggio' : 'Prossima bocca';
+  mostra('scLivello');
+  pad.hidden = true;
+}
+function fineGioco(vinto){
+  stato = S.FINE;
+  salvaRecord(punti);
+  el('fineTitolo').textContent = vinto ? 'Missione compiuta!' : 'Gli Animalicoli hanno vinto… per ora';
+  el('fineTesto').textContent = vinto
+    ? 'La Valle dei Denti brilla di nuovo.'
+    : 'Non devi combatterli: devi solo tenere tutto in ordine. Riprova!';
+  el('finePunti').textContent = punti;
+  el('fineRecord').textContent = 'Record: ' + record() + ' punti';
+  el('btnRigioca').textContent = vinto ? 'Gioca ancora' : 'Riprova';
+  mostra('scFine');
+  hud.hidden = true; pad.hidden = true; insegna.hidden = true;
+}
+
+/* ---------------- Input ---------------- */
+function premi(cmd, giu){
+  if(cmd === 'salta'){
+    tasti.salta = giu;
+    if(giu) saltoBuffer = .12;
+    else saltoTenuto = false;
+  }else if(cmd === 'sinistra') tasti.sinistra = giu;
+  else if(cmd === 'destra')    tasti.destra = giu;
+}
+for(const b of document.querySelectorAll('[data-cmd]')){
+  const cmd = b.dataset.cmd;
+  const giu = e => { e.preventDefault(); b.classList.add('premuto'); premi(cmd, true); };
+  const su  = e => { e.preventDefault(); b.classList.remove('premuto'); premi(cmd, false); };
+  b.addEventListener('pointerdown', giu);
+  b.addEventListener('pointerup', su);
+  b.addEventListener('pointercancel', su);
+  b.addEventListener('pointerleave', su);
+  b.addEventListener('contextmenu', e => e.preventDefault());
+}
+const MAPPA_TASTI = {
+  ArrowLeft:'sinistra', KeyA:'sinistra',
+  ArrowRight:'destra',  KeyD:'destra',
+  Space:'salta', ArrowUp:'salta', KeyW:'salta', KeyZ:'salta'
+};
+addEventListener('keydown', e => {
+  const c = MAPPA_TASTI[e.code];
+  if(c){ e.preventDefault(); premi(c, true); }
+  if(e.code === 'Escape' && stato === S.GIOCO) pausa(true);
+});
+addEventListener('keyup', e => {
+  const c = MAPPA_TASTI[e.code];
+  if(c){ e.preventDefault(); premi(c, false); }
+});
+
+/* sblocco audio al primo gesto (richiesto da iOS) */
+addEventListener('pointerdown', () => {
+  try{
+    if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    if(ac.state === 'suspended') ac.resume();
+  }catch(e){}
+}, { passive:true });
+
+/* ---------------- Bottoni ---------------- */
+for(const b of document.querySelectorAll('.eroe')){
+  b.addEventListener('click', () => {
+    eroeScelto = b.dataset.eroe;
+    document.querySelectorAll('.eroe').forEach(x => {
+      const on = x === b;
+      x.classList.toggle('scelto', on);
+      x.setAttribute('aria-pressed', String(on));
+    });
+    suono(660, .1, 'triangle', .12, 120);
+  });
+}
+el('btnGioca').addEventListener('click', avvia);
+el('btnRigioca').addEventListener('click', () => { mostra('scMenu'); el('recordMenu').textContent = 'Record: ' + record() + ' punti'; });
+el('btnAvanti').addEventListener('click', () => {
+  if(livelloIdx >= LIVELLI.length - 1){ fineGioco(true); return; }
+  livelloIdx++;
+  caricaLivello(livelloIdx);
+  stato = S.GIOCO; nascondiSchermate(); pad.hidden = false;
+});
+function pausa(on){
+  if(on){ stato = S.PAUSA; mostra('scPausa'); pad.hidden = true; }
+  else  { stato = S.GIOCO; nascondiSchermate(); pad.hidden = false; }
+}
+el('btnPausa').addEventListener('click', () => pausa(stato === S.GIOCO));
+el('btnRiprendi').addEventListener('click', () => pausa(false));
+el('btnEsci').addEventListener('click', () => {
+  stato = S.MENU; mostra('scMenu'); hud.hidden = true; pad.hidden = true; insegna.hidden = true;
+  el('recordMenu').textContent = 'Record: ' + record() + ' punti';
+});
+el('btnAudio').addEventListener('click', () => {
+  audioOn = !audioOn;
+  el('btnAudio').textContent = audioOn ? '♪' : '✕';
+  el('btnAudio').setAttribute('aria-label', audioOn ? 'Audio acceso' : 'Audio spento');
+});
+document.addEventListener('visibilitychange', () => { if(document.hidden && stato === S.GIOCO) pausa(true); });
+
+/* ---------------- Ritratti del menu ---------------- */
+function ritratti(){
+  for(const c of document.querySelectorAll('[data-ritratto]')){
+    const o = EROI[c.dataset.ritratto];
+    const g = c.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, c.width, c.height);
+    conContesto(g, () => {
+      g.translate(46, 24);
+      personaggio(o, 100, 122, { passo:0, aria:false, bocca:'sorriso', sguardo:1 });
+    });
+  }
+}
+
+/* ---------------- Loop ---------------- */
+let ultimo = performance.now();
+function loop(ora){
+  const dt = Math.min(.033, (ora - ultimo) / 1000);
+  ultimo = ora;
+  if(stato === S.GIOCO){ aggiorna(dt); disegna(); }
+  else if(mappa){ disegna(); }
+  else { ctx.fillStyle = COL.menta; ctx.fillRect(0, 0, vistaW, vistaH); cielo(); colline(); }
+  requestAnimationFrame(loop);
+}
+
+ridimensiona();
+ritratti();
+aggiornaHud();
+el('recordMenu').textContent = 'Record: ' + record() + ' punti';
+requestAnimationFrame(loop);
+})();
+</script>
+<!--ARTIFACT-BODY-END-->
+</body>
+</html>
