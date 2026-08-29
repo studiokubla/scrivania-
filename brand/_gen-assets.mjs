@@ -18,18 +18,9 @@ const NUM = (colors, tx = 118, ty = 354) => `    <g transform="translate(${tx},$
 ${WIDTHS.map((w, i) => `      <path d="${NUM_D}" stroke="${colors[i]}" stroke-width="${w}"/>`).join('\n')}
     </g>`;
 
-const SPETTRO = `  <defs>
-    <linearGradient id="spettro" x1="0" y1="0.1" x2="1" y2="0.9">
-      <stop offset="0" stop-color="#FF6B4A"/>
-      <stop offset="0.18" stop-color="#FFB01F"/>
-      <stop offset="0.36" stop-color="#9BDD3A"/>
-      <stop offset="0.54" stop-color="#21D2AE"/>
-      <stop offset="0.72" stop-color="#3E9BFA"/>
-      <stop offset="0.86" stop-color="#7A34E0"/>
-      <stop offset="1" stop-color="#FF5FA3"/>
-    </linearGradient>
-  </defs>
-`;
+// Il marchio non porta colore. L'unica variante colorata prende le DUE tinte
+// di una squadra, una per anello chiaro.
+const SQUADRA = ['#C81E12', '#FF6B3D'];
 
 const doc = (title, vb, w, h, defs, body) =>
 `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${w}" height="${h}" role="img" aria-label="DEZ 11">
@@ -50,9 +41,10 @@ writeFileSync('assets/dez11-marchio-negativo.svg', doc(
   'DEZ 11 — marchio negativo', '0 0 640 780', 640, 780, '',
   [DEZ('#FFFFFF'), NUM(alt('#FFFFFF', '#0B0C10'))].join('\n')));
 
-writeFileSync('assets/dez11-marchio-spettro.svg', doc(
-  'DEZ 11 — marchio spettro', '0 0 640 780', 640, 780, SPETTRO,
-  [DEZ('#FFFFFF'), NUM(alt('url(#spettro)', '#0B0C10'))].join('\n')));
+writeFileSync('assets/dez11-marchio-squadra.svg', doc(
+  'DEZ 11 — marchio squadra', '0 0 640 780', 640, 780, '',
+  [DEZ('#FFFFFF'),
+   NUM(['#FFFFFF', SQUADRA[0], '#FFFFFF', SQUADRA[1], '#FFFFFF'])].join('\n')));
 
 // Lockup orizzontale: numero 510x420 con origine 0,0 -> translate(60, 54)
 // nome allineato in basso: centerline y = 420 - 30 - 120 = 270

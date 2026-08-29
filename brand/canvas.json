@@ -1,18 +1,18 @@
 {
   "artboards": [
-    { "file": "Pittogrammi.dc.html",      "x": 0,    "y": 0,    "w": 1400, "h": 1060, "title": "Pittogramma · sei opzioni" },
+    { "file": "Pittogrammi.dc.html",      "x": 0,    "y": 0,    "w": 1400, "h": 1040, "title": "Pittogramma · sei opzioni" },
     { "file": "PittogrammiProva.dc.html", "x": 1520, "y": 0,    "w": 1400, "h": 640,  "title": "Pittogramma · prova di scala" },
-    { "file": "Gradienti.dc.html",        "x": 3040, "y": 0,    "w": 1400, "h": 1120, "title": "08 · Sistema gradiente" },
-    { "file": "Main.dc.html",             "x": 0,    "y": 1300, "w": 900,  "h": 1080, "title": "01 · Marchio" },
-    { "file": "Costruzione.dc.html",      "x": 1020, "y": 1300, "w": 1240, "h": 930,  "title": "02 · Costruzione" },
-    { "file": "Varianti.dc.html",         "x": 2380, "y": 1300, "w": 1240, "h": 840,  "title": "03 · Varianti" },
-    { "file": "Squadre.dc.html",          "x": 3740, "y": 1300, "w": 1400, "h": 780,  "title": "06 · Squadre" },
-    { "file": "Tipografia.dc.html",       "x": 0,    "y": 2560, "w": 1000, "h": 1340, "title": "04 · Tipografia" },
-    { "file": "Colore.dc.html",           "x": 1120, "y": 2560, "w": 1400, "h": 980,  "title": "05 · Colore" },
-    { "file": "Applicazioni.dc.html",     "x": 2640, "y": 2560, "w": 1400, "h": 840,  "title": "07 · Applicazioni" }
+    { "file": "Gradiente.dc.html",        "x": 3040, "y": 0,    "w": 1400, "h": 760,  "title": "08 · Gradiente" },
+    { "file": "Main.dc.html",             "x": 0,    "y": 1220, "w": 900,  "h": 1080, "title": "01 · Marchio" },
+    { "file": "Costruzione.dc.html",      "x": 1020, "y": 1220, "w": 1240, "h": 930,  "title": "02 · Costruzione" },
+    { "file": "Varianti.dc.html",         "x": 2380, "y": 1220, "w": 1240, "h": 840,  "title": "03 · Varianti" },
+    { "file": "Squadre.dc.html",          "x": 3740, "y": 1220, "w": 1400, "h": 720,  "title": "06 · Squadre" },
+    { "file": "Tipografia.dc.html",       "x": 0,    "y": 2480, "w": 1000, "h": 1200, "title": "04 · Tipografia" },
+    { "file": "Colore.dc.html",           "x": 1120, "y": 2480, "w": 1400, "h": 790,  "title": "05 · Colore" },
+    { "file": "Applicazioni.dc.html",     "x": 2640, "y": 2480, "w": 1400, "h": 840,  "title": "07 · Applicazioni" }
   ],
   "annotations": [
-    { "id": "brief", "x": 0, "y": -240, "w": 700, "text": "DEZ 11 — il marchio è il retro di una maglia: nome sopra, numero sotto.\nIl colore è un sistema di gradienti: ogni squadra prende un arco dello spettro,\nsempre tagliato in undici righe. Il pittogramma è ancora da scegliere: sei opzioni A/F." }
+    { "id": "brief", "x": 0, "y": -240, "w": 700, "text": "DEZ 11 — il marchio è il retro di una maglia: nome sopra, numero sotto, e non porta colore.\nOgni elemento vive di due tinte sole, mischiate e tagliate in undici colonne.\nIl pittogramma è ancora da scegliere: sei opzioni A/F." }
   ],
   "launch": { "view": "canvas" }
 }
