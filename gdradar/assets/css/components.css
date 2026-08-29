@@ -28,15 +28,17 @@
 }
 .badge svg{width:11px;height:11px}
 .badge-line{background:transparent;border:1px solid var(--line);color:var(--ink-3)}
-.badge-accent{background:var(--accent-soft);color:var(--accent-ink)}
+.badge-accent{background:var(--signal-soft);color:var(--signal)}
 .badge-amber{background:var(--amber-soft);color:var(--amber)}
 .badge-violet{background:var(--violet-soft);color:var(--violet)}
 .badge-danger{background:var(--danger-soft);color:var(--danger)}
 .badge-ink{background:var(--accent);color:var(--on-accent)}
+.badge-steel{background:var(--steel-soft);color:var(--steel)}
+.badge-gold{background:var(--accent-soft);color:var(--accent-ink)}
 .badge-lg{height:27px;padding:0 11px;font-size:12.5px}
 
 .dot{width:6px;height:6px;border-radius:50%;background:var(--ink-4);flex:none}
-.dot-live{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.dot-live{background:var(--signal);box-shadow:0 0 0 3px var(--signal-soft)}
 .dot-amber{background:var(--amber)}
 .dot-violet{background:var(--violet)}
 .dot-off{background:var(--ink-4)}
@@ -48,7 +50,7 @@
 /* ---------- avatar ---------- */
 .avatar{
   border-radius:50%;flex:none;display:grid;place-items:center;
-  font-family:var(--serif);font-weight:600;letter-spacing:0;color:#F4F8EC;
+  font-family:var(--serif);font-weight:600;letter-spacing:.02em;color:#EEF4FC;
   width:40px;height:40px;font-size:14px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.10);
   overflow:hidden;position:relative;
@@ -70,7 +72,7 @@
 
 /* ---------- meter ---------- */
 .meter{display:block;height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden}
-.meter > i{display:block;height:100%;border-radius:3px;background:var(--accent);transition:width .5s var(--ease)}
+.meter > i{display:block;height:100%;border-radius:3px;background:var(--signal);transition:width .5s var(--ease)}
 .meter.amber > i{background:var(--amber)}
 .meter.violet > i{background:var(--violet)}
 .meter.thin{height:3px}
@@ -86,7 +88,7 @@
   transition:all .18s var(--ease);white-space:nowrap;
 }
 .segmented button:hover{color:var(--ink)}
-.segmented button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.segmented button[aria-pressed="true"]{background:var(--signal-soft);color:var(--signal);font-weight:600}
 .segmented.on-white{background:var(--bg)}
 
 /* ---------- tabs ---------- */
@@ -100,7 +102,7 @@
 .tabs button:hover{color:var(--ink-2)}
 .tabs button[aria-selected="true"]{color:var(--ink)}
 .tabs button[aria-selected="true"]::after{
-  content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);border-radius:2px;
+  content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--signal);border-radius:2px;
 }
 .tabs .count{font-size:11.5px;color:var(--ink-4);margin-left:5px}
 
@@ -111,7 +113,7 @@
   font-size:13px;color:var(--ink-2);cursor:pointer;transition:all .16s var(--ease);
 }
 .chip:hover{border-color:#C6C2B8;color:var(--ink)}
-.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-soft-2);color:var(--accent-ink);font-weight:500}
+.chip[aria-pressed="true"]{background:var(--signal-soft);border-color:var(--signal-soft-2);color:var(--signal);font-weight:500}
 .chip .x{opacity:.6}
 .chip .x:hover{opacity:1}
 
@@ -157,7 +159,7 @@
   padding:11px 17px;border-radius:var(--r-full);
   font-size:14px;box-shadow:var(--sh-3);animation:toast-in .26s var(--ease);max-width:min(92vw,460px);
 }
-.toast svg{width:15px;height:15px;flex:none;color:var(--accent)}
+.toast svg{width:15px;height:15px;flex:none;color:var(--signal)}
 .toast.warn{border-color:rgba(236,106,94,.5)}
 .toast.warn svg{color:var(--danger)}
 @keyframes toast-in{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
@@ -188,8 +190,8 @@
 .table tbody tr{transition:background .16s var(--ease)}
 .table tbody tr[data-act]{cursor:pointer}
 .table tbody tr[data-act]:hover{background:var(--surface-2)}
-.table tbody tr[data-act]:hover td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
-.table tr.is-active{background:var(--accent-soft)}
+.table tbody tr[data-act]:hover td:first-child{box-shadow:inset 2px 0 0 var(--signal)}
+.table tr.is-active{background:var(--signal-soft)}
 
 /* ---------- timeline ---------- */
 .timeline{position:relative;padding-left:22px}
@@ -199,13 +201,13 @@
   content:'';position:absolute;left:-21px;top:6px;width:9px;height:9px;border-radius:50%;
   background:var(--surface);border:1.5px solid var(--line-strong);
 }
-.timeline li.mark::before{background:var(--accent);border-color:var(--accent)}
+.timeline li.mark::before{background:var(--signal);border-color:var(--signal)}
 
 /* ---------- stepper ---------- */
 .stepper{display:flex;align-items:center;gap:8px}
 .stepper .step{height:3px;flex:1;border-radius:2px;background:var(--line);transition:background .3s var(--ease)}
-.stepper .step.done{background:var(--accent)}
-.stepper .step.now{background:var(--accent);opacity:.45}
+.stepper .step.done{background:var(--signal)}
+.stepper .step.now{background:var(--signal);opacity:.45}
 
 /* ---------- callout ---------- */
 .callout{
@@ -214,9 +216,9 @@
   font-size:13.5px;line-height:1.55;color:var(--ink-2);
 }
 .callout .ico{flex:none;width:18px;height:18px;color:var(--ink-3);margin-top:1px}
-.callout.accent{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink)}
-.callout.accent .ico{color:var(--accent)}
-.callout.amber{background:var(--amber-soft);border-color:transparent;color:#E7C078}
+.callout.accent{background:var(--signal-soft);border-color:transparent;color:var(--signal)}
+.callout.accent .ico{color:var(--signal)}
+.callout.amber{background:var(--amber-soft);border-color:transparent;color:#F0A268}
 .callout.amber .ico{color:var(--amber)}
 .callout.danger{background:var(--danger-soft);border-color:transparent;color:var(--danger)}
 .callout.danger .ico{color:var(--danger)}
@@ -225,7 +227,7 @@
 .fair{display:inline-flex;align-items:center;gap:7px}
 .fair-pips{display:inline-flex;gap:3px}
 .fair-pips i{width:14px;height:4px;border-radius:2px;background:var(--line-strong)}
-.fair-pips i.on{background:var(--accent)}
+.fair-pips i.on{background:var(--signal)}
 .fair-pips.locked i{background:var(--line)}
 .fair-label{font-size:12.5px;color:var(--ink-2);font-weight:500}
 

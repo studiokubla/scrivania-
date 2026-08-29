@@ -220,7 +220,7 @@
   }
 
   /* ---------------- visualizzazione radar ---------------- */
-  const COLORE = { utente: 'var(--accent)', party: 'var(--amber)', campagna: 'var(--violet)', annuncio: 'var(--teal)' };
+  const COLORE = { utente: 'var(--signal)', party: 'var(--amber)', campagna: 'var(--violet)', annuncio: 'var(--steel)' };
 
   function radarSvg(risultati) {
     const st = S.get();
@@ -241,7 +241,7 @@
         ang += ((U.hashStr(e.id) % 22) - 11) * 0.5;
       }
       const rad = ((ang - 90) * Math.PI) / 180;
-      const size = 4 + Math.round((r.comp.score / 100) * 6);
+      const size = 6.5 + (r.comp.score / 100) * 6.5;
       return {
         e, r,
         x: C + Math.cos(rad) * R * frac,
@@ -256,8 +256,8 @@
       <svg viewBox="-20 -20 640 640" role="img" aria-label="Radar: ${risultati.length} risultati intorno a te">
         <defs>
           <radialGradient id="sw" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".16"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+            <stop offset="0%" stop-color="var(--signal)" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="var(--signal)" stop-opacity="0"/>
           </radialGradient>
         </defs>
 
@@ -271,20 +271,19 @@
 
         <g class="sweep">
           <path d="M${C} ${C} L${C} ${C - R} A ${R} ${R} 0 0 1 ${(C + R * Math.cos(-Math.PI / 3)).toFixed(1)} ${(C + R * Math.sin(-Math.PI / 3)).toFixed(1)} Z" fill="url(#sw)"/>
-          <line x1="${C}" y1="${C}" x2="${C}" y2="${C - R}" stroke="var(--accent)" stroke-opacity=".4" stroke-width="1.3"/>
+          <line x1="${C}" y1="${C}" x2="${C}" y2="${C - R}" stroke="var(--signal)" stroke-opacity=".45" stroke-width="1.3"/>
         </g>
 
         ${blips.map((b) => html`<g class="blip" data-act="openSheet" data-kind="${b.e.tipo}" data-id="${b.e.id}"
             tabindex="0" role="button" aria-label="${(b.e.nome || b.e.titolo)}, compatibilità ${b.r.comp.score}">
-          <circle class="halo" cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${b.size + 11}" fill="${raw(b.col)}" opacity=".14"/>
-          <circle class="core" cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${b.size}" fill="${raw(b.col)}" opacity="${b.op.toFixed(2)}"/>
+          <circle class="halo" cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${b.size + 13}" fill="${raw(b.col)}" opacity=".16"/>
+          <g class="core">${UI.d20(b.x, b.y, b.size, b.col, b.op)}</g>
           <title>${(b.e.nome || b.e.titolo)} · ${b.r.dist === null ? 'online' : U.fmtKm(b.r.dist)} · compatibilità ${b.r.comp.score}</title>
         </g>`)}
 
         <g class="me-pin">
-          <circle class="pulse" cx="${C}" cy="${C}" r="30" fill="var(--accent)" opacity=".11"/>
-          <circle cx="${C}" cy="${C}" r="9" fill="var(--accent)"/>
-          <circle cx="${C}" cy="${C}" r="3.4" fill="var(--bg)"/>
+          <circle class="pulse" cx="${C}" cy="${C}" r="30" fill="var(--accent)" opacity=".13"/>
+          ${UI.d20(C, C, 13, 'var(--accent)')}
         </g>
       </svg>
     </div>`;
@@ -562,11 +561,12 @@
           <div class="radar-stage">
             ${radarSvg(ris)}
             <div class="radar-legend">
-              <span><i class="dot dot-live"></i>Persone</span>
-              <span><i class="dot dot-amber"></i>Party</span>
-              <span><i class="dot dot-violet"></i>Campagne</span>
-              <span><i class="dot dot-off"></i>Annunci</span>
-              <span class="muted">· dimensione del punto = compatibilità · anello tratteggiato = solo online</span>
+              <span>${UI.d20Icon(13, 'var(--signal)')}Persone</span>
+              <span>${UI.d20Icon(13, 'var(--amber)')}Party</span>
+              <span>${UI.d20Icon(13, 'var(--violet)')}Campagne</span>
+              <span>${UI.d20Icon(13, 'var(--steel)')}Annunci</span>
+              <span>${UI.d20Icon(13, 'var(--accent)')}Tu</span>
+              <span class="muted">· dado più grande = più compatibile · anello tratteggiato = solo online</span>
             </div>
           </div>` : ''}
 

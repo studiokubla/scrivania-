@@ -9,13 +9,13 @@
   /* ---------- illustrazione radar della hero ---------- */
   function heroArt() {
     const blips = [
-      { a: -32, r: 0.30, t: 'utente', s: 7 }, { a: 58, r: 0.44, t: 'party', s: 8 },
-      { a: 140, r: 0.36, t: 'utente', s: 6 }, { a: -110, r: 0.63, t: 'campagna', s: 9 },
-      { a: 20, r: 0.72, t: 'utente', s: 6 }, { a: 96, r: 0.80, t: 'party', s: 7 },
-      { a: -160, r: 0.62, t: 'utente', s: 5 }, { a: 168, r: 0.88, t: 'campagna', s: 7 },
-      { a: -68, r: 0.90, t: 'utente', s: 5 }, { a: 4, r: 0.50, t: 'utente', s: 6 }
+      { a: -32, r: 0.30, t: 'utente', s: 11 }, { a: 58, r: 0.44, t: 'party', s: 12 },
+      { a: 140, r: 0.36, t: 'utente', s: 9 }, { a: -110, r: 0.63, t: 'campagna', s: 13 },
+      { a: 20, r: 0.72, t: 'utente', s: 9 }, { a: 96, r: 0.80, t: 'party', s: 10 },
+      { a: -160, r: 0.62, t: 'utente', s: 8 }, { a: 168, r: 0.88, t: 'campagna', s: 10 },
+      { a: -68, r: 0.90, t: 'utente', s: 8 }, { a: 4, r: 0.50, t: 'annuncio', s: 9 }
     ];
-    const COL = { utente: 'var(--accent)', party: 'var(--amber)', campagna: 'var(--violet)' };
+    const COL = { utente: 'var(--signal)', party: 'var(--amber)', campagna: 'var(--violet)', annuncio: 'var(--steel)' };
     const C = 200, R = 178;
     const pt = (b) => {
       const rad = ((b.a - 90) * Math.PI) / 180;
@@ -26,8 +26,8 @@
       <svg viewBox="0 0 400 400" role="img" aria-label="Illustrazione: radar con persone, Party e Campagne intorno alla tua posizione">
         <defs>
           <radialGradient id="sweepGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".18"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+            <stop offset="0%" stop-color="var(--signal)" stop-opacity=".20"/>
+            <stop offset="100%" stop-color="var(--signal)" stop-opacity="0"/>
           </radialGradient>
         </defs>
         ${[0.30, 0.44, 0.63, 0.80, 0.95].map((f) => html`<circle cx="200" cy="200" r="${(R * f).toFixed(1)}" class="ring-line"/>`)}
@@ -36,19 +36,18 @@
         <line x1="${200 - R}" y1="200" x2="${200 + R}" y2="200" class="cross"/>
         <g class="sweep">
           <path d="M200 200 L200 ${200 - R} A ${R} ${R} 0 0 1 ${(200 + R * Math.cos(-Math.PI / 3.2)).toFixed(1)} ${(200 + R * Math.sin(-Math.PI / 3.2)).toFixed(1)} Z" fill="url(#sweepGrad)"/>
-          <line x1="200" y1="200" x2="200" y2="${200 - R}" stroke="var(--accent)" stroke-opacity=".6" stroke-width="1.4"/>
+          <line x1="200" y1="200" x2="200" y2="${200 - R}" stroke="var(--signal)" stroke-opacity=".6" stroke-width="1.4"/>
         </g>
         ${blips.map((b, i) => {
           const p = pt(b);
           return html`<g>
-            <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${b.s + 9}" fill="${raw(COL[b.t])}" opacity=".08"/>
-            <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${b.s}" fill="${raw(COL[b.t])}" opacity="${(0.55 + (i % 3) * 0.15).toFixed(2)}"/>
+            <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${b.s + 10}" fill="${raw(COL[b.t])}" opacity=".10"/>
+            ${UI.d20(p.x, p.y, b.s, COL[b.t], 0.6 + (i % 3) * 0.13)}
           </g>`;
         })}
         <g class="me-pin">
-          <circle class="pulse" cx="200" cy="200" r="26" fill="var(--accent)" opacity=".13"/>
-          <circle cx="200" cy="200" r="7.5" fill="var(--accent)"/>
-          <circle cx="200" cy="200" r="3" fill="var(--bg)"/>
+          <circle class="pulse" cx="200" cy="200" r="26" fill="var(--accent)" opacity=".15"/>
+          ${UI.d20(200, 200, 13, 'var(--accent)')}
         </g>
       </svg>
     </div>`;

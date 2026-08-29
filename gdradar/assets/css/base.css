@@ -8,43 +8,50 @@
 :root{
   color-scheme:dark;
 
-  /* superfici: dal sottobosco alla luce */
-  --bg:#0B100C;
-  --bg-tint:#0E140F;
-  --bg-blur:rgba(11,16,12,.86);
-  --surface:#121A13;
-  --surface-2:#162017;
-  --surface-3:#1E2A1E;
+  /* superfici: la notte sopra la città */
+  --bg:#080F1E;
+  --bg-tint:#0B1526;
+  --bg-blur:rgba(8,15,30,.86);
+  --surface:#101D33;
+  --surface-2:#14243E;
+  --surface-3:#1C304E;
 
   /* inchiostro */
-  --ink:#EDF3E3;
-  --ink-2:#B2BFA6;
-  --ink-3:#87927C;
-  --ink-4:#626D59;
+  --ink:#E9EFF8;
+  --ink-2:#A9BAD1;
+  --ink-3:#7E90A9;
+  --ink-4:#5B6C85;
 
   /* linee */
-  --line:#233021;
-  --line-2:#1A241A;
-  --line-strong:#35422F;
+  --line:#1E3050;
+  --line-2:#16253F;
+  --line-strong:#2E4770;
 
-  /* accento: verde acido */
-  --accent:#C9F03A;
-  --accent-hover:#D8FF4E;
-  --accent-dim:#8FB02A;
-  --accent-ink:#D9F878;
-  --on-accent:#0B100C;
-  --accent-soft:rgba(201,240,58,.12);
-  --accent-soft-2:rgba(201,240,58,.26);
+  /* oro inciso: marchio, titoli, azione primaria */
+  --accent:#E3B75E;
+  --accent-hover:#F2CB82;
+  --accent-dim:#A9853B;
+  --accent-ink:#F1DAA4;
+  --on-accent:#0A1220;
+  --accent-soft:rgba(227,183,94,.13);
+  --accent-soft-2:rgba(227,183,94,.28);
 
-  /* secondari: l'oro della statua, il rosa del muro, l'acqua */
-  --amber:#DFAE45;
-  --amber-soft:rgba(223,174,69,.14);
-  --violet:#E0629A;
-  --violet-soft:rgba(224,98,154,.14);
-  --teal:#5FC3A6;
-  --danger:#EC6A5E;
-  --danger-soft:rgba(236,106,94,.14);
-  --ok:#8CD37A;
+  /* ciano del portale: tutto ciò che è vivo e misurato */
+  --signal:#5FD0E8;
+  --signal-dim:#3C93A9;
+  --signal-soft:rgba(95,208,232,.13);
+  --signal-soft-2:rgba(95,208,232,.26);
+
+  /* brace, arcano, acciaio: Party, Campagne, annunci */
+  --amber:#E0813F;
+  --amber-soft:rgba(224,129,63,.15);
+  --violet:#8F76E0;
+  --violet-soft:rgba(143,118,224,.15);
+  --steel:#7FA0C4;
+  --steel-soft:rgba(127,160,196,.14);
+  --danger:#E0574A;
+  --danger-soft:rgba(224,87,74,.15);
+  --ok:#6FC79A;
 
   /* raggi */
   --r-xs:5px;
@@ -55,14 +62,15 @@
   --r-full:999px;
 
   /* profondità: al buio conta più il bordo dell'ombra */
-  --sh-1:0 1px 2px rgba(0,0,0,.40);
-  --sh-2:0 2px 6px rgba(0,0,0,.36), 0 12px 26px -14px rgba(0,0,0,.66);
-  --sh-3:0 8px 22px rgba(0,0,0,.46), 0 44px 64px -32px rgba(0,0,0,.82);
-  --sh-focus:0 0 0 3px rgba(201,240,58,.28);
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 2px 6px rgba(0,0,0,.40), 0 12px 26px -14px rgba(0,0,0,.70);
+  --sh-3:0 8px 22px rgba(0,0,0,.50), 0 44px 64px -32px rgba(0,0,0,.85);
+  --sh-focus:0 0 0 3px rgba(95,208,232,.30);
 
   /* tipografia */
-  --font:'Newsreader',Georgia,'Times New Roman',serif;
-  --serif:'Bodoni Moda',Didot,'Bodoni MT','Playfair Display',Georgia,serif;
+  --font:'Spectral',Georgia,'Times New Roman',serif;
+  --serif:'Cinzel','Trajan Pro',Georgia,serif;
+  --serif-deco:'Cinzel Decorative','Cinzel',Georgia,serif;
 
   /* layout */
   --rail:252px;
@@ -93,8 +101,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 a{color:inherit;text-decoration:none}
 hr{border:0;border-top:1px solid var(--line);margin:0}
 
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-::selection{background:rgba(201,240,58,.28);color:var(--ink)}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
+::selection{background:rgba(95,208,232,.30);color:var(--ink)}
 
 .skip-link{position:fixed;left:-999px;top:12px;z-index:100;background:var(--surface);padding:10px 16px;border-radius:var(--r-sm);box-shadow:var(--sh-2)}
 .skip-link:focus{left:12px}
@@ -104,20 +112,23 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
    stretta. È il gesto del manifesto, usato una volta per schermata. */
 .display{
   font-family:var(--serif);
-  font-weight:700;
-  font-variation-settings:'opsz' 88;
-  letter-spacing:-.012em;
-  line-height:1.02;
+  font-weight:600;
+  letter-spacing:.005em;
+  line-height:1.1;
   color:var(--ink);
 }
-.d-1{font-size:clamp(40px,7.6vw,102px);line-height:.86;text-transform:uppercase;letter-spacing:-.02em;font-weight:800;color:var(--accent)}
-.d-2{font-size:clamp(34px,5vw,64px);line-height:.9;text-transform:uppercase;letter-spacing:-.018em;font-weight:700}
-.d-3{font-size:clamp(28px,3.2vw,40px);line-height:1;letter-spacing:-.014em}
-.d-4{font-size:clamp(22px,2.3vw,29px);line-height:1.08}
-.display em{font-style:italic;color:var(--ink);font-weight:500}
+.d-1{
+  font-size:clamp(30px,5.6vw,76px);line-height:1.04;text-transform:uppercase;letter-spacing:.005em;font-weight:700;
+  color:var(--accent);text-shadow:0 0 72px rgba(227,183,94,.22),0 2px 0 rgba(0,0,0,.35);
+}
+.d-2{font-size:clamp(26px,3.4vw,44px);line-height:1.12;text-transform:uppercase;letter-spacing:.02em;font-weight:700}
+.d-3{font-size:clamp(23px,2.6vw,33px);line-height:1.14;text-transform:uppercase;letter-spacing:.03em}
+.d-4{font-size:clamp(19px,2vw,25px);line-height:1.2;letter-spacing:.01em}
+/* Cinzel non ha corsivo: il contrasto lo fa il colore del portale */
+.display em{font-style:normal;color:var(--signal);text-shadow:0 0 62px rgba(95,208,232,.34)}
 
-.h-lg{font-size:20px;font-weight:600;letter-spacing:-.008em;line-height:1.28}
-.h-md{font-size:16.5px;font-weight:600;letter-spacing:-.004em;line-height:1.35}
+.h-lg{font-size:20px;font-weight:600;letter-spacing:-.004em;line-height:1.3}
+.h-md{font-size:16.5px;font-weight:600;line-height:1.36}
 .h-sm{font-size:14.5px;font-weight:600}
 
 .lead{font-size:clamp(16.5px,1.5vw,19px);line-height:1.62;color:var(--ink-2)}
@@ -127,11 +138,10 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
 .muted{color:var(--ink-3)}
 .mono-num{font-variant-numeric:tabular-nums}
 
-/* le didascalie del manifesto: corsivo, maiuscoletto spaziato */
+/* le didascalie sono incise: maiuscolo epigrafico, molto spaziato */
 .eyebrow{
-  font-family:var(--font);
-  font-style:italic;
-  font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  font-family:var(--serif);
+  font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
   color:var(--ink-3);
 }
 .eyebrow.on-accent{color:var(--accent)}
@@ -152,7 +162,7 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
 .btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
 .btn svg{width:16px;height:16px;flex:none}
 
-.btn-primary{--btn-bg:var(--accent);--btn-fg:var(--on-accent);--btn-bd:var(--accent);font-weight:600}
+.btn-primary{--btn-bg:var(--accent);--btn-fg:var(--on-accent);--btn-bd:var(--accent);font-weight:600;box-shadow:0 0 24px -6px rgba(227,183,94,.45)}
 .btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
 
 .btn-ink{--btn-bg:var(--ink);--btn-fg:var(--bg);--btn-bd:var(--ink)}
@@ -161,11 +171,11 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
 .btn-ghost{--btn-bd:transparent;color:var(--ink-2)}
 .btn-ghost:hover{background:var(--surface-3);border-color:transparent;color:var(--ink)}
 
-.btn-soft{--btn-bg:var(--accent-soft);--btn-bd:transparent;--btn-fg:var(--accent-ink)}
-.btn-soft:hover{background:var(--accent-soft-2)}
+.btn-soft{--btn-bg:var(--signal-soft);--btn-bd:transparent;--btn-fg:var(--signal)}
+.btn-soft:hover{background:var(--signal-soft-2)}
 
 .btn-danger{--btn-bd:var(--line-strong);--btn-fg:var(--danger)}
-.btn-danger:hover{background:var(--danger-soft);border-color:rgba(236,106,94,.45)}
+.btn-danger:hover{background:var(--danger-soft);border-color:rgba(224,87,74,.45)}
 
 .btn-lg{min-height:48px;padding:0 26px;font-size:15.5px}
 .btn-sm{min-height:32px;padding:0 13px;font-size:13.5px}
@@ -186,7 +196,7 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
 }
 .input::placeholder,.textarea::placeholder{color:var(--ink-4)}
 .input:hover,.select:hover,.textarea:hover{border-color:var(--ink-4)}
-.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--sh-focus);background:var(--surface-2)}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--signal);box-shadow:var(--sh-focus);background:var(--surface-2)}
 .textarea{min-height:96px;resize:vertical;line-height:1.55}
 .select{
   appearance:none;padding-right:36px;cursor:pointer;
@@ -213,9 +223,9 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
   display:grid;place-items:center;transition:all .16s var(--ease);
 }
 .choice.round .tick{border-radius:50%}
-.choice .tick svg{width:9px;height:9px;opacity:0;transform:scale(.6);transition:all .16s var(--ease);color:var(--on-accent)}
-.choice:has(input:checked){background:var(--accent-soft);border-color:var(--accent-soft-2);color:var(--accent-ink);font-weight:500}
-.choice:has(input:checked) .tick{background:var(--accent);border-color:var(--accent)}
+.choice .tick svg{width:9px;height:9px;opacity:0;transform:scale(.6);transition:all .16s var(--ease);color:#06121A}
+.choice:has(input:checked){background:var(--signal-soft);border-color:var(--signal-soft-2);color:var(--signal);font-weight:500}
+.choice:has(input:checked) .tick{background:var(--signal);border-color:var(--signal)}
 .choice:has(input:checked) .tick svg{opacity:1;transform:scale(1)}
 .choice:has(input:focus-visible){box-shadow:var(--sh-focus)}
 
@@ -227,16 +237,16 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
   border:1px solid var(--line-strong);padding:2px;transition:background .2s var(--ease),border-color .2s var(--ease);flex:none;
 }
 .switch .thumb{width:16px;height:16px;border-radius:50%;background:var(--ink-3);transition:transform .2s var(--ease),background .2s var(--ease)}
-.switch input:checked + .track{background:var(--accent);border-color:var(--accent)}
-.switch input:checked + .track .thumb{transform:translateX(16px);background:var(--on-accent)}
+.switch input:checked + .track{background:var(--signal);border-color:var(--signal)}
+.switch input:checked + .track .thumb{transform:translateX(16px);background:#06121A}
 .switch input:focus-visible + .track{box-shadow:var(--sh-focus)}
 
 /* cursore */
 .range{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;cursor:pointer}
 .range::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--line-strong)}
 .range::-moz-range-track{height:3px;border-radius:2px;background:var(--line-strong)}
-.range::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;margin-top:-7px;border-radius:50%;background:var(--accent);border:none;box-shadow:0 0 0 4px rgba(201,240,58,.16)}
-.range::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--accent);border:none;box-shadow:0 0 0 4px rgba(201,240,58,.16)}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;margin-top:-7px;border-radius:50%;background:var(--signal);border:none;box-shadow:0 0 0 4px rgba(95,208,232,.18)}
+.range::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--signal);border:none;box-shadow:0 0 0 4px rgba(95,208,232,.18)}
 .range:focus-visible::-webkit-slider-thumb{box-shadow:var(--sh-focus)}
 
 /* ---------- utility ---------- */

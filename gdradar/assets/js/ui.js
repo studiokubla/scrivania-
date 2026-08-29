@@ -71,12 +71,52 @@
   }
   GD.actions.closeOverlays = closeOverlays;
 
+  /* ---------------- il dado a venti facce ----------------
+     Un d20 visto di faccia ha per silhouette un esagono; dentro,
+     la faccia illuminata è un triangolo rovesciato e tre spigoli
+     la collegano ai vertici. Basta questo per riconoscerlo anche
+     a dieci pixel.                                              */
+  function d20Points(cx, cy, r) {
+    const P = (deg, rad) => [cx + rad * Math.cos((deg * Math.PI) / 180), cy - rad * Math.sin((deg * Math.PI) / 180)];
+    const hex = [90, 150, 210, 270, 330, 30].map((a) => P(a, r));
+    const face = [270, 30, 150].map((a) => P(a, r * 0.5));
+    const spokes = [270, 30, 150].map((a) => P(a, r));
+    return { hex, face, spokes };
+  }
+
+  const fmtPts = (pts) => pts.map((p) => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+
+  /* dado sul Radar: dentro un <svg> già aperto */
+  function d20(cx, cy, r, color, opacity) {
+    const { hex, face, spokes } = d20Points(cx, cy, r);
+    const spigoli = face.map((f, i) => 'M' + f[0].toFixed(1) + ' ' + f[1].toFixed(1) +
+      'L' + spokes[i][0].toFixed(1) + ' ' + spokes[i][1].toFixed(1)).join(' ');
+    const op = opacity === undefined ? 1 : opacity;
+    return html`<g opacity="${op.toFixed(2)}">
+      <polygon points="${raw(fmtPts(hex))}" fill="${raw(color)}" fill-opacity=".26" stroke="${raw(color)}" stroke-width="1.15" stroke-linejoin="round"/>
+      <path d="${raw(spigoli)}" stroke="${raw(color)}" stroke-opacity=".45" stroke-width=".9"/>
+      <polygon points="${raw(fmtPts(face))}" fill="${raw(color)}" fill-opacity=".95"/>
+    </g>`;
+  }
+
+  /* dado come glifo autonomo: legende, elenchi, marchio */
+  function d20Icon(size, color) {
+    const s = size || 14, r = s / 2 - 0.6;
+    const { hex, face, spokes } = d20Points(s / 2, s / 2, r);
+    const spigoli = face.map((f, i) => 'M' + f[0].toFixed(1) + ' ' + f[1].toFixed(1) +
+      'L' + spokes[i][0].toFixed(1) + ' ' + spokes[i][1].toFixed(1)).join(' ');
+    return raw('<svg viewBox="0 0 ' + s + ' ' + s + '" width="' + s + '" height="' + s + '" aria-hidden="true">' +
+      '<polygon points="' + fmtPts(hex) + '" fill="' + color + '" fill-opacity=".26" stroke="' + color + '" stroke-width="1.1" stroke-linejoin="round"/>' +
+      '<path d="' + spigoli + '" stroke="' + color + '" stroke-opacity=".45" stroke-width=".8" fill="none"/>' +
+      '<polygon points="' + fmtPts(face) + '" fill="' + color + '" fill-opacity=".95"/></svg>');
+  }
+
   /* ---------------- micro-componenti ---------------- */
   function donut(score, size, thick) {
     const s = size || 46, w = thick || 4;
     const r = (s - w) / 2, c = 2 * Math.PI * r;
     const off = c * (1 - GD.util.clamp(score, 0, 100) / 100);
-    const col = score >= 82 ? 'var(--accent)' : score >= 64 ? 'var(--accent)' : score >= 45 ? 'var(--amber)' : 'var(--ink-4)';
+    const col = score >= 64 ? 'var(--signal)' : score >= 45 ? 'var(--amber)' : 'var(--ink-4)';
     return html`<div class="donut ${raw(s > 60 ? 'donut-lg' : '')}" style="width:${s}px;height:${s}px" role="img" aria-label="Compatibilità ${score} su 100">
       <svg width="${s}" height="${s}">
         <circle cx="${s / 2}" cy="${s / 2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${w}"/>
@@ -207,11 +247,10 @@
   function logo(size) {
     return html`<span class="logo">
       <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="${raw(size ? 'width:' + size + 'px;height:' + size + 'px' : '')}">
-        <circle cx="16" cy="16" r="13.2" stroke="var(--accent)" stroke-opacity=".28"/>
-        <circle cx="16" cy="16" r="8.4" stroke="var(--accent)" stroke-opacity=".22"/>
-        <circle cx="16" cy="16" r="3.6" stroke="var(--accent)" stroke-opacity=".5"/>
-        <path d="M16 16 27 10.4" stroke="var(--accent)" stroke-width="1.7" stroke-linecap="round"/>
-        <circle cx="21.4" cy="20.6" r="2.5" fill="var(--amber)"/>
+        <circle cx="16" cy="16" r="13.6" stroke="var(--signal)" stroke-opacity=".3"/>
+        <circle cx="16" cy="16" r="8.8" stroke="var(--signal)" stroke-opacity=".2"/>
+        <path d="M16 16 27.5 9.4" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" stroke-opacity=".7"/>
+        ${d20(16, 16, 6.4, 'var(--accent)')}
       </svg>
       <span class="word">Gd<b>Radar</b></span></span>`;
   }
@@ -325,7 +364,7 @@
   GD.actions.goVerifica = function () { closeOverlays(); go('/profilo/verifica'); };
 
   GD.ui = {
-    go, toast, openDrawer, openModal, closeOverlays, donut, fairPips, identity,
+    go, toast, openDrawer, openModal, closeOverlays, donut, fairPips, identity, d20, d20Icon,
     tipoBadge, newbieBadge, luogoBadge, dispoBadge, sistemaBadge, resultCard,
     shell, logo, emptyState, pageHead, requireVerified, TIPO_META, TIPO_ANNUNCIO
   };

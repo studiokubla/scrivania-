@@ -56,15 +56,20 @@ per l'onboarding completo.
 
 ## Identità visiva
 
-Palette e caratteri vengono da un manifesto di riferimento: fondo verde quasi nero da sottobosco
-(`#0B100C`), **verde acido** (`#C9F03A`) come unico colore acceso, speso dove porta significato —
-il titolo della landing, le azioni primarie, gli anelli del Radar, la compatibilità. Oro
-(`#DFAE45`), rosa (`#E0629A`) e acqua (`#5FC3A6`) restano colori semantici: distinguono Party,
-Campagne e annunci sul Radar.
+Palette e caratteri vengono da un manifesto di riferimento: notte blu profonda (`#080F1E`),
+il **ciano del portale** (`#5FD0E8`) per tutto ciò che è vivo e misurato — anelli e spazzata del
+Radar, compatibilità, selezioni — e l'**oro inciso** (`#E3B75E`) per marchio, titoli e azione
+primaria. Brace (`#E0813F`), arcano (`#8F76E0`) e acciaio (`#7FA0C4`) restano semantici:
+distinguono Party, Campagne e annunci.
 
-I caratteri sono due: **Bodoni Moda** per i titoli (didone, maiuscola, crenatura stretta) e
-**Newsreader** per testo e interfaccia, con il corsivo usato per etichette e didascalie come nei
-manifesti. Tutto passa dai token in `base.css`: cambiare mondo visivo significa cambiare quel file.
+I caratteri sono due più uno: **Cinzel** per i titoli (epigrafico, solo maiuscolo, senza corsivo —
+il contrasto lo fa il colore), **Spectral** per testo e interfaccia, **Cinzel Decorative** per il
+solo logotipo.
+
+Sul Radar i risultati non sono puntini ma **d20**: esagono di silhouette, faccia illuminata e tre
+spigoli (`GD.ui.d20`), con la dimensione del dado che porta la compatibilità e il colore che porta
+il tipo. Il dado d'oro al centro sei tu. Tutto passa dai token in `base.css`: cambiare mondo visivo
+significa cambiare quel file.
 
 ## Struttura dei file
 
