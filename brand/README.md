@@ -41,9 +41,31 @@ Dimensioni minime: 96 px il marchio verticale, 160 px il lockup orizzontale, 32 
 ## Colore
 
 Nucleo neutro — `#0B0C10` Nero Campo, `#FFFFFF` Smalto, `#C6FF3D` Lampo (una sola
-azione per schermata, mai testo). Lo spettro sono 12 famiglie × 4 gradi: 48 tinte da
-cui ogni squadra riceve una coppia. Primario fra i gradi 02 e 03, secondario da una
-famiglia distante almeno tre posizioni — o il Nero Campo.
+azione per schermata, mai testo). Lo spettro sono 12 famiglie × 4 gradi: non è una
+tavolozza da cui pescare, è la sorgente dei gradienti.
+
+## Gradienti
+
+Una squadra sceglie **un gradiente**, non due colori. Un gradiente sociale è un arco
+dello spettro: famiglia X grado 03 → famiglia X+1 grado 02 → famiglia X+2 grado 01.
+Dodici archi, ventiquattro percorrendoli anche in senso inverso. Due squadre della
+stessa lega non possono prendere archi confinanti.
+
+Tre modi di stenderlo, sempre **tagliato in undici** e sempre con la grana:
+
+| Modo | Dove |
+| --- | --- |
+| Piatto | sfondi ampi, copertine, schede lunghe |
+| A colonne | undici righe scanalate: maglie, intestazioni, barre di caricamento |
+| A canne | undici colonne di altezza diversa: grafici, avvio, animazioni |
+
+## Pittogramma
+
+Ancora da scegliere: sei opzioni in `assets/pittogrammi/`, tutte disegnate sullo
+stesso gradiente per poterle confrontare — **A** Anelli, **B** Righe, **C** Canne,
+**D** Formazione, **E** Scudo, **F** Maglia. Le tavole *Pittogramma* sulla board
+ne riportano motivazione, controindicazione e prova a 88 / 44 / 26 / 18 px.
+Si rigenerano con `_build.py`.
 
 ## Tipografia
 
@@ -56,4 +78,4 @@ Il lettering del marchio è disegnato e resta un file vettoriale. Nell'app:
 Gli artboard `.dc.html` e `canvas.json` compongono la tavola dell'identità;
 si rigenerano con:
 
-    python3 -c "exec(open('_build.py').read()); build_main(); build_costruzione(); build_varianti(); build_tipografia(); build_colore(); build_squadre(); build_applicazioni()"
+    python3 -c "exec(open('_build.py').read()); [f() for f in (build_main, build_costruzione, build_varianti, build_tipografia, build_colore, build_squadre, build_applicazioni, build_gradienti, build_pittogrammi, build_pittogrammi_prova)]"
