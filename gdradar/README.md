@@ -1,0 +1,79 @@
+# GdRadar — prototipo funzionante della V1
+
+Web app per trovare **giocatori, Master, Party e Campagne** vicini o compatibili, costruita
+seguendo il *Product & Technical Blueprint V1*: Radar geolocalizzato, matching deterministico e
+spiegabile, Fairness anonima, Trust & Safety e Moderation Core.
+
+Nessuna build, nessuna dipendenza: HTML, CSS e JavaScript statici. Si apre facendo doppio clic su
+`index.html` (o si carica su un qualsiasi hosting statico).
+
+## Cosa c'è dentro
+
+| Area | Dove | Cosa fa davvero |
+| --- | --- | --- |
+| **Landing pubblica** | `#/` | I quattro pilastri, come funziona, Fairness, sicurezza. |
+| **Onboarding** (flusso A) | `#/onboarding` | Account → profilo → età dichiarata → prova 18+ → Patto di Community → giochi → zona → disponibilità. Ogni passo è validato. |
+| **Radar** (flusso B) | `#/radar` | Ricerca geografica con raggi 5–100 km, filtri base e avanzati, visualizzazione radar o lista, ordinamento per compatibilità/distanza/recenza. |
+| **Scheda** | drawer | Compatibilità con il dettaglio punto per punto, Fairness come segnale separato, blocco e segnalazione. |
+| **Annunci** | `#/annunci` | Creazione, bozze, pubblicazione, sospensione e chiusura (lo storico resta, la ricercabilità no). |
+| **Messaggi** (flusso C) | `#/messaggi` | Richiesta di contatto → accettazione → chat testuale → proposta di scambio → doppio consenso → scambio registrato. |
+| **Fairness** (flusso D) | `#/fairness` | Le quattro domande chiuse, punteggio con Wilson lower bound, soglia dei 5 feedback, motivo negativo privato. |
+| **Sicurezza** (flusso E) | `#/sicurezza` | Blocchi, segnalazioni inviate, cosa vedono gli altri, indicazioni per gli incontri dal vivo. |
+| **Moderazione** | `#/moderazione` | Backoffice: coda casi, triage, severity S0–S4, evidenze vincolate al caso, azioni proporzionate, ricorsi, audit log, quattro ruoli. |
+| **Gioco etico / Privacy** | `#/etica`, `#/privacy` | Patto di Community, Newbie Friendly, modello dati della verifica 18+. |
+
+## Come provarlo in trenta secondi
+
+Apri `index.html` e clicca **Entra nella demo**: il profilo è già a Milano, con richieste di
+contatto in sospeso, una chat aperta e un feedback in attesa. In alternativa **Crea il profilo**
+per l'onboarding completo.
+
+## Le decisioni di prodotto tradotte in codice
+
+- **La posizione precisa non esce mai.** `geo.js` calcola le distanze; verso la UI passano solo
+  `publicView()` — zona pubblica e distanza arrotondata (`fmtKm`).
+- **Il matching è deterministico e spiegabile.** `match.js` assegna 100 punti su sei componenti
+  (sistema 26, distanza 22, disponibilità 20, ruolo 14, modalità 10, tipo di esperienza 8) e
+  restituisce, per ciascuna, i punti ottenuti *e la frase che li giustifica*.
+- **Fairness fuori dal punteggio.** Non entra nel calcolo della compatibilità: viaggia come segnale
+  separato, nascosto sotto i 5 feedback qualificati, calcolato con **Wilson lower bound** al 95%
+  (5 su 5 → 57%, 97 su 100 → 92%) e con un lieve peso sulla recenza.
+- **Newbie Friendly a tre livelli.** Profilo, Party e campagna/annuncio: nella singola ricerca pesa
+  l'ultimo, e per chi è alle prime armi ha la precedenza sul livello dichiarato.
+- **Verifica 18+ senza documenti.** Il modello salvato è `{status, threshold, provider, ref,
+  verified_at, expires_at}` e niente altro. Il gate blocca contatti e pubblicazione.
+- **Doppio consenso per i contatti.** Lo scambio è un evento di piattaforma: è ciò che rende la
+  relazione *qualificata* e sblocca il feedback.
+- **Moderazione umana.** I flag automatici aprono un caso, non lo chiudono. Ogni accesso a
+  un'evidenza privata scrive una riga di audit; le azioni disponibili dipendono dal ruolo.
+
+## Struttura dei file
+
+```
+gdradar/
+├── index.html
+└── assets/
+    ├── css/  base.css (token e controlli) · components.css · app.css (schermate)
+    └── js/
+        ├── util.js     template HTML sicuro, formattazione, icone
+        ├── geo.js      città, distanze, rotte, vista pubblica della posizione
+        ├── data.js     vocabolari di dominio e dati seed deterministici
+        ├── match.js    compatibilità spiegabile + Fairness (Wilson)
+        ├── store.js    stato, persistenza e azioni di dominio
+        ├── ui.js       guscio dell'app, drawer, modali, card
+        ├── view-*.js   una vista per schermata
+        └── app.js      router e avvio
+```
+
+I nomi delle entità seguono lo schema dati del blueprint (utenti, party, campagne, annunci,
+richieste, conversazioni, blocchi, report, feedback, casi di moderazione): sostituire
+`store.js` con un client HTTP verso `/auth`, `/radar`, `/listings`, `/contacts`, `/fairness`,
+`/moderation` è un cambio di adapter, non una riscrittura.
+
+## Limiti del prototipo
+
+Non c'è backend: i dati stanno nel `localStorage` del browser e le 32 persone, 10 Party,
+12 Campagne e 30 annunci sul Radar sono generati con un seed fisso. La risposta in chat e la
+verifica 18+ sono simulate. In produzione servono PostgreSQL + PostGIS per le query geospaziali,
+un provider reale di proof-of-age e un backoffice separato con permessi propri, come indicato
+nel blueprint.
