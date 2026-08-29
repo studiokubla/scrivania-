@@ -65,10 +65,16 @@
 }
 
 /* ---------- marchio ---------- */
-.logo{display:flex;align-items:center;gap:9px}
-.logo .mark{width:26px;height:26px;flex:none}
-.logo .word{font-family:var(--serif-deco);font-size:20px;font-weight:700;letter-spacing:.02em;color:var(--accent);text-shadow:0 0 18px rgba(227,183,94,.35)}
-.logo .word b{font-weight:700;color:var(--signal);text-shadow:0 0 18px rgba(95,208,232,.4)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo .mark{width:30px;height:30px;flex:none;filter:drop-shadow(0 0 12px rgba(227,183,94,.28))}
+/* il logotipo è una sola voce: stesso carattere, stesso peso, stessa
+   spaziatura per ogni lettera. L'unica che si stacca è la R, in oro,
+   la stessa che nel pittogramma sta dentro il dado. */
+.logo .word{
+  font-family:var(--serif);font-size:19px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+}
+.logo .word b{font-weight:600;color:var(--accent);text-shadow:0 0 16px rgba(227,183,94,.45)}
 
 /* ============================================================
    LANDING

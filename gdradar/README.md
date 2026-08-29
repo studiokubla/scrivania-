@@ -62,6 +62,11 @@ Radar, compatibilità, selezioni — e l'**oro inciso** (`#E3B75E`) per marchio,
 primaria. Brace (`#E0813F`), arcano (`#8F76E0`) e acciaio (`#7FA0C4`) restano semantici:
 distinguono Party, Campagne e annunci.
 
+Il **marchio** è una cosa sola letta due volte: il logotipo *GDRADAR* ha lettering uniforme —
+stesso carattere, stesso peso, stessa spaziatura per ogni lettera — e l'unica che si stacca è la
+**R**, in oro. Quella stessa R è il pittogramma, incastonata nella faccia frontale di un d20
+(`GD.ui.d20Mark`), che regge fino a 20 px e vale da sola come icona.
+
 I caratteri sono due più uno: **Cinzel** per i titoli (epigrafico, solo maiuscolo, senza corsivo —
 il contrasto lo fa il colore), **Spectral** per testo e interfaccia, **Cinzel Decorative** per il
 solo logotipo.

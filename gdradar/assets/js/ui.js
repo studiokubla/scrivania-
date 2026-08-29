@@ -244,15 +244,36 @@
     { route: '/sicurezza', label: 'Sicurezza', ico: 'shield' }
   ];
 
+  /* ---------------- marchio ----------------
+     Il pittogramma è la R della parola, incastonata nella faccia
+     illuminata di un d20: la stessa lettera che nel logotipo è
+     l'unica in oro. Il resto della parola resta uniforme.        */
+  function d20Mark(size) {
+    const s = size || 30, c = s / 2, r = s / 2 - 1.2;
+    const P = (deg, rad) => [c + rad * Math.cos((deg * Math.PI) / 180), c - rad * Math.sin((deg * Math.PI) / 180)];
+    const hex = [90, 150, 210, 270, 330, 30].map((a) => P(a, r));
+    /* la faccia frontale tocca tre vertici alterni: è il piano dove sta la lettera */
+    const faccia = [90, 210, 330].map((a) => P(a, r));
+    /* gli spigoli verso i vertici rimasti raccontano il volume del dado */
+    const spigoli = [150, 270, 30].map((a) => {
+      const v = P(a, r);
+      return 'M' + c.toFixed(1) + ' ' + c.toFixed(1) + 'L' + v[0].toFixed(1) + ' ' + v[1].toFixed(1);
+    }).join(' ');
+    const pts = (a) => a.map((p) => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+
+    return raw('<svg class="mark" viewBox="0 0 ' + s + ' ' + s + '" width="' + s + '" height="' + s + '" aria-hidden="true">' +
+      '<polygon points="' + pts(hex) + '" fill="var(--accent)" fill-opacity=".10" stroke="var(--accent)" stroke-opacity=".55" stroke-width="' + (s / 26).toFixed(2) + '" stroke-linejoin="round"/>' +
+      '<path d="' + spigoli + '" stroke="var(--accent)" stroke-opacity=".28" stroke-width="' + (s / 34).toFixed(2) + '"/>' +
+      '<polygon points="' + pts(faccia) + '" fill="var(--accent)" fill-opacity=".18" stroke="var(--accent)" stroke-opacity=".7" stroke-width="' + (s / 30).toFixed(2) + '" stroke-linejoin="round"/>' +
+      '<text x="' + c + '" y="' + (c + s * 0.165).toFixed(2) + '" text-anchor="middle" fill="var(--accent)" ' +
+        'font-family="Cinzel, Georgia, serif" font-weight="700" font-size="' + (s * 0.46).toFixed(2) + '">R</text>' +
+      '</svg>');
+  }
+
   function logo(size) {
     return html`<span class="logo">
-      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="${raw(size ? 'width:' + size + 'px;height:' + size + 'px' : '')}">
-        <circle cx="16" cy="16" r="13.6" stroke="var(--signal)" stroke-opacity=".3"/>
-        <circle cx="16" cy="16" r="8.8" stroke="var(--signal)" stroke-opacity=".2"/>
-        <path d="M16 16 27.5 9.4" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" stroke-opacity=".7"/>
-        ${d20(16, 16, 6.4, 'var(--accent)')}
-      </svg>
-      <span class="word">Gd<b>Radar</b></span></span>`;
+      ${d20Mark(size || 30)}
+      <span class="word">GD<b>R</b>ADAR</span></span>`;
   }
 
   function shell(active, content, opts) {
@@ -364,7 +385,7 @@
   GD.actions.goVerifica = function () { closeOverlays(); go('/profilo/verifica'); };
 
   GD.ui = {
-    go, toast, openDrawer, openModal, closeOverlays, donut, fairPips, identity, d20, d20Icon,
+    go, toast, openDrawer, openModal, closeOverlays, donut, fairPips, identity, d20, d20Icon, d20Mark,
     tipoBadge, newbieBadge, luogoBadge, dispoBadge, sistemaBadge, resultCard,
     shell, logo, emptyState, pageHead, requireVerified, TIPO_META, TIPO_ANNUNCIO
   };
