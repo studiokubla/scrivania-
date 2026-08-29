@@ -70,8 +70,20 @@ da solo, con la R incastonata nella faccia frontale (`GD.ui.d20Mark`), per favic
 la parola non entrerebbe.
 
 I caratteri sono due più uno: **Cinzel** per i titoli (epigrafico, solo maiuscolo, senza corsivo —
-il contrasto lo fa il colore), **Spectral** per testo e interfaccia, **Metamorphous** per il solo
-logotipo: è il taglio più fantasy dei tre e regge fino a 15 px.
+il contrasto lo fa il colore), **Spectral** per testo e interfaccia, **Prata** per il solo
+logotipo: serif moderno ad alto contrasto, con le grazie affilate, che regge fino a 15 px.
+
+### Usare un carattere con licenza propria
+
+Il logotipo passa da un solo token. Se hai la licenza di un display commerciale (per esempio
+*Monster of Fantasy* di Storytype), servono due passaggi:
+
+1. metti il file in `gdradar/assets/fonts/` e dichiaralo in cima a `base.css`:
+   `@font-face{font-family:'Marchio';src:url('../fonts/marchio.woff2') format('woff2');font-display:swap}`
+2. cambia una riga: `--serif-deco:'Marchio','Prata',Georgia,serif;`
+
+Nel bundle in singolo file il font va incorporato come data URI, altrimenti resta un riferimento
+esterno che non viaggia con la pagina.
 
 Sul Radar i risultati non sono puntini ma **d20**: esagono di silhouette, faccia illuminata e tre
 spigoli (`GD.ui.d20`), con la dimensione del dado che porta la compatibilità e il colore che porta

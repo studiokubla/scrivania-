@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23080F1E'/%3E%3Cpolygon points='16,2.8 4.6,9.4 4.6,22.6 16,29.2 27.4,22.6 27.4,9.4' fill='%23E3B75E' fill-opacity='.12' stroke='%23E3B75E' stroke-opacity='.55' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpolygon points='16,2.8 4.6,22.6 27.4,22.6' fill='%23E3B75E' fill-opacity='.2' stroke='%23E3B75E' stroke-opacity='.75' stroke-width='1.1' stroke-linejoin='round'/%3E%3Ctext x='16' y='21.6' text-anchor='middle' fill='%23E3B75E' font-family='Georgia,serif' font-weight='700' font-size='14'%3ER%3C/text%3E%3C/svg%3E">
 <title>GdRadar — trova con chi giocare</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Metamorphous&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Prata&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap');
 
 /* ---- assets/css/base.css ---- */
 /* ============================================================
@@ -83,7 +83,9 @@
   /* tipografia */
   --font:'Spectral',Georgia,'Times New Roman',serif;
   --serif:'Cinzel','Trajan Pro',Georgia,serif;
-  --serif-deco:'Metamorphous','Cinzel Decorative','Cinzel',Georgia,serif;
+  /* carattere del solo logotipo: per sostituirlo con uno con licenza
+     propria bastano un @font-face e questa riga (vedi README) */
+  --serif-deco:'Prata','Bodoni Moda',Didot,Georgia,serif;
 
   /* layout */
   --rail:252px;
@@ -610,7 +612,7 @@ hr{border:0;border-top:1px solid var(--line);margin:0}
 .logo .word{
   position:relative;z-index:0;
   font-family:var(--serif-deco);font-size:19px;font-weight:400;
-  letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink);
   padding:.55em 0;
 }
 .logo .word b{
@@ -2563,7 +2565,7 @@ window.GD = window.GD || {};
       '<path d="' + spigoli + '" stroke="var(--accent)" stroke-opacity=".28" stroke-width="' + (s / 34).toFixed(2) + '"/>' +
       '<polygon points="' + pts(faccia) + '" fill="var(--accent)" fill-opacity=".18" stroke="var(--accent)" stroke-opacity=".7" stroke-width="' + (s / 30).toFixed(2) + '" stroke-linejoin="round"/>' +
       '<text x="' + c + '" y="' + (c + s * 0.165).toFixed(2) + '" text-anchor="middle" fill="var(--accent)" ' +
-        'font-family="Metamorphous, Cinzel, Georgia, serif" font-weight="400" font-size="' + (s * 0.48).toFixed(2) + '">R</text>' +
+        'font-family="Prata, Georgia, serif" font-weight="400" font-size="' + (s * 0.46).toFixed(2) + '">R</text>' +
       '</svg>');
   }
 

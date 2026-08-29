@@ -74,7 +74,7 @@
 .logo .word{
   position:relative;z-index:0;
   font-family:var(--serif-deco);font-size:19px;font-weight:400;
-  letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink);
   padding:.55em 0;
 }
 .logo .word b{

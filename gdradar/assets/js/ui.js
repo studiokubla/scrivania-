@@ -266,7 +266,7 @@
       '<path d="' + spigoli + '" stroke="var(--accent)" stroke-opacity=".28" stroke-width="' + (s / 34).toFixed(2) + '"/>' +
       '<polygon points="' + pts(faccia) + '" fill="var(--accent)" fill-opacity=".18" stroke="var(--accent)" stroke-opacity=".7" stroke-width="' + (s / 30).toFixed(2) + '" stroke-linejoin="round"/>' +
       '<text x="' + c + '" y="' + (c + s * 0.165).toFixed(2) + '" text-anchor="middle" fill="var(--accent)" ' +
-        'font-family="Metamorphous, Cinzel, Georgia, serif" font-weight="400" font-size="' + (s * 0.48).toFixed(2) + '">R</text>' +
+        'font-family="Prata, Georgia, serif" font-weight="400" font-size="' + (s * 0.46).toFixed(2) + '">R</text>' +
       '</svg>');
   }
 
