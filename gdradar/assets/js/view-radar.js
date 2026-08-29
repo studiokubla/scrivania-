@@ -220,7 +220,7 @@
   }
 
   /* ---------------- visualizzazione radar ---------------- */
-  const COLORE = { utente: 'var(--accent)', party: 'var(--amber)', campagna: 'var(--violet)', annuncio: 'var(--ink-3)' };
+  const COLORE = { utente: 'var(--accent)', party: 'var(--amber)', campagna: 'var(--violet)', annuncio: 'var(--teal)' };
 
   function radarSvg(risultati) {
     const st = S.get();
@@ -282,9 +282,9 @@
         </g>`)}
 
         <g class="me-pin">
-          <circle class="pulse" cx="${C}" cy="${C}" r="34" fill="var(--accent)" opacity=".16"/>
-          <circle cx="${C}" cy="${C}" r="9" fill="var(--ink)"/>
-          <circle cx="${C}" cy="${C}" r="3.4" fill="var(--surface)"/>
+          <circle class="pulse" cx="${C}" cy="${C}" r="30" fill="var(--accent)" opacity=".11"/>
+          <circle cx="${C}" cy="${C}" r="9" fill="var(--accent)"/>
+          <circle cx="${C}" cy="${C}" r="3.4" fill="var(--bg)"/>
         </g>
       </svg>
     </div>`;

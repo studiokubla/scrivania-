@@ -151,9 +151,9 @@ window.GD = window.GD || {};
 
   /* ---------- avatar deterministico ---------- */
   const AV_COLORS = [
-    ['#0E7C66', '#14A184'], ['#5A4BC4', '#7A6BE0'], ['#A5701A', '#C89434'],
-    ['#2F6D8F', '#4B90B4'], ['#8A3F63', '#AE5A80'], ['#3C6B3A', '#578A54'],
-    ['#8F4B2F', '#B26A4A'], ['#4A4F63', '#6B7186']
+    ['#1F4A32', '#3E7A46'], ['#4A2F1A', '#8A6224'], ['#2B4650', '#4E7E86'],
+    ['#4A2038', '#8E3F66'], ['#33421A', '#65852A'], ['#2E2A4E', '#5B518F'],
+    ['#4E2A1E', '#8A4A2E'], ['#26302A', '#4C5C4A']
   ];
   function avatarStyle(seed) {
     const c = AV_COLORS[hashStr(String(seed)) % AV_COLORS.length];

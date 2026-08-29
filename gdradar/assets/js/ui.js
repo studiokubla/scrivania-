@@ -207,9 +207,9 @@
   function logo(size) {
     return html`<span class="logo">
       <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="${raw(size ? 'width:' + size + 'px;height:' + size + 'px' : '')}">
-        <circle cx="16" cy="16" r="13.2" stroke="var(--line-strong)"/>
-        <circle cx="16" cy="16" r="8.4" stroke="var(--line-strong)"/>
-        <circle cx="16" cy="16" r="3.6" stroke="var(--accent)" stroke-opacity=".55"/>
+        <circle cx="16" cy="16" r="13.2" stroke="var(--accent)" stroke-opacity=".28"/>
+        <circle cx="16" cy="16" r="8.4" stroke="var(--accent)" stroke-opacity=".22"/>
+        <circle cx="16" cy="16" r="3.6" stroke="var(--accent)" stroke-opacity=".5"/>
         <path d="M16 16 27 10.4" stroke="var(--accent)" stroke-width="1.7" stroke-linecap="round"/>
         <circle cx="21.4" cy="20.6" r="2.5" fill="var(--amber)"/>
       </svg>

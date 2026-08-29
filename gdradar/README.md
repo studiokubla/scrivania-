@@ -47,6 +47,18 @@ per l'onboarding completo.
 - **Moderazione umana.** I flag automatici aprono un caso, non lo chiudono. Ogni accesso a
   un'evidenza privata scrive una riga di audit; le azioni disponibili dipendono dal ruolo.
 
+## Identità visiva
+
+Palette e caratteri vengono da un manifesto di riferimento: fondo verde quasi nero da sottobosco
+(`#0B100C`), **verde acido** (`#C9F03A`) come unico colore acceso, speso dove porta significato —
+il titolo della landing, le azioni primarie, gli anelli del Radar, la compatibilità. Oro
+(`#DFAE45`), rosa (`#E0629A`) e acqua (`#5FC3A6`) restano colori semantici: distinguono Party,
+Campagne e annunci sul Radar.
+
+I caratteri sono due: **Bodoni Moda** per i titoli (didone, maiuscola, crenatura stretta) e
+**Newsreader** per testo e interfaccia, con il corsivo usato per etichette e didascalie come nei
+manifesti. Tutto passa dai token in `base.css`: cambiare mondo visivo significa cambiare quel file.
+
 ## Struttura dei file
 
 ```

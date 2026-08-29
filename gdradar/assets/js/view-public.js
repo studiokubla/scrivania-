@@ -26,7 +26,7 @@
       <svg viewBox="0 0 400 400" role="img" aria-label="Illustrazione: radar con persone, Party e Campagne intorno alla tua posizione">
         <defs>
           <radialGradient id="sweepGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".22"/>
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".18"/>
             <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
           </radialGradient>
         </defs>
@@ -36,7 +36,7 @@
         <line x1="${200 - R}" y1="200" x2="${200 + R}" y2="200" class="cross"/>
         <g class="sweep">
           <path d="M200 200 L200 ${200 - R} A ${R} ${R} 0 0 1 ${(200 + R * Math.cos(-Math.PI / 3.2)).toFixed(1)} ${(200 + R * Math.sin(-Math.PI / 3.2)).toFixed(1)} Z" fill="url(#sweepGrad)"/>
-          <line x1="200" y1="200" x2="200" y2="${200 - R}" stroke="var(--accent)" stroke-opacity=".45" stroke-width="1.4"/>
+          <line x1="200" y1="200" x2="200" y2="${200 - R}" stroke="var(--accent)" stroke-opacity=".6" stroke-width="1.4"/>
         </g>
         ${blips.map((b, i) => {
           const p = pt(b);
@@ -46,8 +46,8 @@
           </g>`;
         })}
         <g class="me-pin">
-          <circle class="pulse" cx="200" cy="200" r="26" fill="var(--accent)" opacity=".18"/>
-          <circle cx="200" cy="200" r="7.5" fill="var(--ink)"/>
+          <circle class="pulse" cx="200" cy="200" r="26" fill="var(--accent)" opacity=".13"/>
+          <circle cx="200" cy="200" r="7.5" fill="var(--accent)"/>
           <circle cx="200" cy="200" r="3" fill="var(--bg)"/>
         </g>
       </svg>
@@ -87,7 +87,7 @@
 
       <section class="hero">
         <div class="pub-wrap hero-grid">
-          <div>
+          <div class="hero-copy">
             <span class="eyebrow on-accent">Discovery per giochi di ruolo · V1</span>
             <h1 class="display d-1 mt-16">Trova <em>con chi</em><br>giocare, non<br>un altro feed.</h1>
             <p class="lead">GdRadar mette in contatto giocatori, Master, Party e Campagne vicini o compatibili.
