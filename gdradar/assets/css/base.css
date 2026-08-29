@@ -4,6 +4,8 @@
    ============================================================ */
 
 :root{
+  color-scheme:light;
+
   /* superfici */
   --bg:#F6F5F2;
   --bg-tint:#F1F0EC;
