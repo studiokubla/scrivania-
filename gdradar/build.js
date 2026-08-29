@@ -79,6 +79,11 @@ for (const f of ['index.html', 'manifest.webmanifest', 'sw.js']) {
 }
 fs.cpSync(path.join(ROOT, 'assets'), path.join(DOCS, 'gdradar/assets'), { recursive: true });
 fs.writeFileSync(path.join(DOCS, '.nojekyll'), '');
+/* pagine pubbliche richieste da App Store Connect (privacy e supporto) */
+for (const f of ['privacy.html', 'supporto.html']) {
+  fs.copyFileSync(path.join(ROOT, 'store/pagine', f), path.join(DOCS, f));
+}
+
 /* la radice del sito rimanda alla cartella con il nome del prodotto */
 /* Capacitor impacchetta questa cartella dentro l'app iOS */
 const WWW = path.join(ROOT, 'www');

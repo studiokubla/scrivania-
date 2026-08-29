@@ -1,54 +1,76 @@
-# Portare GdRadar su iPhone
+# Portare GdRadar sull'App Store
 
-Due strade, molto diverse per costo e per tempi. La prima funziona stasera, la
-seconda richiede un backend che oggi non esiste.
-
----
-
-## 1. Installarla sul telefono senza store (funziona ora)
-
-L'app è una **PWA**: ha manifest, icone e service worker, quindi si installa
-dalla schermata Home e si apre a tutto schermo, senza barra del browser, anche
-senza rete.
-
-Su iPhone: apri l'indirizzo in **Safari** (non Chrome), tocca **Condividi** →
-**Aggiungi a Home**. Compare l'icona con il dado, e da lì si comporta come
-un'app.
-
-Cosa ottieni: schermo intero, icona, funzionamento offline, aggiornamento
-automatico a ogni pubblicazione.
-Cosa non ottieni: presenza sull'App Store, notifiche push affidabili su iOS,
-accesso pieno all'hardware.
+Tutto quello che serve è qui dentro, tranne le tre cose che solo tu puoi avere:
+un account Apple Developer, la chiave API di App Store Connect e la scheda
+dell'app. Il Mac invece non serve: la compilazione gira sui runner macOS di
+GitHub.
 
 ---
 
-## 2. L'app nativa per l'App Store
+## 1. Le tre cose da fare una volta sola
 
-Il guscio nativo è già configurato (Capacitor): la stessa base di codice viene
-impacchettata dentro un'app iOS vera, che può poi crescere con funzioni native.
+**a. Apple Developer Program** — 99 €/anno, su developer.apple.com. Serve un
+account con verifica dell'identità; per una società servono anche il numero
+D-U-N-S e i documenti. Mettici qualche giorno.
 
-### Cosa serve, e non posso averlo io
+**b. Chiave API** — App Store Connect → *Users and Access* → *Integrations* →
+*App Store Connect API* → genera una chiave con ruolo **App Manager**. Il file
+`.p8` si scarica **una volta sola**: salvalo. Ti servono tre valori:
+Key ID, Issuer ID e il contenuto del `.p8`.
 
-- Un **Mac** con **Xcode** (il progetto iOS si genera solo su macOS).
-- Un account **Apple Developer Program** — 99 €/anno.
-- Un record dell'app su **App Store Connect**, con certificati e profili di firma.
+**c. Scheda dell'app** — App Store Connect → *Apps* → **+** → nuova app iOS,
+bundle ID **`com.studiokubla.gdradar`**, nome *GdRadar*, lingua principale
+italiano.
 
-### I comandi, sul Mac
+## 2. I quattro segreti nel repository
+
+GitHub → *Settings* → *Secrets and variables* → *Actions* → **New repository secret**:
+
+| Nome | Valore |
+| --- | --- |
+| `APPSTORE_KEY_ID` | Key ID della chiave API |
+| `APPSTORE_ISSUER_ID` | Issuer ID |
+| `APPSTORE_PRIVATE_KEY` | il contenuto integrale del file `.p8`, incollato |
+| `APPLE_TEAM_ID` | Team ID, 10 caratteri, in *Membership* |
+
+## 3. Lanciare la build
+
+GitHub → *Actions* → **iOS · TestFlight** → *Run workflow*. Circa venti minuti:
+genera il progetto iOS, firma, compila, esporta l'`.ipa` e lo carica su App Store
+Connect. Da lì la build compare in **TestFlight** (provala sul telefono) e poi si
+promuove a *App Store* → *Invia per la revisione*.
+
+Il workflow è in `.github/workflows/ios-testflight.yml`, commentato riga per riga.
+
+## 4. Cosa incollare nel modulo
+
+In **`store/metadata.md`**: nome, sottotitolo, descrizione, parole chiave,
+categorie, risposte al questionario sull'età, etichette privacy, conformità
+all'esportazione e — il campo che fa passare o bocciare una revisione — le
+**note per il revisore**, con il percorso da seguire nella demo.
+
+Screenshot già pronti alle misure obbligatorie in **`store/screenshots/`**:
+1290 × 2796 e 1242 × 2688, generati dall'app vera.
+
+Le pagine pubbliche che il modulo pretende (privacy e supporto) sono in
+`store/pagine/` e vengono pubblicate insieme al sito:
+`…/privacy.html` e `…/supporto.html`. **Devono rispondere prima dell'invio**,
+quindi accendi GitHub Pages, altrimenti la revisione si ferma lì.
+
+---
+
+## 5. Se preferisci il Mac
 
 ```bash
 cd gdradar
 npm install
-npm run ios:add     # genera la cartella ios/ (solo la prima volta)
-npm run ios:sync    # ricostruisce www/ e la copia dentro il progetto iOS
+npm run ios:add     # genera ios/ (solo la prima volta)
+npm run ios:sync    # ricostruisce www/ e la copia nel progetto
 npm run ios:open    # apre Xcode
 ```
 
-In Xcode: seleziona il team di firma, poi *Product → Archive → Distribute App*.
-
-### Da aggiungere a mano in `ios/App/App/Info.plist`
-
-La geolocalizzazione è facoltativa nell'app, ma iOS pretende comunque la
-motivazione, altrimenti la chiamata fallisce in silenzio:
+Poi *Product → Archive → Distribute App*. In `ios/App/App/Info.plist` va aggiunta
+la motivazione della posizione, che in CI viene messa in automatico:
 
 ```xml
 <key>NSLocationWhenInUseUsageDescription</key>
@@ -58,24 +80,22 @@ precisa non viene mai mostrata agli altri utenti.</string>
 
 ---
 
-## 3. Perché oggi Apple la rifiuterebbe
+## 6. Cosa aspettarsi dalla revisione
 
-Va detto chiaramente, perché sono soldi e settimane in gioco. Questo è un
-prototipo funzionante, non un prodotto pubblicabile:
+Vale la pena saperlo prima, per non prenderlo come una sorpresa. Il rischio non è
+tecnico — la build passa — ma di merito, su tre punti:
 
-| Regola Apple | Problema | Cosa serve |
-| --- | --- | --- |
-| **4.2 Minimum Functionality** | Un contenitore attorno a una pagina web viene respinto se non aggiunge nulla di nativo | Notifiche push, mappa nativa, condivisione di sistema, gestione contatti |
-| **2.1 App Completeness** | I 32 profili sul Radar sono generati, la chat risponde da sola, la verifica 18+ è simulata | Backend reale (PostgreSQL + PostGIS), utenti veri, provider di età vero |
-| **5.1.1(v) Account Deletion** | Non c'è cancellazione dell'account dentro l'app | Un percorso di cancellazione, non solo il reset locale |
-| **5.1.1 Privacy** | Serve una privacy policy raggiungibile da un URL pubblico | La pagina esiste già in-app: va anche pubblicata e collegata in App Store Connect |
-| **1.2 User-Generated Content** | Richiede filtri, segnalazione, blocco e un contatto per lo sviluppatore | Blocco, segnalazione e moderazione ci sono già ✓ — manca il contatto pubblico |
-| **Age Rating** | Servizio 18+ con incontri dal vivo | Classificazione 17+/18+ e verifica dell'età reale, non dichiarata |
+- **4.2 Minimum Functionality**: un'app che è un sito impacchettato viene respinta
+  se non aggiunge nulla di nativo. Contromisure, in ordine di costo: notifiche
+  push, condivisione di sistema, mappa nativa.
+- **2.1 App Completeness**: i profili sul Radar sono generati e la verifica 18+ è
+  simulata. Finché è così, per Apple l'app è incompleta.
+- **5.1.1(v)**: serve la cancellazione dell'account dentro l'app, non solo il
+  reset locale.
 
-Tradotto: **prima il backend, poi lo store**. Nell'ordine del blueprint —
-fondazioni e auth, profili, verifica dell'età, Radar geospaziale, chat, Fairness
-e moderazione — e a quel punto la sottomissione diventa un lavoro meccanico,
-perché il guscio iOS è già pronto qui.
+Il resto è già in regola: blocco, segnalazione e moderazione umana — che Apple
+pretende per le app con contenuti degli utenti — ci sono, e la privacy policy è
+scritta.
 
-Nel frattempo la PWA copre il caso d'uso vero: farla provare a qualcuno, dal
-telefono, con l'icona sulla Home.
+Se la revisione respinge, la risposta arriva in *Resolution Center*: si corregge
+e si rimanda, senza pagare di nuovo.
