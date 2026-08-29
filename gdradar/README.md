@@ -22,6 +22,13 @@ Nessuna build, nessuna dipendenza: HTML, CSS e JavaScript statici. Si apre facen
 | **Moderazione** | `#/moderazione` | Backoffice: coda casi, triage, severity S0–S4, evidenze vincolate al caso, azioni proporzionate, ricorsi, audit log, quattro ruoli. |
 | **Gioco etico / Privacy** | `#/etica`, `#/privacy` | Patto di Community, Newbie Friendly, modello dati della verifica 18+. |
 
+## Metterlo online
+
+`node gdradar/build.js` scrive anche `docs/index.html`: è la cartella che GitHub Pages pubblica.
+Per accendere il sito, una volta sola, su GitHub: **Settings → Pages → Source: Deploy from a
+branch**, poi scegli il branch e la cartella `/docs`. L'indirizzo diventa
+`https://studiokubla.github.io/scrivania-/` e si aggiorna a ogni push.
+
 ## Come provarlo in trenta secondi
 
 Apri `index.html` e clicca **Entra nella demo**: il profilo è già a Milano, con richieste di

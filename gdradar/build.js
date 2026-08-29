@@ -4,6 +4,7 @@
      dist/gdradar.html          documento completo, apribile con doppio clic
      dist/gdradar-artifact.html solo il contenuto (per host che forniscono
                                 già doctype, head e body)
+     ../docs/index.html         la stessa pagina dove GitHub Pages la cerca
    Uso: node build.js
    ============================================================ */
 const fs = require('fs');
@@ -64,6 +65,14 @@ fs.mkdirSync(path.join(ROOT, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(ROOT, 'dist/gdradar.html'), doc);
 fs.writeFileSync(path.join(ROOT, 'dist/gdradar-artifact.html'), inner);
 
+/* GitHub Pages pubblica la cartella /docs del repository: ci mettiamo
+   la stessa pagina, così il sito resta allineato a ogni build. */
+const DOCS = path.join(ROOT, '..', 'docs');
+fs.mkdirSync(DOCS, { recursive: true });
+fs.writeFileSync(path.join(DOCS, 'index.html'), doc);
+fs.writeFileSync(path.join(DOCS, '.nojekyll'), '');
+
 const kb = (s) => (Buffer.byteLength(s) / 1024).toFixed(0) + ' KB';
 console.log('dist/gdradar.html          ' + kb(doc));
 console.log('dist/gdradar-artifact.html ' + kb(inner));
+console.log('docs/index.html            ' + kb(doc) + '  (GitHub Pages)');
