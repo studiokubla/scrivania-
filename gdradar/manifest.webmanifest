@@ -1,0 +1,19 @@
+{
+  "name": "GdRadar — trova con chi giocare",
+  "short_name": "GdRadar",
+  "description": "Trova giocatori, Master, Party e Campagne di gioco di ruolo vicini o compatibili.",
+  "lang": "it",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080F1E",
+  "theme_color": "#080F1E",
+  "categories": ["social", "entertainment", "lifestyle"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/icons/icon-1024.png", "sizes": "1024x1024", "type": "image/png" }
+  ]
+}

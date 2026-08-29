@@ -1,0 +1,273 @@
+/* ============================================================
+   GdRadar — base: token, reset, tipografia, controlli
+   Identità visiva: fondo verde quasi nero da sottobosco, un solo
+   colore acceso (verde acido) speso dove porta significato,
+   didone maiuscola per i titoli e serif da schermo per il resto.
+   ============================================================ */
+
+:root{
+  color-scheme:dark;
+
+  /* superfici: la notte sopra la città */
+  --bg:#080F1E;
+  --bg-tint:#0B1526;
+  --bg-blur:rgba(8,15,30,.86);
+  --surface:#101D33;
+  --surface-2:#14243E;
+  --surface-3:#1C304E;
+
+  /* inchiostro */
+  --ink:#E9EFF8;
+  --ink-2:#A9BAD1;
+  --ink-3:#7E90A9;
+  --ink-4:#5B6C85;
+
+  /* linee */
+  --line:#1E3050;
+  --line-2:#16253F;
+  --line-strong:#2E4770;
+
+  /* oro inciso: marchio, titoli, azione primaria */
+  --accent:#E3B75E;
+  --accent-hover:#F2CB82;
+  --accent-dim:#A9853B;
+  --accent-ink:#F1DAA4;
+  --on-accent:#0A1220;
+  --accent-soft:rgba(227,183,94,.13);
+  --accent-soft-2:rgba(227,183,94,.28);
+
+  /* ciano del portale: tutto ciò che è vivo e misurato */
+  --signal:#5FD0E8;
+  --signal-dim:#3C93A9;
+  --signal-soft:rgba(95,208,232,.13);
+  --signal-soft-2:rgba(95,208,232,.26);
+
+  /* brace, arcano, acciaio: Party, Campagne, annunci */
+  --amber:#E0813F;
+  --amber-soft:rgba(224,129,63,.15);
+  --violet:#8F76E0;
+  --violet-soft:rgba(143,118,224,.15);
+  --steel:#7FA0C4;
+  --steel-soft:rgba(127,160,196,.14);
+  --danger:#E0574A;
+  --danger-soft:rgba(224,87,74,.15);
+  --ok:#6FC79A;
+
+  /* raggi */
+  --r-xs:5px;
+  --r-sm:9px;
+  --r-md:13px;
+  --r-lg:18px;
+  --r-xl:26px;
+  --r-full:999px;
+
+  /* profondità: al buio conta più il bordo dell'ombra */
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 2px 6px rgba(0,0,0,.40), 0 12px 26px -14px rgba(0,0,0,.70);
+  --sh-3:0 8px 22px rgba(0,0,0,.50), 0 44px 64px -32px rgba(0,0,0,.85);
+  --sh-focus:0 0 0 3px rgba(95,208,232,.30);
+
+  /* tipografia */
+  --font:'Spectral',Georgia,'Times New Roman',serif;
+  --serif:'Cinzel','Trajan Pro',Georgia,serif;
+  /* carattere del solo logotipo: per sostituirlo con uno con licenza
+     propria bastano un @font-face e questa riga (vedi README) */
+  --serif-deco:'Prata','Bodoni Moda',Didot,Georgia,serif;
+
+  /* layout */
+  --rail:252px;
+  --topbar:64px;
+  --maxw:1240px;
+  --ease:cubic-bezier(.2,.7,.3,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font);
+  font-size:16px;
+  line-height:1.58;
+  letter-spacing:0;
+  font-optical-sizing:auto;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-variant-numeric:tabular-nums;
+}
+h1,h2,h3,h4,p,figure,blockquote,ul,ol,dl{margin:0}
+ul,ol{padding:0;list-style:none}
+img,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+hr{border:0;border-top:1px solid var(--line);margin:0}
+
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
+::selection{background:rgba(95,208,232,.30);color:var(--ink)}
+
+.skip-link{position:fixed;left:-999px;top:12px;z-index:100;background:var(--surface);padding:10px 16px;border-radius:var(--r-sm);box-shadow:var(--sh-2)}
+.skip-link:focus{left:12px}
+
+/* ---------- tipografia ----------
+   I titoli sono didone: peso alto, occhio ottico grande, crenatura
+   stretta. È il gesto del manifesto, usato una volta per schermata. */
+.display{
+  font-family:var(--serif);
+  font-weight:600;
+  letter-spacing:.005em;
+  line-height:1.1;
+  color:var(--ink);
+}
+.d-1{
+  font-size:clamp(30px,5.6vw,76px);line-height:1.04;text-transform:uppercase;letter-spacing:.005em;font-weight:700;
+  color:var(--accent);text-shadow:0 0 72px rgba(227,183,94,.22),0 2px 0 rgba(0,0,0,.35);
+}
+.d-2{font-size:clamp(26px,3.4vw,44px);line-height:1.12;text-transform:uppercase;letter-spacing:.02em;font-weight:700}
+.d-3{font-size:clamp(23px,2.6vw,33px);line-height:1.14;text-transform:uppercase;letter-spacing:.03em}
+.d-4{font-size:clamp(19px,2vw,25px);line-height:1.2;letter-spacing:.01em}
+/* Cinzel non ha corsivo: il contrasto lo fa il colore del portale */
+.display em{font-style:normal;color:var(--signal);text-shadow:0 0 62px rgba(95,208,232,.34)}
+
+.h-lg{font-size:20px;font-weight:600;letter-spacing:-.004em;line-height:1.3}
+.h-md{font-size:16.5px;font-weight:600;line-height:1.36}
+.h-sm{font-size:14.5px;font-weight:600}
+
+.lead{font-size:clamp(16.5px,1.5vw,19px);line-height:1.62;color:var(--ink-2)}
+.body{color:var(--ink-2)}
+.small{font-size:13.5px;line-height:1.5}
+.tiny{font-size:12.5px;line-height:1.45}
+.muted{color:var(--ink-3)}
+.mono-num{font-variant-numeric:tabular-nums}
+
+/* le didascalie sono incise: maiuscolo epigrafico, molto spaziato */
+.eyebrow{
+  font-family:var(--serif);
+  font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-3);
+}
+.eyebrow.on-accent{color:var(--accent)}
+
+/* ---------- pulsanti ---------- */
+.btn{
+  --btn-bg:transparent;--btn-fg:var(--ink);--btn-bd:var(--line-strong);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:40px;padding:0 16px;
+  background:var(--btn-bg);color:var(--btn-fg);
+  border:1px solid var(--btn-bd);border-radius:var(--r-full);
+  font-size:14.5px;font-weight:500;
+  cursor:pointer;white-space:nowrap;
+  transition:background .18s var(--ease),border-color .18s var(--ease),transform .18s var(--ease),box-shadow .18s var(--ease),color .18s var(--ease);
+}
+.btn:hover{background:var(--surface-3);border-color:var(--ink-4)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.btn svg{width:16px;height:16px;flex:none}
+
+.btn-primary{--btn-bg:var(--accent);--btn-fg:var(--on-accent);--btn-bd:var(--accent);font-weight:600;box-shadow:0 0 24px -6px rgba(227,183,94,.45)}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+
+.btn-ink{--btn-bg:var(--ink);--btn-fg:var(--bg);--btn-bd:var(--ink)}
+.btn-ink:hover{background:#fff;border-color:#fff}
+
+.btn-ghost{--btn-bd:transparent;color:var(--ink-2)}
+.btn-ghost:hover{background:var(--surface-3);border-color:transparent;color:var(--ink)}
+
+.btn-soft{--btn-bg:var(--signal-soft);--btn-bd:transparent;--btn-fg:var(--signal)}
+.btn-soft:hover{background:var(--signal-soft-2)}
+
+.btn-danger{--btn-bd:var(--line-strong);--btn-fg:var(--danger)}
+.btn-danger:hover{background:var(--danger-soft);border-color:rgba(224,87,74,.45)}
+
+.btn-lg{min-height:48px;padding:0 26px;font-size:15.5px}
+.btn-sm{min-height:32px;padding:0 13px;font-size:13.5px}
+.btn-icon{width:38px;height:38px;min-height:0;padding:0;border-radius:var(--r-full)}
+.btn-block{width:100%}
+
+/* ---------- form ---------- */
+.field{display:flex;flex-direction:column;gap:7px}
+.label{font-size:13.5px;font-weight:500;color:var(--ink-2)}
+.hint{font-size:12.5px;color:var(--ink-3);line-height:1.45}
+
+.input,.select,.textarea{
+  width:100%;min-height:42px;padding:9px 13px;
+  background:var(--bg-tint);
+  border:1px solid var(--line-strong);border-radius:var(--r-sm);
+  font-size:15px;color:var(--ink);
+  transition:border-color .16s var(--ease),box-shadow .16s var(--ease),background .16s var(--ease);
+}
+.input::placeholder,.textarea::placeholder{color:var(--ink-4)}
+.input:hover,.select:hover,.textarea:hover{border-color:var(--ink-4)}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--signal);box-shadow:var(--sh-focus);background:var(--surface-2)}
+.textarea{min-height:96px;resize:vertical;line-height:1.55}
+.select{
+  appearance:none;padding-right:36px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%2387927C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;
+}
+.select option{background:var(--surface);color:var(--ink)}
+.input-search{padding-left:38px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.6' fill='none' stroke='%2387927C' stroke-width='1.5'/%3E%3Cpath d='M10.6 10.6 14 14' stroke='%2387927C' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:left 13px center;
+}
+
+/* checkbox e radio come pastiglie */
+.choice{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;border:1px solid var(--line-strong);border-radius:var(--r-full);
+  background:transparent;cursor:pointer;font-size:14px;color:var(--ink-2);
+  transition:all .16s var(--ease);user-select:none;
+}
+.choice:hover{border-color:var(--ink-4);color:var(--ink)}
+.choice input{position:absolute;opacity:0;width:0;height:0}
+.choice .tick{
+  width:15px;height:15px;border-radius:5px;border:1.5px solid var(--line-strong);flex:none;
+  display:grid;place-items:center;transition:all .16s var(--ease);
+}
+.choice.round .tick{border-radius:50%}
+.choice .tick svg{width:9px;height:9px;opacity:0;transform:scale(.6);transition:all .16s var(--ease);color:#06121A}
+.choice:has(input:checked){background:var(--signal-soft);border-color:var(--signal-soft-2);color:var(--signal);font-weight:500}
+.choice:has(input:checked) .tick{background:var(--signal);border-color:var(--signal)}
+.choice:has(input:checked) .tick svg{opacity:1;transform:scale(1)}
+.choice:has(input:focus-visible){box-shadow:var(--sh-focus)}
+
+/* interruttore */
+.switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.switch input{position:absolute;opacity:0}
+.switch .track{
+  width:38px;height:22px;border-radius:var(--r-full);background:var(--surface-3);
+  border:1px solid var(--line-strong);padding:2px;transition:background .2s var(--ease),border-color .2s var(--ease);flex:none;
+}
+.switch .thumb{width:16px;height:16px;border-radius:50%;background:var(--ink-3);transition:transform .2s var(--ease),background .2s var(--ease)}
+.switch input:checked + .track{background:var(--signal);border-color:var(--signal)}
+.switch input:checked + .track .thumb{transform:translateX(16px);background:#06121A}
+.switch input:focus-visible + .track{box-shadow:var(--sh-focus)}
+
+/* cursore */
+.range{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;cursor:pointer}
+.range::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--line-strong)}
+.range::-moz-range-track{height:3px;border-radius:2px;background:var(--line-strong)}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;margin-top:-7px;border-radius:50%;background:var(--signal);border:none;box-shadow:0 0 0 4px rgba(95,208,232,.18)}
+.range::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--signal);border:none;box-shadow:0 0 0 4px rgba(95,208,232,.18)}
+.range:focus-visible::-webkit-slider-thumb{box-shadow:var(--sh-focus)}
+
+/* ---------- utility ---------- */
+.row{display:flex;align-items:center;gap:10px}
+.row-b{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.col{display:flex;flex-direction:column}
+.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.center{align-items:center}
+.g-4{gap:4px}.g-6{gap:6px}.g-8{gap:8px}.g-10{gap:10px}.g-12{gap:12px}
+.g-16{gap:16px}.g-20{gap:20px}.g-24{gap:24px}.g-32{gap:32px}.g-40{gap:40px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}
+.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}
+.tc{text-align:center}
+.nowrap{white-space:nowrap}
+.hide{display:none !important}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+}

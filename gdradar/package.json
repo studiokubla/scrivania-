@@ -1,0 +1,20 @@
+{
+  "name": "gdradar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GdRadar — discovery e matchmaking per giochi di ruolo. Prototipo V1.",
+  "scripts": {
+    "build": "node build.js",
+    "ios:add": "npm run build && npx cap add ios",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:open": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/geolocation": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}

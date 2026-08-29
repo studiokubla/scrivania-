@@ -28,6 +28,8 @@ const js = jsFiles.map((f) => '/* ---- ' + f + ' ---- */\n' + read(f)).join('\n\
 const body = html
   .slice(html.indexOf('<body>') + 6, html.indexOf('</body>'))
   .replace(/\s*<script src="assets\/[^"]+"><\/script>/g, '')
+  /* il file singolo non ha file accanto: via la registrazione del service worker */
+  .replace(/\s*<script>[\s\S]*?serviceWorker[\s\S]*?<\/script>/g, '')
   .trim();
 
 const inner = `<title>GdRadar</title>
@@ -65,14 +67,31 @@ fs.mkdirSync(path.join(ROOT, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(ROOT, 'dist/gdradar.html'), doc);
 fs.writeFileSync(path.join(ROOT, 'dist/gdradar-artifact.html'), inner);
 
-/* GitHub Pages pubblica la cartella /docs del repository: ci mettiamo
-   la stessa pagina, così il sito resta allineato a ogni build. */
+/* GitHub Pages pubblica la cartella /docs del repository.
+   Qui NON va il file singolo ma l'app come cartella: il service worker e
+   il manifest hanno bisogno di file veri per rendere l'app installabile
+   sul telefono. Il file singolo resta in dist/ per chi lo vuole spedire. */
 const DOCS = path.join(ROOT, '..', 'docs');
-fs.mkdirSync(DOCS, { recursive: true });
-fs.writeFileSync(path.join(DOCS, 'index.html'), doc);
+fs.rmSync(DOCS, { recursive: true, force: true });
+fs.mkdirSync(path.join(DOCS, 'gdradar'), { recursive: true });
+for (const f of ['index.html', 'manifest.webmanifest', 'sw.js']) {
+  fs.copyFileSync(path.join(ROOT, f), path.join(DOCS, 'gdradar', f));
+}
+fs.cpSync(path.join(ROOT, 'assets'), path.join(DOCS, 'gdradar/assets'), { recursive: true });
 fs.writeFileSync(path.join(DOCS, '.nojekyll'), '');
+/* la radice del sito rimanda alla cartella con il nome del prodotto */
+/* Capacitor impacchetta questa cartella dentro l'app iOS */
+const WWW = path.join(ROOT, 'www');
+fs.rmSync(WWW, { recursive: true, force: true });
+fs.cpSync(path.join(DOCS, 'gdradar'), WWW, { recursive: true });
+
+fs.writeFileSync(path.join(DOCS, 'index.html'),
+  '<!doctype html><meta charset="utf-8"><title>GdRadar</title>' +
+  '<meta http-equiv="refresh" content="0; url=./gdradar/">' +
+  '<link rel="canonical" href="./gdradar/"><a href="./gdradar/">GdRadar</a>');
 
 const kb = (s) => (Buffer.byteLength(s) / 1024).toFixed(0) + ' KB';
 console.log('dist/gdradar.html          ' + kb(doc));
 console.log('dist/gdradar-artifact.html ' + kb(inner));
-console.log('docs/index.html            ' + kb(doc) + '  (GitHub Pages)');
+console.log('docs/gdradar/              app installabile (GitHub Pages)');
+console.log('www/                       cartella per il guscio iOS (Capacitor)');

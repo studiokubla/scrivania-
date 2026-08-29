@@ -22,12 +22,20 @@ Nessuna build, nessuna dipendenza: HTML, CSS e JavaScript statici. Si apre facen
 | **Moderazione** | `#/moderazione` | Backoffice: coda casi, triage, severity S0–S4, evidenze vincolate al caso, azioni proporzionate, ricorsi, audit log, quattro ruoli. |
 | **Gioco etico / Privacy** | `#/etica`, `#/privacy` | Patto di Community, Newbie Friendly, modello dati della verifica 18+. |
 
-## Metterlo online
+## Metterlo online, e sul telefono
 
-`node gdradar/build.js` scrive anche `docs/index.html`: è la cartella che GitHub Pages pubblica.
-Per accendere il sito, una volta sola, su GitHub: **Settings → Pages → Source: Deploy from a
-branch**, poi scegli il branch e la cartella `/docs`. L'indirizzo diventa
-`https://studiokubla.github.io/scrivania-/` e si aggiorna a ogni push.
+`node gdradar/build.js` produce tre forme della stessa app:
+
+- `dist/gdradar.html` — file singolo, doppio clic o da spedire;
+- `docs/gdradar/` — l'app come cartella, **installabile**: manifest, icone e service worker, quindi
+  su iPhone si aggiunge alla schermata Home e funziona anche offline;
+- `www/` — la stessa cartella impacchettata dal guscio iOS (Capacitor), rigenerata a ogni build.
+
+Per accendere il sito, una volta sola su GitHub: **Settings → Pages → Source: Deploy from a
+branch**, poi il branch e la cartella `/docs`. L'indirizzo diventa
+`https://studiokubla.github.io/scrivania-/gdradar/` e si aggiorna a ogni push.
+
+Per l'app iOS e cosa chiede davvero l'App Store: **[APPSTORE.md](APPSTORE.md)**.
 
 ## Come provarlo in trenta secondi
 

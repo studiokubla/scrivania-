@@ -1,0 +1,14 @@
+{
+  "appId": "com.studiokubla.gdradar",
+  "appName": "GdRadar",
+  "webDir": "www",
+  "backgroundColor": "#080F1EFF",
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#080F1EFF",
+    "preferredContentMode": "mobile"
+  },
+  "server": {
+    "iosScheme": "gdradar"
+  }
+}
