@@ -266,14 +266,15 @@
       '<path d="' + spigoli + '" stroke="var(--accent)" stroke-opacity=".28" stroke-width="' + (s / 34).toFixed(2) + '"/>' +
       '<polygon points="' + pts(faccia) + '" fill="var(--accent)" fill-opacity=".18" stroke="var(--accent)" stroke-opacity=".7" stroke-width="' + (s / 30).toFixed(2) + '" stroke-linejoin="round"/>' +
       '<text x="' + c + '" y="' + (c + s * 0.165).toFixed(2) + '" text-anchor="middle" fill="var(--accent)" ' +
-        'font-family="Cinzel, Georgia, serif" font-weight="700" font-size="' + (s * 0.46).toFixed(2) + '">R</text>' +
+        'font-family="Metamorphous, Cinzel, Georgia, serif" font-weight="400" font-size="' + (s * 0.48).toFixed(2) + '">R</text>' +
       '</svg>');
   }
 
-  function logo(size) {
-    return html`<span class="logo">
-      ${d20Mark(size || 30)}
-      <span class="word">GD<b>R</b>ADAR</span></span>`;
+  /* Il blocco del marchio: una parola sola, con il dado che le sta
+     dietro centrato sulla R. Il pittogramma autonomo (d20Mark) resta
+     per favicon e icona, dove la parola non entrerebbe. */
+  function logo() {
+    return html`<span class="logo"><span class="word">GD<b>R</b>ADAR</span></span>`;
   }
 
   function shell(active, content, opts) {

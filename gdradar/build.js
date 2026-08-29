@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = __dirname;
-const FONTS = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Cinzel+Decorative:wght@700&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap';
+const FONTS = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Metamorphous&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap';
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
 const html = read('index.html');

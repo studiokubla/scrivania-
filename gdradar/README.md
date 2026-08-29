@@ -64,12 +64,14 @@ distinguono Party, Campagne e annunci.
 
 Il **marchio** è una cosa sola letta due volte: il logotipo *GDRADAR* ha lettering uniforme —
 stesso carattere, stesso peso, stessa spaziatura per ogni lettera — e l'unica che si stacca è la
-**R**, in oro. Quella stessa R è il pittogramma, incastonata nella faccia frontale di un d20
-(`GD.ui.d20Mark`), che regge fino a 20 px e vale da sola come icona.
+**R**, in oro. Dietro quella R sta il d20, ancorato alla lettera con misure in `em`: cresce e si
+ricentra da solo a ogni corpo, dal logotipo di 15 px alla testata. Lo stesso segno esiste anche
+da solo, con la R incastonata nella faccia frontale (`GD.ui.d20Mark`), per favicon e icona, dove
+la parola non entrerebbe.
 
 I caratteri sono due più uno: **Cinzel** per i titoli (epigrafico, solo maiuscolo, senza corsivo —
-il contrasto lo fa il colore), **Spectral** per testo e interfaccia, **Cinzel Decorative** per il
-solo logotipo.
+il contrasto lo fa il colore), **Spectral** per testo e interfaccia, **Metamorphous** per il solo
+logotipo: è il taglio più fantasy dei tre e regge fino a 15 px.
 
 Sul Radar i risultati non sono puntini ma **d20**: esagono di silhouette, faccia illuminata e tre
 spigoli (`GD.ui.d20`), con la dimensione del dado che porta la compatibilità e il colore che porta

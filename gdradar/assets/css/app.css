@@ -65,16 +65,28 @@
 }
 
 /* ---------- marchio ---------- */
-.logo{display:flex;align-items:center;gap:10px}
+.logo{display:flex;align-items:center}
 .logo .mark{width:30px;height:30px;flex:none;filter:drop-shadow(0 0 12px rgba(227,183,94,.28))}
-/* il logotipo è una sola voce: stesso carattere, stesso peso, stessa
-   spaziatura per ogni lettera. L'unica che si stacca è la R, in oro,
-   la stessa che nel pittogramma sta dentro il dado. */
+/* Il logotipo è una sola voce: stesso carattere, stesso peso, stessa
+   spaziatura per ogni lettera. L'unica che si stacca è la R, in oro.
+   Dietro quella R sta il dado, ancorato alla lettera: essendo in em,
+   cresce e si ricentra da solo a ogni corpo. */
 .logo .word{
-  font-family:var(--serif);font-size:19px;font-weight:600;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  position:relative;z-index:0;
+  font-family:var(--serif-deco);font-size:19px;font-weight:400;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
+  padding:.55em 0;
 }
-.logo .word b{font-weight:600;color:var(--accent);text-shadow:0 0 16px rgba(227,183,94,.45)}
+.logo .word b{
+  position:relative;font-weight:400;color:var(--accent);
+  text-shadow:0 0 18px rgba(227,183,94,.5);
+}
+.logo .word b::before{
+  content:'';position:absolute;left:calc(50% - .08em);top:50%;
+  width:2.35em;height:2.35em;transform:translate(-50%,-50%);
+  background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><polygon points='32.0,2.0 6.0,17.0 6.0,47.0 32.0,62.0 58.0,47.0 58.0,17.0' fill='%23E3B75E' fill-opacity='.09' stroke='%23E3B75E' stroke-opacity='.42' stroke-width='2' stroke-linejoin='round'/><path d='M32 32L6.0 17.0 M32 32L32.0 62.0 M32 32L58.0 17.0' stroke='%23E3B75E' stroke-opacity='.24' stroke-width='1.4' fill='none'/><polygon points='32.0,2.0 6.0,47.0 58.0,47.0' fill='%23E3B75E' fill-opacity='.13' stroke='%23E3B75E' stroke-opacity='.55' stroke-width='1.7' stroke-linejoin='round'/></svg>") center/contain no-repeat;
+  z-index:-1;pointer-events:none;
+}
 
 /* ============================================================
    LANDING
