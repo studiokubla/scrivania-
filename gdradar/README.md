@@ -36,6 +36,7 @@ branch**, poi il branch e la cartella `/docs`. L'indirizzo diventa
 `https://studiokubla.github.io/scrivania-/gdradar/` e si aggiorna a ogni push.
 
 Per l'app iOS e cosa chiede davvero l'App Store: **[APPSTORE.md](APPSTORE.md)**.
+Per il percorso da prototipo a servizio reale: **[ROADMAP.md](ROADMAP.md)**.
 
 ## Come provarlo in trenta secondi
 
