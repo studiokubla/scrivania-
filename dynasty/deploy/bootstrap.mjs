@@ -44,12 +44,16 @@ function esegui(comando, ambiente = {}) {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
       maxBuffer: 64 * 1024 * 1024,
+      // Un comando che si pianta — una connessione al database che non
+      // risponde — mangerebbe l'intera finestra di build e la farebbe morire
+      // senza diario. Meglio ucciderlo e raccontarlo.
+      timeout: 15 * 60 * 1000,
     });
     annota(uscita.trimEnd());
     return uscita;
   } catch (errore) {
     annota(`${errore.stdout ?? ""}${errore.stderr ?? ""}`.trimEnd());
-    annota(`\n✗ uscita con codice ${errore.status}`);
+    annota(`\n✗ uscita con codice ${errore.status} ${errore.signal ?? ""}`);
     throw errore;
   }
 }
@@ -89,7 +93,16 @@ function costruisci() {
     if (!existsSync(`node_modules/${atteso}`)) throw new Error(`Manca ${atteso} dopo l'installazione.`);
   }
 
-  esegui("npm run build");
+  // I tre passi della build, uno alla volta invece che dentro `npm run build`:
+  // se a rompersi è l'allineamento dello schema, il diario lo dice, invece di
+  // riportare un fallimento generico dell'intera compilazione.
+  esegui("npx prisma generate");
+  if (process.env.DATABASE_URL) {
+    esegui("npx prisma db push");
+  } else {
+    annota("\n⚠  DATABASE_URL non configurata: salto l'allineamento dello schema.");
+  }
+  esegui("npx next build", { NODE_ENV: "production" });
 }
 
 /**

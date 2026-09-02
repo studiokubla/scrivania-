@@ -58,7 +58,11 @@ export default async function AdminPage() {
     }),
     db.importRun.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
     verifyAuditChain(season.id),
-    db.player.count({ where: { birthDate: null, declaredAge: null, contracts: { some: { status: "ACTIVE" } } } }),
+    // Tutti i giocatori, non solo quelli sotto contratto: l'età serve prima
+    // ancora di firmare — sul listone, quando si sceglie chi prendere — e a
+    // lega appena nata nessuno ha contratti, quindi il conteggio ristretto
+    // direbbe sempre zero proprio quando manca tutto.
+    db.player.count({ where: { birthDate: null, declaredAge: null } }),
     db.importRun.findMany({ where: { status: "PARTIAL" }, orderBy: { createdAt: "desc" }, take: 1 }),
   ]);
 
@@ -95,7 +99,7 @@ export default async function AdminPage() {
             label="Età mancanti"
             value={missingBirthDates}
             tone={missingBirthDates > 0 ? "avviso" : "positivo"}
-            hint="giocatori sotto contratto"
+            hint="giocatori senza età"
           />
         </div>
         {missingBirthDates > 0 && (
