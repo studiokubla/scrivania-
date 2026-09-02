@@ -47,3 +47,7 @@ next-env.d.ts
 
 # verifiche manuali
 /shot-*.png
+
+# la configurazione del deploy con i valori veri non si versiona
+vercel.json
+.vercel

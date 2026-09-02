@@ -27,6 +27,25 @@ function check(label, cond, detail = "") {
   if (!cond) failures += 1;
 }
 
+/**
+ * Aspetta che una condizione sul database diventi vera.
+ *
+ * Le azioni che cambiano la forma della pagina — aprire l'asta fa sparire il
+ * bottone che l'ha aperta — smontano il riquadro di esito insieme al bottone.
+ * Aspettare quel riquadro è una corsa che sotto carico si perde: si aspetta il
+ * fatto, non il messaggio.
+ */
+async function attendi(condizione, cosa, timeoutMs = ATTESA) {
+  const scadenza = Date.now() + timeoutMs;
+  while (Date.now() < scadenza) {
+    if (condizione()) return true;
+    await new Promise((r) => setTimeout(r, 400));
+  }
+  console.log(`FAIL  timeout in attesa di: ${cosa}`);
+  failures += 1;
+  return false;
+}
+
 async function loginAs(email) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
@@ -48,7 +67,7 @@ sql(`update "Auction" set "bidWindowSeconds" = 600;`);
 const boss = await loginAs("info@studiokubla.com");
 await boss.goto(`${BASE}/asta`);
 await boss.click(`button:has-text("riestrai"), button:has-text("Apri l'asta")`);
-await boss.waitForSelector(".avviso-ok", { timeout: ATTESA });
+await attendi(() => sql(`select status from "Auction";`) === "RUNNING", "apertura dell'asta");
 check("asta aperta dal commissioner", sql(`select status from "Auction";`) === "RUNNING");
 
 const order = sql(`select array_to_string("callOrder", ',') from "Auction";`).split(",");

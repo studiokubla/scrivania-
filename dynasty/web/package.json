@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -14,7 +14,10 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "verifica": "node scripts/verifica.mjs"
+    "verifica": "node scripts/verifica.mjs",
+    "build:local": "prisma generate && next build",
+    "listone:json": "node scripts/listone-json.mjs",
+    "presentazione": "node scripts/presentazione.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
