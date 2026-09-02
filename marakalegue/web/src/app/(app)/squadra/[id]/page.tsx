@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CapBar, Card, ContractTag, Empty, Issues, Money$, OptionCounter, RoleBadge, Stat } from "@/components/ui";
+import { SocietyPanel } from "./societa";
+import { buildStadium, expandAcademy, sendScout, societyOptions } from "@/app/actions/societa";
 import { requireSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLeagueContext, getTeamState } from "@/lib/league";
@@ -50,6 +52,7 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
 
   const current = state.capMatrix[0];
   const tier = stadium ? stadiumTier(stadium.level, ruleset) : null;
+  const society = isMine ? await societyOptions(id) : null;
 
   const ordered = [...inSeason].sort((a, b) => {
     const order: Record<PlayerRole, number> = { P: 0, D: 1, C: 2, A: 3 };
@@ -288,6 +291,36 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
           </Card>
         </div>
       </div>
+
+      {society && (
+        <div>
+          <div className="occhiello" style={{ marginBottom: 8 }}>
+            Investimenti societari · titolo V
+          </div>
+          <SocietyPanel
+            teamId={id}
+            capital={society.capital}
+            phase={society.phase}
+            homeMatches={ruleset.capital.homeMatchesPerSeason}
+            stadium={society.stadium}
+            academy={society.academy}
+            scouting={society.scouting}
+            existingScouts={scouts.map((s) => ({ league: s.league, club: s.club }))}
+            build={async (teamId: string, level: number) => {
+              "use server";
+              return buildStadium(teamId, level);
+            }}
+            expand={async (teamId: string, capacity: number) => {
+              "use server";
+              return expandAcademy(teamId, capacity);
+            }}
+            scout={async (input: { teamId: string; league: string; club?: string }) => {
+              "use server";
+              return sendScout(input);
+            }}
+          />
+        </div>
+      )}
 
       {youth.length > 0 && (
         <Card title="Settore giovanile" subtitle="Non percepiscono ingaggio finché non vengono promossi (art. 16.3)" padded={false}>

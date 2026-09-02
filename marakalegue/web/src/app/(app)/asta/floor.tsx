@@ -68,7 +68,16 @@ export function AuctionFloor({
   const [result, setResult] = useState<ActionResult | null>(null);
   const [query, setQuery] = useState("");
   const [amount, setAmount] = useState("");
+  // La busta già depositata riempie il campo quando cambia la chiamata, non a ogni
+  // aggiornamento: altrimenti quello che il manager sta scrivendo verrebbe sovrascritto
+  // dal polling ogni due secondi.
+  const [lotoSincronizzato, setLotoSincronizzato] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
+
+  if (lot && lot.id !== lotoSincronizzato) {
+    setLotoSincronizzato(lot.id);
+    setAmount(lot.myBid !== null ? String(lot.myBid) : "");
+  }
 
   const running = status === "RUNNING";
 
@@ -81,10 +90,6 @@ export function AuctionFloor({
     }, fast ? 2000 : 8000);
     return () => clearInterval(id);
   }, [running, lot, router]);
-
-  useEffect(() => {
-    if (lot?.myBid !== null && lot?.myBid !== undefined) setAmount(String(lot.myBid));
-  }, [lot?.id, lot?.myBid]);
 
   const secondsLeft = lot?.closesAt ? Math.max(0, Math.ceil((new Date(lot.closesAt).getTime() - now) / 1000)) : null;
 

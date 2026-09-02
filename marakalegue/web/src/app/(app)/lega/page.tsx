@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { CapBar, Card, Empty, Money$, Stat } from "@/components/ui";
+import { CapBar, Card, Empty, Stat } from "@/components/ui";
 import { requireSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLeagueContext } from "@/lib/league";

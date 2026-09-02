@@ -25,9 +25,10 @@ async function loginAs(email) {
   return { page, errs };
 }
 
+let failures = 0;
 function check(label, condition, detail = '') {
   console.log(`${condition ? 'OK  ' : 'FAIL'}  ${label}${detail ? ` — ${detail}` : ''}`);
-  if (!condition) process.exitCode = 1;
+  if (!condition) failures += 1;
 }
 
 // Un attaccante svincolato con quotazione bassa, per non urtare i limiti
@@ -99,5 +100,9 @@ await m1.page.goto(`${BASE}/registro`);
 const chainOk = await m1.page.locator('.avviso-ok').first().textContent();
 check('catena del registro integra', /Catena integra/.test(chainOk ?? ''), (chainOk ?? '').trim().slice(0, 60));
 
-console.log('\nErrori JavaScript:', m1.errs.length + m2.errs.length);
+const jsErrors = m1.errs.length + m2.errs.length;
+check('nessun errore JavaScript', jsErrors === 0, `${jsErrors} errori`);
+
+console.log(`\n${failures === 0 ? 'Tutte le verifiche passate.' : `${failures} verifiche fallite.`}`);
 await browser.close();
+process.exitCode = failures === 0 ? 0 : 1;

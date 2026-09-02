@@ -7,7 +7,6 @@ import { applyRate, fromMillions, type Money, roundToStep, isOnStep } from "../m
 import type { Ruleset } from "../ruleset";
 import {
   type ContractType,
-  type PlayerRole,
   type SalarySchedule,
   type ValidationResult,
   fail,

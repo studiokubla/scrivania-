@@ -1,13 +1,13 @@
 import Link from "next/link";
 
-import { Card, ContractTag, Empty, Money$, RoleBadge, Stat, Tag } from "@/components/ui";
+import { Card, ContractTag, Empty, RoleBadge, Stat, Tag } from "@/components/ui";
 import { ActionButton, Countdown, OfferForm, type FreeAgent } from "./client";
 import { buyoutContract, exerciseTeamOption, applyFranchiseTag } from "@/app/actions/contracts";
 import { claimWaiver, resolveDueOffers, resolveDueWaivers, submitFreeAgencyOffer } from "@/app/actions/market";
 import { requireSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLeagueContext, getOptionCounters, getTeamState } from "@/lib/league";
-import { formatMoney, fromDecimal, fromMillions } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 import { quoteBuyout } from "@/lib/rules/buyout";
 import { ageAtSeason, salaryInYear } from "@/lib/rules/contracts";
 

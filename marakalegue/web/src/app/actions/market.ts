@@ -14,7 +14,6 @@ import {
   getStandingPositions,
   getTeamContracts,
   scheduleToJson,
-  toContractView,
 } from "@/lib/league";
 import { formatMoney, fromDecimal, fromMillions, isOnStep, toDecimalString, type Money } from "@/lib/money";
 import { resolveSealedBids } from "@/lib/rules/auction";
@@ -499,7 +498,7 @@ export async function proposeTrade(input: z.input<typeof TradeSchema>): Promise<
 
   const expiresAt = new Date(Date.now() + ruleset.market.tradeAcceptHours * 3600_000);
 
-  const trade = await db.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     const created = await tx.trade.create({
       data: {
         seasonId: season.id,
