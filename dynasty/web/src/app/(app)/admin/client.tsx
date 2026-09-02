@@ -326,10 +326,17 @@ export function TeamsPanel({
   rigenera: (teamId: string) => Promise<CredenzialiState>;
   elimina: (teamId: string) => Promise<ActionResult>;
   azzera: (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
-  segnaposto: () => Promise<CredenzialiState & { elenco?: { team: string; email: string; password: string }[] }>;
+  segnaposto: (
+    prev: CredenzialiState & { elenco?: { team: string; email: string; password: string }[] },
+    formData: FormData,
+  ) => Promise<CredenzialiState & { elenco?: { team: string; email: string; password: string }[] }>;
 }) {
   const router = useRouter();
   const [statoCrea, azioneCrea] = useActionState<CredenzialiState, FormData>(crea, { ok: true, message: "" });
+  const [statoSegnaposto, azioneSegnaposto] = useActionState<
+    CredenzialiState & { elenco?: { team: string; email: string; password: string }[] },
+    FormData
+  >(segnaposto, { ok: true, message: "" });
   const [statoModifica, azioneModifica] = useActionState<ActionResult, FormData>(modifica, { ok: true, message: "" });
   const [inModifica, setInModifica] = useState<string | null>(null);
   const [credenziali, setCredenziali] = useState<{ team: string; email: string; password: string } | null>(null);
@@ -359,9 +366,9 @@ export function TeamsPanel({
         {daMostrare && <Credenziali dati={daMostrare} onClose={() => setCredenziali(null)} />}
         {esito && <Result result={esito} />}
 
-        {gruppo.length > 0 && (
+        {(statoSegnaposto.elenco ?? gruppo).length > 0 && (
           <div className="avviso avviso-ok" style={{ display: "block" }}>
-            <strong>Ecco le {gruppo.length} squadre e le loro password.</strong> Si vedono una volta
+            <strong>Ecco le {(statoSegnaposto.elenco ?? gruppo).length} squadre e le loro password.</strong> Si vedono una volta
             sola: copiale adesso.
             <pre
               style={{
@@ -376,7 +383,9 @@ export function TeamsPanel({
                 color: "var(--inchiostro)",
               }}
             >
-              {gruppo.map((g) => `${g.team}\n  ${g.email}\n  ${g.password}`).join("\n\n")}
+              {(statoSegnaposto.elenco ?? gruppo)
+                .map((g) => `${g.team}\n  ${g.email}\n  ${g.password}`)
+                .join("\n\n")}
             </pre>
             <button
               type="button"
@@ -384,7 +393,9 @@ export function TeamsPanel({
               style={{ marginTop: 10 }}
               onClick={() =>
                 navigator.clipboard?.writeText(
-                  gruppo.map((g) => `${g.team}\n  ${g.email}\n  ${g.password}`).join("\n\n"),
+                  (statoSegnaposto.elenco ?? gruppo)
+                    .map((g) => `${g.team}\n  ${g.email}\n  ${g.password}`)
+                    .join("\n\n"),
                 )
               }
             >
@@ -399,21 +410,10 @@ export function TeamsPanel({
               Nessuna squadra iscritta. Ognuna nasce con la dotazione iniziale, lo stadio a livello
               zero, il settore giovanile e le sue scelte al draft; le rose si formano all&apos;asta.
             </p>
-            <button
-              type="button"
-              className="bottone bottone-primario bottone-largo"
-              disabled={pending}
-              onClick={() =>
-                startTransition(async () => {
-                  const r = await segnaposto();
-                  setEsito(r.ok ? null : r);
-                  if (r.elenco) setGruppo(r.elenco);
-                  router.refresh();
-                })
-              }
-            >
-              {pending ? "Iscrivo…" : `Iscrivi ${maxTeams} squadre segnaposto`}
-            </button>
+            <form action={azioneSegnaposto}>
+              <Submit label={`Iscrivi ${maxTeams} squadre segnaposto`} />
+            </form>
+            {statoSegnaposto.message && !statoSegnaposto.elenco && <Result result={statoSegnaposto} />}
             <p className="didascalia" style={{ margin: 0 }}>
               Si chiameranno «Squadra 1»…«Squadra {maxTeams}» e si rinominano quando i presidenti
               scelgono i nomi veri. In alternativa, aggiungile una alla volta qui sotto.

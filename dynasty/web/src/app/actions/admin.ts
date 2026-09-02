@@ -883,8 +883,14 @@ export async function annullaAcquisto(contractId: string): Promise<ActionResult>
  * Serve il primo giorno: i nomi veri arrivano quando i presidenti li scelgono,
  * ma le squadre devono esistere prima — l'asta si fa fra squadre, non fra
  * intenzioni. Si rinominano poi una per una, senza perdere niente.
+ *
+ * È un modulo e non un pulsante per la stessa ragione dell'azzeramento: le
+ * operazioni che fondano la lega devono funzionare anche se il JavaScript non
+ * è partito.
  */
-export async function iscriviSquadreSegnaposto(): Promise<CredenzialiState & { elenco?: { team: string; email: string; password: string }[] }> {
+export async function iscriviSquadreSegnaposto(
+  _prev: CredenzialiState & { elenco?: { team: string; email: string; password: string }[] },
+): Promise<CredenzialiState & { elenco?: { team: string; email: string; password: string }[] }> {
   const session = await requireCommissioner();
   const { league, season, ruleset } = await getLeagueContext();
 
