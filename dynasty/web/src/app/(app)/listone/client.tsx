@@ -276,7 +276,7 @@ export function Listone({
             <span>
               Ultimi acquisti registrati
               <div className="riga-nota" style={{ fontWeight: 400 }}>
-                Se hai sbagliato a digitare, da qui si annulla
+                Gli ultimi {ultimi.length}: se hai sbagliato a digitare, da qui si annulla
               </div>
             </span>
           </summary>

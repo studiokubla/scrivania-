@@ -51,11 +51,14 @@ export default async function ListonePage() {
     db.contract.count({ where: { status: "ACTIVE", seasonId: season.id } }),
     db.season.findUniqueOrThrow({ where: { id: season.id }, select: { matchday: true } }),
     // Le ultime firme, per poter annullare un errore di battitura al tavolo.
+    // Dodici e non cinque: a un'asta dal vivo l'errore si nota qualche
+    // chiamata dopo, non subito, e dover rifare la lega per una cifra
+    // sbagliata sarebbe assurdo.
     commissioner
       ? db.contract.findMany({
           where: { status: "ACTIVE", seasonId: season.id },
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: 12,
           include: { player: { select: { name: true } }, team: { select: { name: true } } },
         })
       : Promise.resolve([]),
