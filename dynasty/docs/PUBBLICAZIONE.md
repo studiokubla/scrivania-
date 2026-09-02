@@ -4,8 +4,12 @@ L'applicazione è pubblicata su Vercel. Serve **una sola variabile d'ambiente**,
 `DATABASE_URL`: tutto il resto — chiave di firma delle sessioni compresa — se
 lo genera e se lo conserva da sé al primo avvio.
 
-Indirizzo attuale:
-**https://dynasty-league-nk37v76ih-kubla.vercel.app**
+Indirizzo:
+**https://dynasty-league-kubla.vercel.app**
+
+È l'indirizzo stabile del progetto: resta questo a ogni pubblicazione. Ogni
+singolo deploy ne ha anche uno proprio, con una sigla in mezzo, ma quello
+cambia ogni volta e non va dato a nessuno.
 
 ---
 
@@ -52,6 +56,13 @@ indicato. Per aggiornare la versione online: cambia `COMMIT` in
 L'ultima riga non è un dettaglio: con la protezione attiva su *All Deployments*
 anche l'indirizzo di produzione rimbalza sul login Vercel, e i manager della lega
 non entrerebbero.
+
+E vanno **inviate insieme al deploy**, non lasciate a quelle salvate nel
+pannello. Se qualcuno tocca una di quelle voci — mettendo per esempio una Root
+Directory che nel pacchetto non esiste — la build muore prima ancora di partire:
+niente log utili, nessun diario, solo *Deployment has failed*. Dichiararle a ogni
+pubblicazione rende il deploy indipendente da come è configurato il progetto in
+quel momento.
 
 ### Le variabili d'ambiente
 
