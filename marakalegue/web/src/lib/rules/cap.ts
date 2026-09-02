@@ -12,6 +12,7 @@ import { salaryInYear } from "./contracts";
 import {
   type ContractView,
   type PlayerRole,
+  type ValidationIssue,
   type ValidationResult,
   fail,
   issue,
@@ -132,8 +133,8 @@ export function validateRoster(input: {
 }): ValidationResult {
   const { contracts, year, ruleset } = input;
   const strict = input.strict ?? true;
-  const errors = [];
-  const warnings = [];
+  const errors: ValidationIssue[] = [];
+  const warnings: ValidationIssue[] = [];
 
   const active = activeInYear(contracts, year);
   const total =

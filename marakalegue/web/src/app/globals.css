@@ -1,26 +1,267 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  Marakalegue — sistema visivo.
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  L'app è un front office: si guardano tabelle di numeri per minuti interi, spesso
+  dal telefono durante un'asta. Quindi densità alta, cifre tabellari allineate,
+  un solo accento e nessuna decorazione che rubi spazio ai dati.
+*/
+
+:root {
+  --sfondo: #f6f5f2;
+  --carta: #ffffff;
+  --carta-alt: #faf9f7;
+  --bordo: #e2ded7;
+  --bordo-forte: #cdc7bd;
+  --inchiostro: #1c1a17;
+  --inchiostro-medio: #5d574e;
+  --inchiostro-tenue: #8b8479;
+  --accento: #1d4ed8;
+  --accento-tenue: #eaeeff;
+  --positivo: #15803d;
+  --positivo-tenue: #e8f5ec;
+  --allarme: #b91c1c;
+  --allarme-tenue: #fdeceb;
+  --avviso: #a16207;
+  --avviso-tenue: #fdf4e3;
+  --ombra: 0 1px 2px rgba(28, 26, 23, 0.05), 0 1px 3px rgba(28, 26, 23, 0.04);
+  --raggio: 10px;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-tema="chiaro"]) {
+    --sfondo: #16151300;
+    --sfondo: #141311;
+    --carta: #1d1b18;
+    --carta-alt: #232019;
+    --bordo: #322e28;
+    --bordo-forte: #453f36;
+    --inchiostro: #f2efe9;
+    --inchiostro-medio: #b3ab9e;
+    --inchiostro-tenue: #857e72;
+    --accento: #7ea2ff;
+    --accento-tenue: #1c2540;
+    --positivo: #6ee7a0;
+    --positivo-tenue: #14291d;
+    --allarme: #fca5a5;
+    --allarme-tenue: #331a1a;
+    --avviso: #fbbf24;
+    --avviso-tenue: #2e2411;
+    --ombra: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+* {
+  box-sizing: border-box;
 }
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--sfondo);
+  color: var(--inchiostro);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Le cifre devono incolonnarsi: in una matrice di ingaggi è la differenza tra
+   leggere e decifrare. */
+.cifre {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  letter-spacing: -0.015em;
+  font-weight: 650;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.occhiello {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 600;
+  color: var(--inchiostro-tenue);
+}
+
+.carta {
+  background: var(--carta);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  box-shadow: var(--ombra);
+}
+
+/* ── Tabelle ─────────────────────────────────────────────────────────────── */
+
+table.griglia {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+table.griglia th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--inchiostro-tenue);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--bordo);
+  white-space: nowrap;
+  background: var(--carta-alt);
+}
+
+table.griglia td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--bordo);
+  vertical-align: middle;
+}
+
+table.griglia tbody tr:last-child td {
+  border-bottom: none;
+}
+
+table.griglia tbody tr:hover td {
+  background: var(--carta-alt);
+}
+
+table.griglia .num {
+  text-align: right;
+}
+
+/* Contenitore che scorre da solo: le tabelle larghe non devono far scorrere la pagina */
+.scorre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Etichette ───────────────────────────────────────────────────────────── */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.tag-neutro { background: var(--carta-alt); color: var(--inchiostro-medio); border-color: var(--bordo); }
+.tag-accento { background: var(--accento-tenue); color: var(--accento); }
+.tag-positivo { background: var(--positivo-tenue); color: var(--positivo); }
+.tag-allarme { background: var(--allarme-tenue); color: var(--allarme); }
+.tag-avviso { background: var(--avviso-tenue); color: var(--avviso); }
+
+/* ── Comandi ─────────────────────────────────────────────────────────────── */
+
+.bottone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--bordo-forte);
+  background: var(--carta);
+  color: var(--inchiostro);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.bottone:hover:not(:disabled) { background: var(--carta-alt); }
+.bottone:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.bottone-primario {
+  background: var(--accento);
+  border-color: var(--accento);
+  color: #fff;
+}
+.bottone-primario:hover:not(:disabled) { filter: brightness(1.08); background: var(--accento); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="chiaro"]) .bottone-primario { color: #10131f; }
+}
+
+.bottone-pericolo {
+  background: var(--allarme-tenue);
+  border-color: var(--allarme);
+  color: var(--allarme);
+}
+
+.campo {
+  font: inherit;
+  font-size: 14px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--bordo-forte);
+  background: var(--carta);
+  color: var(--inchiostro);
+}
+
+.campo:focus {
+  outline: 2px solid var(--accento);
+  outline-offset: -1px;
+}
+
+label.etichetta {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--inchiostro-medio);
+  margin-bottom: 4px;
+}
+
+/* ── Barra del tetto salariale ───────────────────────────────────────────── */
+
+.barra {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bordo);
+  overflow: hidden;
+  display: flex;
+}
+
+.barra span { display: block; height: 100%; }
+.barra .quota-ingaggi { background: var(--accento); }
+.barra .quota-morta { background: var(--allarme); }
+
+/* ── Avvisi ──────────────────────────────────────────────────────────────── */
+
+.avviso {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid;
+  line-height: 1.45;
+}
+
+.avviso-errore { background: var(--allarme-tenue); border-color: color-mix(in srgb, var(--allarme) 30%, transparent); color: var(--allarme); }
+.avviso-attenzione { background: var(--avviso-tenue); border-color: color-mix(in srgb, var(--avviso) 30%, transparent); color: var(--avviso); }
+.avviso-ok { background: var(--positivo-tenue); border-color: color-mix(in srgb, var(--positivo) 30%, transparent); color: var(--positivo); }
+.avviso-nota { background: var(--accento-tenue); border-color: color-mix(in srgb, var(--accento) 25%, transparent); color: var(--accento); }
