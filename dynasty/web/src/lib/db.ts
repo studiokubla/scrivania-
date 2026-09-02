@@ -18,8 +18,18 @@ import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
+/**
+ * Letta così e non come `process.env.DATABASE_URL`: quella forma viene
+ * sostituita col valore al momento della build, e una variabile aggiunta dopo
+ * non verrebbe mai vista dal codice già compilato.
+ */
+function connectionStringDaAmbiente(): string | undefined {
+  const ambiente = process.env as Record<string, string | undefined>;
+  return ambiente["DATABASE_URL"];
+}
+
 function createClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = connectionStringDaAmbiente();
   if (!connectionString) {
     throw new Error(
       "DATABASE_URL non è configurata. In sviluppo: copia .env.example in .env. " +

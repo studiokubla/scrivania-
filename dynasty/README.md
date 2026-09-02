@@ -153,6 +153,20 @@ più manager collegati contemporaneamente:
 | `verifica-import.mjs` | file in formato Leghe Fantacalcio, riconciliazione, fantavoti |
 | `verifica-societa.mjs` | stadio, primavera, osservatori, premi, manutenzione |
 
+Una verifica sta fuori dalla suite perché vuole un ambiente diverso — database
+vuoto e nessuna variabile oltre a `DATABASE_URL`, cioè esattamente le condizioni
+della prima pubblicazione:
+
+```bash
+# svuota il database, avvia il server senza .env, poi
+node scripts/verifica-installazione.mjs
+```
+
+Percorre l'inizializzazione a database vuoto, controlla che le undici password
+generate siano tutte diverse e che nel database resti solo la loro impronta, che
+la rotta si chiuda subito dopo, che le credenziali restituite entrino davvero e
+che la chiave di firma venga generata e conservata.
+
 Due strumenti a parte, che non fanno parte delle verifiche:
 
 | Script | A cosa serve |

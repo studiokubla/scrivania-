@@ -16,6 +16,7 @@ import {
   scheduleToJson,
 } from "@/lib/league";
 import { formatMoney, fromDecimal, fromMillions, isOnStep, toDecimalString, type Money } from "@/lib/money";
+import { appSecret } from "@/lib/secret";
 import { resolveSealedBids } from "@/lib/rules/auction";
 import { canAfford } from "@/lib/rules/cap";
 import { ageAtSeason, buildSalarySchedule, validateContractSignature } from "@/lib/rules/contracts";
@@ -25,9 +26,9 @@ function refuse(message: string, errors?: { article: string; message: string }[]
   return { ok: false, message, errors };
 }
 
-function fingerprint(parts: (string | number)[]): string {
+async function fingerprint(parts: (string | number)[]): Promise<string> {
   return createHash("sha256")
-    .update([...parts, process.env.AUTH_SECRET ?? ""].join("|"))
+    .update([...parts, await appSecret()].join("|"))
     .digest("hex");
 }
 
@@ -161,7 +162,7 @@ export async function submitFreeAgencyOffer(input: z.input<typeof OfferSchema>):
         status: "SEALED",
         closesAt,
         parentOfferId: existing?.id ?? null,
-        fingerprint: fingerprint([player.id, session.teamId as string, salary, submittedAt.toISOString()]),
+        fingerprint: await fingerprint([player.id, session.teamId as string, salary, submittedAt.toISOString()]),
         submittedAt,
       },
     });

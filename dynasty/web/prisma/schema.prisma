@@ -1015,3 +1015,20 @@ enum ImportStatus {
   FAILED
   PARTIAL
 }
+
+/// Impostazioni interne dell'installazione.
+///
+/// Serve a una cosa sola ma importante: se `AUTH_SECRET` non è configurata come
+/// variabile d'ambiente, la chiave che firma le sessioni viene generata alla
+/// prima richiesta e conservata qui. Così mettere online la lega richiede una
+/// variabile sola — la stringa del database — invece di tre, e la chiave resta
+/// stabile fra un deploy e l'altro senza disconnettere nessuno.
+///
+/// La variabile d'ambiente, quando c'è, ha comunque la precedenza: è il modo
+/// corretto in produzione, perché la chiave non tocca il database.
+model Setting {
+  key       String   @id
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

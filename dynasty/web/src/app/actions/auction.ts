@@ -7,6 +7,7 @@ import { requireCommissioner, requireSession } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { getLeagueContext, getTeamContracts, scheduleToJson } from "@/lib/league";
+import { appSecret } from "@/lib/secret";
 import { formatMoney, fromDecimal, fromMillions, toDecimalString } from "@/lib/money";
 import {
   basePriceFor,
@@ -224,7 +225,7 @@ export async function submitAuctionBid(lotId: string, amountMillions: number): P
         teamId: session.teamId,
         amount,
         submittedAt,
-        secret: process.env.AUTH_SECRET ?? "",
+        secret: await appSecret(),
       }),
       submittedAt,
     },

@@ -6,18 +6,13 @@ import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 
 import { db } from "./db";
+import { appSecret } from "./secret";
 
 const COOKIE = "maraka_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
-function secret(): Uint8Array {
-  const value = process.env.AUTH_SECRET;
-  if (!value) {
-    throw new Error(
-      "AUTH_SECRET non è configurata. Senza, le sessioni e le impronte delle offerte non sono firmabili.",
-    );
-  }
-  return new TextEncoder().encode(value);
+async function secret(): Promise<Uint8Array> {
+  return new TextEncoder().encode(await appSecret());
 }
 
 export interface Session {
@@ -42,7 +37,7 @@ export async function createSession(session: Session): Promise<void> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE_SECONDS}s`)
-    .sign(secret());
+    .sign(await secret());
 
   const store = await cookies();
   store.set(COOKIE, token, {
@@ -66,7 +61,7 @@ export async function getSession(): Promise<Session | null> {
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, secret());
+    const { payload } = await jwtVerify(token, await secret());
     return {
       userId: String(payload.userId),
       email: String(payload.email),
