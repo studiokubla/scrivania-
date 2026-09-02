@@ -188,8 +188,9 @@ la conduce: la registra mentre si svolge, e mentre lo fa controlla.
    al tavolo, nella foga, non farebbe nessuno.
 4. Un errore di battitura si annulla dal listone e il giocatore torna disponibile. Il registro
    conserva sia l'aggiudicazione sia l'annullamento: non si riscrive (art. 22).
-5. Ogni acquisto nasce **Annuale**. Chi vuole legare un giocatore per più stagioni converte il
-   contratto dalla propria scrivania, se ha slot e requisiti (art. 4).
+5. A rose composte, ogni acquisto prende il contratto che il manager gli assegna — Annuale,
+   Standard, Rookie, Veteran o Tampone — nei limiti dell'art. 4. La composizione si fa dalla
+   pagina **Rosa**, a mano o caricando il foglio dell'asta.
 
 Rilancio minimo **0,25 M**. Base d'asta secondo la quotazione Leghe Fantacalcio:
 

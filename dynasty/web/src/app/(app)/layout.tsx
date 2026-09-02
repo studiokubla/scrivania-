@@ -29,19 +29,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Cinque voci al massimo: sotto ognuna ci sta un nome leggibile, sopra no.
   //
   // La sala d'asta a buste non è in barra perché la lega l'asta la fa in
-  // presenza: al suo posto c'è il listone, che durante l'asta è il tabellone e
-  // per il resto della stagione è l'elenco di chi si può ancora prendere. Chi
-  // volesse l'asta dall'applicazione la raggiunge dal pannello di gestione.
+  // presenza: al suo posto ci sono il listone — che durante l'asta è il
+  // tabellone e per il resto della stagione è l'elenco di chi si può ancora
+  // prendere — e «Rosa», dove il giorno dopo si compone la squadra a partire
+  // dal foglio dell'asta. Chi volesse l'asta dall'applicazione la raggiunge dal
+  // pannello di gestione, e il registro dalla pagina della lega.
   const voci: Voce[] = [
     { href: "/lega", label: "Lega", icona: "lega" },
     ...(session.teamId
       ? [{ href: `/squadra/${session.teamId}`, label: "Squadra", icona: "squadra" as const }]
       : []),
+    { href: "/rosa", label: "Rosa", icona: "rosa" },
     { href: "/listone", label: "Listone", icona: "listone" },
     { href: "/mercato", label: "Mercato", icona: "mercato" },
-    ...(commissioner
-      ? [{ href: "/admin", label: "Gestione", icona: "admin" as const }]
-      : [{ href: "/registro", label: "Registro", icona: "registro" as const }]),
+    ...(commissioner ? [{ href: "/admin", label: "Gestione", icona: "admin" as const }] : []),
   ];
 
   return (

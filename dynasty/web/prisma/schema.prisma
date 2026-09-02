@@ -34,34 +34,35 @@ model League {
 }
 
 model Season {
-  id        String       @id @default(cuid())
+  id        String      @id @default(cuid())
   leagueId  String
   /// Etichetta leggibile: "2025/26"
   label     String
   /// Anno di apertura: 2025 per la stagione 2025/26
   startYear Int
-  phase     SeasonPhase  @default(PRESEASON)
-  isCurrent Boolean      @default(false)
+  phase     SeasonPhase @default(PRESEASON)
+  isCurrent Boolean     @default(false)
   /// Giornata di Serie A raggiunta dai dati importati (0 = nessun dato)
-  matchday  Int          @default(0)
+  matchday  Int         @default(0)
 
-  league       League              @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  contracts    Contract[]
-  capitalTx    CapitalTransaction[]
-  auctions     Auction[]
-  marketWindows MarketWindow[]
-  standings    StandingRow[]
-  competitions Competition[]
-  stadiums     Stadium[]
-  academies    Academy[]
-  scouts       Scout[]
-  sponsorships Sponsorship[]
-  draft        Draft?
-  playerSeasons PlayerSeason[]
-  optionUsages OptionUsage[]
-  trades       Trade[]
-  waivers      WaiverClaim[]
-  auditEntries AuditEntry[]
+  league         League               @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  contracts      Contract[]
+  capitalTx      CapitalTransaction[]
+  auctions       Auction[]
+  marketWindows  MarketWindow[]
+  standings      StandingRow[]
+  competitions   Competition[]
+  stadiums       Stadium[]
+  academies      Academy[]
+  scouts         Scout[]
+  sponsorships   Sponsorship[]
+  draft          Draft?
+  playerSeasons  PlayerSeason[]
+  optionUsages   OptionUsage[]
+  trades         Trade[]
+  auctionEntries AuctionEntry[]
+  waivers        WaiverClaim[]
+  auditEntries   AuditEntry[]
 
   @@unique([leagueId, startYear])
   @@index([leagueId, isCurrent])
@@ -79,17 +80,17 @@ enum SeasonPhase {
 }
 
 model User {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   leagueId     String
-  email        String   @unique
+  email        String    @unique
   name         String
   passwordHash String
-  role         UserRole @default(MANAGER)
+  role         UserRole  @default(MANAGER)
   /// Un manager amministra una sola squadra; il commissioner nessuna (art. 1.2)
-  teamId       String?  @unique
-  isActive     Boolean  @default(true)
+  teamId       String?   @unique
+  isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
 
   league       League       @relation(fields: [leagueId], references: [id], onDelete: Cascade)
   team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
@@ -112,25 +113,26 @@ model Team {
   color     String   @default("#4A4152")
   createdAt DateTime @default(now())
 
-  league       League               @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  manager      User?
-  contracts    Contract[]
-  capitalTx    CapitalTransaction[]
-  standings    StandingRow[]
-  stadiums     Stadium[]
-  academies    Academy[]
-  scouts       Scout[]
-  sponsorships Sponsorship[]
-  youth        YouthPlayer[]
-  optionUsages OptionUsage[]
-  bids         AuctionBid[]
-  auctionLots  AuctionLot[]
-  offers       MarketOffer[]
-  waiverClaims WaiverClaim[]
-  tradesOut    Trade[]              @relation("TradeProposer")
-  tradesIn     Trade[]              @relation("TradeReceiver")
-  draftPicks   DraftPick[]
-  auditEntries AuditEntry[]
+  league         League               @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  manager        User?
+  contracts      Contract[]
+  capitalTx      CapitalTransaction[]
+  standings      StandingRow[]
+  stadiums       Stadium[]
+  academies      Academy[]
+  scouts         Scout[]
+  sponsorships   Sponsorship[]
+  youth          YouthPlayer[]
+  optionUsages   OptionUsage[]
+  auctionEntries AuctionEntry[]
+  bids           AuctionBid[]
+  auctionLots    AuctionLot[]
+  offers         MarketOffer[]
+  waiverClaims   WaiverClaim[]
+  tradesOut      Trade[]              @relation("TradeProposer")
+  tradesIn       Trade[]              @relation("TradeReceiver")
+  draftPicks     DraftPick[]
+  auditEntries   AuditEntry[]
 
   @@unique([leagueId, name])
   @@index([leagueId])
@@ -142,38 +144,39 @@ model Team {
 /// `lfcId` è l'identificativo di Leghe Fantacalcio: è la chiave di riconciliazione
 /// primaria perché è l'unica stabile tra un file voti e l'altro (art. 21.1).
 model Player {
-  id            String   @id @default(cuid())
-  lfcId         Int?     @unique
-  name          String
+  id             String     @id @default(cuid())
+  lfcId          Int?       @unique
+  name           String
   /// Nome normalizzato per la riconciliazione fuzzy con Transfermarkt
   normalizedName String
   /// Ruolo classico Leghe Fantacalcio
-  role          PlayerRole
+  role           PlayerRole
   /// Ruoli Mantra, es. ["Dd","E"] — informativi, non usati dal motore regole
-  mantraRoles   String[]  @default([])
-  serieATeam    String?
-  birthDate     DateTime?
-  nationality   String?
+  mantraRoles    String[]   @default([])
+  serieATeam     String?
+  birthDate      DateTime?
+  nationality    String?
 
   // Dati Transfermarkt (art. 21.2 — nessun effetto regolamentare)
-  tmId              Int?
+  tmId            Int?
   /// Valore di mercato in euro
-  tmMarketValue     BigInt?
-  tmMarketValueAt   DateTime?
+  tmMarketValue   BigInt?
+  tmMarketValueAt DateTime?
   /// Club di provenienza: alimenta il diritto di pareggio degli osservatori (art. 17.2)
-  originClub        String?
-  originLeague      String?
+  originClub      String?
+  originLeague    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  contracts     Contract[]
-  seasons       PlayerSeason[]
-  youthRecords  YouthPlayer[]
-  auctionLots   AuctionLot[]
-  offers        MarketOffer[]
-  waiverClaims  WaiverClaim[]
-  tradeItems    TradeItem[]
+  contracts      Contract[]
+  auctionEntries AuctionEntry[]
+  seasons        PlayerSeason[]
+  youthRecords   YouthPlayer[]
+  auctionLots    AuctionLot[]
+  offers         MarketOffer[]
+  waiverClaims   WaiverClaim[]
+  tradeItems     TradeItem[]
 
   @@index([normalizedName])
   @@index([serieATeam])
@@ -200,18 +203,18 @@ model PlayerSeason {
   quotationCurrent Decimal? @db.Decimal(6, 2)
 
   /// Giornate con voto ricevuto
-  appearances       Int @default(0)
+  appearances       Int     @default(0)
   /// Giornate consecutive senza voto in corso: soglia infortunio (art. 12.4)
-  consecutiveNoVote Int @default(0)
-  goals             Int @default(0)
-  assists           Int @default(0)
+  consecutiveNoVote Int     @default(0)
+  goals             Int     @default(0)
+  assists           Int     @default(0)
   /// Somma dei voti puri, per la media
   voteSum           Decimal @default(0) @db.Decimal(8, 2)
   /// Somma dei fantavoti
   fantaVoteSum      Decimal @default(0) @db.Decimal(8, 2)
 
-  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  player Player         @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  season Season         @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   votes  MatchdayVote[]
 
   @@unique([playerId, seasonId])
@@ -221,7 +224,7 @@ model PlayerSeason {
 /// Voto di una singola giornata, importato dai file ufficiali Leghe Fantacalcio.
 /// Serve a ricostruire "5 giornate consecutive senza voto" senza fidarsi di un contatore.
 model MatchdayVote {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   playerSeasonId String
   matchday       Int
   /// null = non ha ricevuto voto (s.v. o non convocato)
@@ -265,17 +268,17 @@ model Contract {
   salarySchedule Json
 
   /// Quante volte è stata esercitata la Team Option su questo contratto (art. 6.1)
-  teamOptionsUsed Int @default(0)
+  teamOptionsUsed   Int     @default(0)
   /// Contratto nato da un Franchise Tag (art. 6.2): non ripetibile l'anno dopo
-  fromFranchiseTag Boolean @default(false)
+  fromFranchiseTag  Boolean @default(false)
   /// Contratto tampone: scade dopo 4 giornate (art. 4.4)
   expiresAtMatchday Int?
 
   /// Come si è chiuso il contratto, se chiuso
-  endedReason ContractEndReason?
-  endedAt     DateTime?
+  endedReason   ContractEndReason?
+  endedAt       DateTime?
   /// Dead cap residuo a carico della squadra dopo un buy-out (art. 12.3)
-  deadCapAmount Decimal? @db.Decimal(10, 2)
+  deadCapAmount Decimal?           @db.Decimal(10, 2)
   /// Stagione a cui il dead cap resta imputato
   deadCapYear   Int?
 
@@ -293,6 +296,40 @@ model Contract {
   @@index([teamId, status])
   @@index([playerId, status])
   @@index([seasonId])
+}
+
+/// Riga di rosa in attesa di prezzo e contratto.
+///
+/// Serve a comporre una rosa dopo un'asta fatta al tavolo. Il foglio che gira
+/// durante l'asta spesso porta solo i nomi: i prezzi si ricopiano dopo, con
+/// calma. Un contratto senza ingaggio però non può esistere — falserebbe il
+/// tetto salariale di tutta la lega — quindi il giocatore sosta qui finché
+/// prezzo e tipo non ci sono, e solo allora diventa un contratto vero.
+///
+/// Una sosta, non un parcheggio: il giocatore resta svincolato a tutti gli
+/// effetti finché la riga non è completata, e chiunque potrebbe prenderlo.
+model AuctionEntry {
+  id       String @id @default(cuid())
+  teamId   String
+  playerId String
+  seasonId String
+
+  /// Prezzo pagato all'asta, se già noto
+  amount Decimal?      @db.Decimal(8, 2)
+  type   ContractType?
+  years  Int?
+  /// Come è arrivata: a mano o da un foglio
+  source String        @default("MANUALE")
+
+  createdAt DateTime @default(now())
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  /// Un giocatore non può essere in due rose in attesa nella stessa stagione
+  @@unique([playerId, seasonId])
+  @@index([teamId, seasonId])
 }
 
 enum ContractType {
@@ -334,15 +371,15 @@ enum ContractEndReason {
 /// Storia di un contratto: ogni firma, estensione, tag, buy-out. Alimenta il registro
 /// pubblico dell'art. 22 e permette di ricostruire come si è arrivati all'ingaggio attuale.
 model ContractEvent {
-  id         String            @id @default(cuid())
-  contractId String
-  type       ContractEventType
+  id            String            @id @default(cuid())
+  contractId    String
+  type          ContractEventType
   /// Stagione (anno di apertura) in cui l'evento produce effetto
   effectiveYear Int
-  amountBefore  Decimal? @db.Decimal(10, 2)
-  amountAfter   Decimal? @db.Decimal(10, 2)
+  amountBefore  Decimal?          @db.Decimal(10, 2)
+  amountAfter   Decimal?          @db.Decimal(10, 2)
   note          String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime          @default(now())
 
   contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
@@ -390,19 +427,19 @@ enum OptionType {
 // ───────────────────────────────────────────────────────── Asta di settembre
 
 model Auction {
-  id       String        @id @default(cuid())
-  seasonId String
-  status   AuctionStatus @default(SCHEDULED)
+  id               String        @id @default(cuid())
+  seasonId         String
+  status           AuctionStatus @default(SCHEDULED)
   /// Ordine di chiamata estratto: array di teamId, art. 8.1
-  callOrder String[]     @default([])
+  callOrder        String[]      @default([])
   /// Indice del turno corrente dentro callOrder
-  currentTurn Int        @default(0)
+  currentTurn      Int           @default(0)
   /// Squadre che hanno dichiarato chiusa la propria asta (art. 8.2)
-  passedTeams String[]   @default([])
+  passedTeams      String[]      @default([])
   /// Secondi a disposizione per l'offerta segreta (art. 8.3)
-  bidWindowSeconds Int   @default(20)
-  startedAt  DateTime?
-  finishedAt DateTime?
+  bidWindowSeconds Int           @default(20)
+  startedAt        DateTime?
+  finishedAt       DateTime?
 
   season Season       @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   lots   AuctionLot[]
@@ -419,26 +456,26 @@ enum AuctionStatus {
 
 /// Una chiamata: un giocatore messo all'asta da una squadra.
 model AuctionLot {
-  id        String        @id @default(cuid())
-  auctionId String
-  playerId  String
+  id         String           @id @default(cuid())
+  auctionId  String
+  playerId   String
   /// Squadra che ha chiamato il giocatore
   calledById String
   /// Base d'asta calcolata dalla quotazione LFC (art. 8.4)
-  basePrice Decimal       @db.Decimal(10, 2)
-  status    AuctionLotStatus @default(OPEN)
+  basePrice  Decimal          @db.Decimal(10, 2)
+  status     AuctionLotStatus @default(OPEN)
   /// Momento oltre il quale le offerte non si accettano più
-  closesAt  DateTime?
+  closesAt   DateTime?
   /// Numero progressivo della chiamata
-  sequence  Int
+  sequence   Int
 
-  wonByTeamId    String?
-  winningAmount  Decimal?      @db.Decimal(10, 2)
+  wonByTeamId   String?
+  winningAmount Decimal?      @db.Decimal(10, 2)
   /// Tipo di contratto scelto all'aggiudicazione (art. 4.1)
-  contractType   ContractType?
-  contractYears  Int?
+  contractType  ContractType?
+  contractYears Int?
   /// Turno di spareggio: 0 = offerta iniziale, 1+ = ripetizioni per parità (art. 8.5)
-  tieBreakRound  Int           @default(0)
+  tieBreakRound Int           @default(0)
 
   createdAt DateTime @default(now())
 
@@ -464,15 +501,15 @@ enum AuctionLotStatus {
 /// Offerta segreta su una chiamata. Resta nascosta finché il lotto non si apre:
 /// il campo `revealedAt` è la garanzia che nessuno l'abbia vista prima (art. 8.3).
 model AuctionBid {
-  id       String @id @default(cuid())
-  lotId    String
-  teamId   String
-  amount   Decimal @db.Decimal(10, 2)
-  round    Int     @default(0)
+  id          String    @id @default(cuid())
+  lotId       String
+  teamId      String
+  amount      Decimal   @db.Decimal(10, 2)
+  round       Int       @default(0)
   /// Impronta dell'offerta al momento dell'invio: rende dimostrabile che non è stata
   /// modificata dopo l'apertura
   fingerprint String
-  submittedAt DateTime @default(now())
+  submittedAt DateTime  @default(now())
   revealedAt  DateTime?
 
   lot  AuctionLot @relation(fields: [lotId], references: [id], onDelete: Cascade)
@@ -485,7 +522,7 @@ model AuctionBid {
 // ───────────────────────────────────────────────────────── Mercato
 
 model MarketWindow {
-  id       String           @id @default(cuid())
+  id       String             @id @default(cuid())
   seasonId String
   kind     MarketWindowKind
   label    String
@@ -517,7 +554,7 @@ enum MarketWindowStatus {
 /// è lo stesso — busta chiusa, finestra di rilancio, apertura simultanea — e cambia
 /// solo chi può rispondere.
 model MarketOffer {
-  id       String @id @default(cuid())
+  id       String    @id @default(cuid())
   windowId String
   teamId   String
   playerId String
@@ -527,25 +564,25 @@ model MarketOffer {
   years        Int
   contractType ContractType
 
-  status OfferStatus @default(SEALED)
+  status             OfferStatus @default(SEALED)
   /// Apertura automatica: 24 ore per la free agency (art. 9.2), 48 per il pre-contract (art. 11.2)
-  closesAt DateTime
+  closesAt           DateTime
   /// L'offerta che ha aperto la contesa; le successive la referenziano
-  parentOfferId String?
+  parentOfferId      String?
   /// Squadra che detiene il diritto di pareggio, se l'offerta è un pre-contract
-  incumbentTeamId String?
+  incumbentTeamId    String?
   /// Vero se l'incumbent ha pareggiato e trattenuto il giocatore (art. 11.2)
-  matchedByIncumbent Boolean @default(false)
+  matchedByIncumbent Boolean     @default(false)
 
   fingerprint String
   submittedAt DateTime  @default(now())
   revealedAt  DateTime?
   resolvedAt  DateTime?
 
-  window MarketWindow @relation(fields: [windowId], references: [id], onDelete: Cascade)
-  team   Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  player Player       @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  parent MarketOffer? @relation("OfferChain", fields: [parentOfferId], references: [id], onDelete: SetNull)
+  window   MarketWindow  @relation(fields: [windowId], references: [id], onDelete: Cascade)
+  team     Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player   Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  parent   MarketOffer?  @relation("OfferChain", fields: [parentOfferId], references: [id], onDelete: SetNull)
   children MarketOffer[] @relation("OfferChain")
 
   @@index([windowId, status])
@@ -573,20 +610,20 @@ enum OfferStatus {
 
 /// Reclamo su un giocatore appena svincolato (art. 10). Priorità inversa alla classifica.
 model WaiverClaim {
-  id       String @id @default(cuid())
-  seasonId String
-  teamId   String
-  playerId String
+  id               String       @id @default(cuid())
+  seasonId         String
+  teamId           String
+  playerId         String
   /// Contratto residuo che il reclamante si assume, se c'è
-  assumedSalary Decimal? @db.Decimal(10, 2)
-  assumedYears  Int?
+  assumedSalary    Decimal?     @db.Decimal(10, 2)
+  assumedYears     Int?
   /// Scadenza delle 48 ore
-  closesAt DateTime
-  status   WaiverStatus @default(PENDING)
+  closesAt         DateTime
+  status           WaiverStatus @default(PENDING)
   /// Posizione in classifica del reclamante al momento del reclamo: congela il tie-break
   standingPosition Int
-  createdAt DateTime @default(now())
-  resolvedAt DateTime?
+  createdAt        DateTime     @default(now())
+  resolvedAt       DateTime?
 
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -604,24 +641,24 @@ enum WaiverStatus {
 }
 
 model Trade {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   seasonId   String
   windowId   String?
   proposerId String
   receiverId String
 
-  status TradeStatus @default(PROPOSED)
+  status     TradeStatus @default(PROPOSED)
   /// Esito della validazione a due lati al momento della proposta (art. 11.1.2)
   validation Json?
   message    String?
 
   /// 48 ore per accettare (art. 11.1.3)
-  expiresAt  DateTime
-  respondedAt DateTime?
+  expiresAt     DateTime
+  respondedAt   DateTime?
   /// 24 ore in cui il commissioner può annullare per collusione manifesta
   vetoableUntil DateTime?
   vetoReason    String?
-  createdAt  DateTime @default(now())
+  createdAt     DateTime  @default(now())
 
   season   Season        @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   window   MarketWindow? @relation(fields: [windowId], references: [id], onDelete: SetNull)
@@ -646,15 +683,15 @@ enum TradeStatus {
 /// Un oggetto dello scambio. Si scambiano giocatori con il loro contratto,
 /// scelte al draft e capitale — mai spazio salariale (art. 11.1.1).
 model TradeItem {
-  id      String        @id @default(cuid())
-  tradeId String
+  id         String        @id @default(cuid())
+  tradeId    String
   /// Squadra che cede questo oggetto
   fromTeamId String
-  kind    TradeItemKind
+  kind       TradeItemKind
 
-  contractId String?
-  playerId   String?
-  draftPickId String?
+  contractId    String?
+  playerId      String?
+  draftPickId   String?
   capitalAmount Decimal? @db.Decimal(10, 2)
 
   trade     Trade      @relation(fields: [tradeId], references: [id], onDelete: Cascade)
@@ -676,17 +713,17 @@ enum TradeItemKind {
 /// Movimento del conto societario (art. 14). Non si cancella mai: si storna con
 /// un movimento opposto, così il saldo è sempre la somma della colonna.
 model CapitalTransaction {
-  id       String @id @default(cuid())
-  teamId   String
-  seasonId String
+  id          String      @id @default(cuid())
+  teamId      String
+  seasonId    String
   /// Positivo = entrata, negativo = uscita
-  amount   Decimal @db.Decimal(10, 2)
-  kind     CapitalKind
+  amount      Decimal     @db.Decimal(10, 2)
+  kind        CapitalKind
   description String
   /// Riferimento all'entità che ha generato il movimento (contratto, premio, investimento)
-  refType  String?
-  refId    String?
-  createdAt DateTime @default(now())
+  refType     String?
+  refId       String?
+  createdAt   DateTime    @default(now())
 
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
@@ -715,17 +752,17 @@ enum CapitalKind {
 /// Stato dello stadio in una stagione (art. 15). Una riga per squadra e stagione:
 /// così la storia degli impianti resta leggibile anno per anno.
 model Stadium {
-  id       String @id @default(cuid())
-  teamId   String
-  seasonId String
-  level    Int    @default(0)
+  id                      String  @id @default(cuid())
+  teamId                  String
+  seasonId                String
+  level                   Int     @default(0)
   /// Stagione in cui la costruzione è stata ordinata: gli incassi partono dalla 20ª (art. 15.1)
-  builtInYear Int?
-  operationalFromMatchday Int @default(20)
+  builtInYear             Int?
+  operationalFromMatchday Int     @default(20)
   /// Manutenzione già addebitata per questa stagione
-  maintenancePaid Boolean @default(false)
+  maintenancePaid         Boolean @default(false)
   /// Retrocesso di livello per capitale insufficiente (art. 15.3)
-  downgraded Boolean @default(false)
+  downgraded              Boolean @default(false)
 
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
@@ -735,10 +772,10 @@ model Stadium {
 
 /// Capienza del settore giovanile in una stagione (art. 16.2).
 model Academy {
-  id       String @id @default(cuid())
-  teamId   String
-  seasonId String
-  capacity Int    @default(3)
+  id              String  @id @default(cuid())
+  teamId          String
+  seasonId        String
+  capacity        Int     @default(3)
   maintenancePaid Boolean @default(false)
 
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -750,17 +787,17 @@ model Academy {
 /// Giovane tesserato. Non percepisce ingaggio e non occupa spazio salariale
 /// finché non viene promosso (art. 16.3-16.4).
 model YouthPlayer {
-  id       String @id @default(cuid())
-  teamId   String
-  playerId String
+  id              String      @id @default(cuid())
+  teamId          String
+  playerId        String
   /// Turno del draft in cui è stato scelto: determina l'ingaggio alla promozione
-  draftRound Int
+  draftRound      Int
   draftPickNumber Int
   /// Stagione in cui è entrato nel settore giovanile
-  joinedYear Int
-  status   YouthStatus @default(IN_ACADEMY)
-  promotedAt DateTime?
-  releasedAt DateTime?
+  joinedYear      Int
+  status          YouthStatus @default(IN_ACADEMY)
+  promotedAt      DateTime?
+  releasedAt      DateTime?
 
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
@@ -779,17 +816,17 @@ enum YouthStatus {
 /// Osservatore inviato in un campionato o in un club (art. 17.2). `investedAt`
 /// è ciò che risolve la gerarchia "chi ha investito prima".
 model Scout {
-  id       String @id @default(cuid())
-  teamId   String
-  seasonId String
-  league   String
+  id                    String   @id @default(cuid())
+  teamId                String
+  seasonId              String
+  league                String
   /// null = osservatore sul campionato; valorizzato = osservatore su un club specifico
-  club     String?
-  cost     Decimal @db.Decimal(10, 2)
+  club                  String?
+  cost                  Decimal  @db.Decimal(10, 2)
   /// Annulla l'osservatore generale sul campionato, se non se ne paga un secondo
-  supersedesLeagueScout Boolean @default(false)
-  investedAt DateTime @default(now())
-  expiresAfterYear Int
+  supersedesLeagueScout Boolean  @default(false)
+  investedAt            DateTime @default(now())
+  expiresAfterYear      Int
 
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
@@ -800,19 +837,19 @@ model Scout {
 
 /// Contratto di sponsorizzazione (art. 18).
 model Sponsorship {
-  id       String @id @default(cuid())
-  teamId   String
-  seasonId String
-  name     String
-  annualFee Decimal @db.Decimal(10, 2)
-  years    Int
-  startYear Int
-  endYear   Int
+  id          String            @id @default(cuid())
+  teamId      String
+  seasonId    String
+  name        String
+  annualFee   Decimal           @db.Decimal(10, 2)
+  years       Int
+  startYear   Int
+  endYear     Int
   /// Obiettivo sportivo, es. { "type": "TOP_N", "n": 4, "competition": "APERTURA" }
-  objective Json
+  objective   Json
   /// Penale se l'obiettivo non è raggiunto: 50% del compenso annuo
-  penaltyRate Decimal @default(0.5) @db.Decimal(4, 2)
-  status   SponsorshipStatus @default(ACTIVE)
+  penaltyRate Decimal           @default(0.5) @db.Decimal(4, 2)
+  status      SponsorshipStatus @default(ACTIVE)
 
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
@@ -831,14 +868,14 @@ enum SponsorshipStatus {
 // ───────────────────────────────────────────────────────── Draft
 
 model Draft {
-  id       String @id @default(cuid())
-  seasonId String @unique
-  status   DraftStatus @default(SCHEDULED)
+  id             String      @id @default(cuid())
+  seasonId       String      @unique
+  status         DraftStatus @default(SCHEDULED)
   /// Pesi della lotteria usati, congelati al momento dell'estrazione (art. 17.1)
   lotteryWeights Json?
   /// Seme dell'estrazione: rende l'ordine riproducibile e verificabile
   lotterySeed    String?
-  drawnAt  DateTime?
+  drawnAt        DateTime?
 
   season Season      @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   picks  DraftPick[]
@@ -852,22 +889,22 @@ enum DraftStatus {
 }
 
 model DraftPick {
-  id      String @id @default(cuid())
-  draftId String
+  id             String    @id @default(cuid())
+  draftId        String
   /// Squadra che possiede la scelta adesso (può essere cambiata da un trade)
-  teamId  String
+  teamId         String
   /// Squadra a cui la scelta apparteneva in origine
   originalTeamId String
-  round   Int
-  pickNumber Int
+  round          Int
+  pickNumber     Int
   /// Stagione a cui la scelta si riferisce: le scelte future sono scambiabili
   /// fino a due stagioni in avanti (art. 17.1)
-  forYear Int
-  usedPlayerId String?
-  usedAt  DateTime?
+  forYear        Int
+  usedPlayerId   String?
+  usedAt         DateTime?
 
-  draft Draft @relation(fields: [draftId], references: [id], onDelete: Cascade)
-  team  Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  draft Draft       @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  team  Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
   items TradeItem[]
 
   @@unique([draftId, round, pickNumber])
@@ -877,18 +914,18 @@ model DraftPick {
 // ───────────────────────────────────────────────────────── Competizioni
 
 model Competition {
-  id       String @id @default(cuid())
-  seasonId String
-  kind     CompetitionKind
-  name     String
-  status   CompetitionStatus @default(SCHEDULED)
+  id             String            @id @default(cuid())
+  seasonId       String
+  kind           CompetitionKind
+  name           String
+  status         CompetitionStatus @default(SCHEDULED)
   /// Tabella premi in milioni, per posizione o per turno raggiunto
-  prizeTable Json
+  prizeTable     Json
   /// Premi in euro (art. 20)
   cashPrizeTable Json?
 
-  season   Season        @relation(fields: [seasonId], references: [id], onDelete: Cascade)
-  fixtures Fixture[]
+  season    Season        @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  fixtures  Fixture[]
   standings StandingRow[]
 
   @@unique([seasonId, kind])
@@ -909,23 +946,23 @@ enum CompetitionStatus {
 }
 
 model Fixture {
-  id            String @id @default(cuid())
-  competitionId String
+  id               String    @id @default(cuid())
+  competitionId    String
   /// Giornata della competizione
-  round         Int
+  round            Int
   /// Giornata di Serie A corrispondente: serve per gli incassi stadio
-  serieAMatchday Int?
-  homeTeamId    String
-  awayTeamId    String
+  serieAMatchday   Int?
+  homeTeamId       String
+  awayTeamId       String
   /// Fantapunti, bonus stadio compreso
-  homeScore     Decimal? @db.Decimal(6, 2)
-  awayScore     Decimal? @db.Decimal(6, 2)
+  homeScore        Decimal?  @db.Decimal(6, 2)
+  awayScore        Decimal?  @db.Decimal(6, 2)
   /// Gol convertiti secondo la scala del fantacalcio
-  homeGoals     Int?
-  awayGoals     Int?
+  homeGoals        Int?
+  awayGoals        Int?
   /// Bonus stadio applicato alla squadra di casa (art. 15)
-  homeStadiumBonus Decimal? @db.Decimal(4, 2)
-  playedAt      DateTime?
+  homeStadiumBonus Decimal?  @db.Decimal(4, 2)
+  playedAt         DateTime?
 
   competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 
@@ -933,18 +970,18 @@ model Fixture {
 }
 
 model StandingRow {
-  id            String @id @default(cuid())
+  id            String  @id @default(cuid())
   competitionId String
   seasonId      String
   teamId        String
   position      Int
-  played        Int @default(0)
-  won           Int @default(0)
-  drawn         Int @default(0)
-  lost          Int @default(0)
-  points        Int @default(0)
-  goalsFor      Int @default(0)
-  goalsAgainst  Int @default(0)
+  played        Int     @default(0)
+  won           Int     @default(0)
+  drawn         Int     @default(0)
+  lost          Int     @default(0)
+  points        Int     @default(0)
+  goalsFor      Int     @default(0)
+  goalsAgainst  Int     @default(0)
   fantaPoints   Decimal @default(0) @db.Decimal(8, 2)
 
   competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
@@ -960,20 +997,20 @@ model StandingRow {
 /// Riga del registro pubblico. Non si aggiorna e non si cancella: la correzione
 /// di un errore è una riga nuova che annulla la precedente.
 model AuditEntry {
-  id       String @id @default(cuid())
-  seasonId String
+  id           String   @id @default(cuid())
+  seasonId     String
   /// Chi ha compiuto l'operazione; null per le operazioni automatiche del sistema
-  userId   String?
-  teamId   String?
-  action   String
+  userId       String?
+  teamId       String?
+  action       String
   /// Testo già formattato per il registro pubblico
-  summary  String
+  summary      String
   /// Dati completi dell'operazione, per ricostruirla
-  payload  Json?
+  payload      Json?
   /// Concatenazione con la riga precedente: rende evidente ogni manomissione
   previousHash String?
-  hash     String
-  createdAt DateTime @default(now())
+  hash         String
+  createdAt    DateTime @default(now())
 
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -986,19 +1023,19 @@ model AuditEntry {
 /// Traccia degli import dai file ufficiali (art. 21.3): chi, quando, quante righe,
 /// quali giocatori non è stato possibile riconciliare.
 model ImportRun {
-  id       String @id @default(cuid())
-  source   ImportSource
-  kind     String
-  matchday Int?
-  fileName String
-  rowsRead Int    @default(0)
-  rowsApplied Int @default(0)
+  id          String       @id @default(cuid())
+  source      ImportSource
+  kind        String
+  matchday    Int?
+  fileName    String
+  rowsRead    Int          @default(0)
+  rowsApplied Int          @default(0)
   /// Righe non riconciliate, da risolvere a mano
-  unmatched Json?
-  status   ImportStatus @default(RUNNING)
-  error    String?
-  createdAt DateTime @default(now())
-  finishedAt DateTime?
+  unmatched   Json?
+  status      ImportStatus @default(RUNNING)
+  error       String?
+  createdAt   DateTime     @default(now())
+  finishedAt  DateTime?
 
   @@index([source, createdAt])
 }

@@ -146,7 +146,18 @@ niente: si può rilanciare quando si vuole.
    lascerebbe una squadra senza spazio per completare la rosa, l'applicazione
    la rifiuta mentre siete ancora seduti. Un errore di battitura si annulla
    dalla stessa pagina.
-4. **Ad asta finita** il mercato passa dall'applicazione: offerte a busta chiusa
+4. **Componi le rose.** Il giorno dopo l'asta si apre **Rosa** e si mette
+   dentro quello che c'è sul foglio. Due strade, e si possono mescolare:
+   cercare i giocatori uno a uno scrivendo costo e tipo di contratto, oppure
+   caricare il foglio in Excel o CSV. Basta una colonna `giocatore`; se il
+   foglio porta anche `costo` e `contratto` i giocatori entrano già firmati,
+   altrimenti restano *da completare* e si sistemano con due tocchi. Un
+   giocatore in attesa **è ancora svincolato**: chiunque potrebbe prenderlo,
+   finché il prezzo non c'è.
+
+   Ogni presidente compone la propria; il commissioner qualunque.
+
+5. **Ad asta finita** il mercato passa dall'applicazione: offerte a busta chiusa
    sugli svincolati rimasti, waiver e scambi (artt. 9, 10 e 13).
 
 Finché una squadra non ha contratti si può ritirare dalla lega; dopo l'asta no,
