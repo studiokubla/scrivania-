@@ -82,11 +82,19 @@ curl -X POST https://<il-tuo-dominio>/api/setup \
   -d '{"commissionerEmail":"info@studiokubla.com"}'
 ```
 
-Risponde con lega, stagione, dieci squadre, i 531 giocatori del listone, le rose
-iniziali e **le credenziali di tutti gli undici accessi**.
+Risponde con lega, stagione, i 531 giocatori del listone e **la password del
+commissioner**.
 
-> Le password si vedono **una volta sola**: nel database resta solo la loro
-> impronta. Salvale prima di chiudere il terminale.
+La lega nasce **vuota**: nessuna squadra, nessun contratto, tutto il listone
+svincolato. È così che parte una lega vera — le squadre le iscrivi tu dal
+pannello, una per manager, e le rose si formano all'asta di settembre.
+
+> La password si vede **una volta sola**: nel database resta solo la sua
+> impronta. Salvala prima di chiudere il terminale.
+
+Se invece vuoi solo guardare come funziona, aggiungi `"conSquadreDiProva": true`
+al corpo della richiesta: ottieni dieci squadre finte con le rose già fatte. Non
+usarlo sulla lega vera.
 
 Da quel momento la rotta si chiude da sé: a lega esistente risponde `403`, e
 rifarla da zero richiede la variabile `SETUP_TOKEN` più l'intestazione
@@ -117,16 +125,25 @@ niente: si può rilanciare quando si vuole.
 
 ## 4 · Le prime cose da fare dentro l'app
 
-1. **Rinomina le squadre.** Sono dieci segnaposto, con dieci indirizzi
-   `manager1@dynasty.it`…`manager10@dynasty.it`. I nomi e gli indirizzi veri si
-   mettono dal pannello di amministrazione, oppure si rifà l'inizializzazione
-   una volta che li hai tutti.
+1. **Iscrivi le squadre.** Amministrazione → *Squadre e manager*: nome, sigla,
+   colore e l'indirizzo del manager. Ognuna nasce con la dotazione iniziale
+   (art. 14), lo stadio a livello zero, il settore giovanile e le sue tre scelte
+   al draft. **La password compare una volta sola**: copiala e mandala al
+   manager. Se si perde, il pulsante *Password* ne genera un'altra — la vecchia
+   non è recuperabile da nessuno, commissioner compreso.
 2. **Importa le anagrafiche Transfermarkt.** Il listone non porta le date di
    nascita, e senza quelle i contratti Rookie e Veteran non si possono firmare
    (art. 4.2). Il pannello dice quanti giocatori sotto contratto ne sono privi,
    e da lì si scarica il modello del foglio da compilare.
 3. **Apri l'asta** quando siete tutti collegati: il commissioner estrae l'ordine
    di chiamata dalla Sala d'asta.
+
+Finché una squadra non ha contratti si può ritirare dalla lega; dopo l'asta no,
+perché toglierla lascerebbe i suoi giocatori senza squadra e senza svincolo — e
+quella è una decisione di lega, non un pulsante. Per rimettere tutto a zero c'è
+*Ripartire da zero*, in fondo allo stesso pannello: chiede di riscrivere il nome
+della lega, toglie squadre, manager, contratti e capitale, e lascia in piedi
+stagione, listone, finestre, competizioni e il tuo accesso.
 
 ---
 

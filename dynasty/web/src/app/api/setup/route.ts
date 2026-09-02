@@ -6,10 +6,16 @@ import { seedLeague, wipeLeague } from "@/lib/setup/seed";
 /**
  * Inizializzazione della lega sull'ambiente pubblicato.
  *
- * Serve una volta sola, appena il database è vuoto: crea lega, squadre, utenti,
- * listone, rose iniziali, finestre, draft e competizioni, e **restituisce le
- * credenziali una volta sola** — nel database resta solo l'impronta delle
- * password, quindi se si perdono vanno rigenerate.
+ * Serve una volta sola, appena il database è vuoto: crea lega, stagione,
+ * listone, finestre, asta, draft e competizioni, e l'accesso del commissioner.
+ * **Restituisce la sua password una volta sola** — nel database resta solo
+ * l'impronta, quindi se si perde va rigenerata.
+ *
+ * La lega nasce **vuota**: nessuna squadra, nessun contratto, tutti i
+ * giocatori del listone svincolati. Le squadre le crea il commissioner dal
+ * pannello, con i nomi e gli indirizzi dei manager veri, e le rose si formano
+ * all'asta di settembre. Con `{"conSquadreDiProva": true}` si ottiene invece
+ * una lega finta già popolata, utile solo per guardare come funziona.
  *
  * Le protezioni, in ordine:
  *  1. **appena una lega esiste, senza token non si fa più niente.** È la
@@ -47,7 +53,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ errore: "Token non valido." }, { status: 401 });
   }
 
-  let corpo: { reset?: boolean; commissionerEmail?: string; password?: string } = {};
+  let corpo: {
+    reset?: boolean;
+    commissionerEmail?: string;
+    password?: string;
+    conSquadreDiProva?: boolean;
+  } = {};
   try {
     corpo = await request.json();
   } catch {
@@ -83,6 +94,9 @@ export async function POST(request: Request) {
   const esito = await seedLeague(db, {
     commissionerEmail: corpo.commissionerEmail ?? "info@studiokubla.com",
     password: corpo.password,
+    // Spento se non lo si chiede: una lega che parte davvero parte vuota, con
+    // il listone tutto svincolato e le squadre da creare.
+    conSquadreDiProva: corpo.conSquadreDiProva === true,
   });
 
   return NextResponse.json({

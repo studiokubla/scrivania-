@@ -1,5 +1,6 @@
 "use server";
 
+import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -9,7 +10,7 @@ import { db } from "@/lib/db";
 import { getLeagueContext } from "@/lib/league";
 import { importMatchdayVotes, importQuotations, type ImportOutcome } from "@/lib/import/lfc";
 import { importTransfermarkt } from "@/lib/import/transfermarkt";
-import { formatMoney, fromDecimal, toDecimalString } from "@/lib/money";
+import { formatMoney, fromDecimal, fromMillions, toDecimalString } from "@/lib/money";
 import { competitionPrize, cupPrize, stadiumTier } from "@/lib/rules/capital";
 import type { ActionResult } from "./contracts";
 
@@ -355,5 +356,363 @@ export async function chargeStadiumMaintenance(): Promise<ActionResult> {
   return {
     ok: true,
     message: `Manutenzione addebitata a ${charged} squadre${downgraded > 0 ? `, ${downgraded} stadi retrocessi` : ""}.`,
+  };
+}
+
+// ───────────────────────────────────────────────── Squadre e manager (art. 1.1)
+
+/**
+ * Una lega vera nasce vuota: nessuna squadra, il listone tutto svincolato, le
+ * rose da formare all'asta. Le squadre le crea qui il commissioner, una per
+ * manager, mano a mano che le adesioni si confermano.
+ *
+ * Creare una squadra non è solo una riga in tabella: porta con sé la dotazione
+ * iniziale (art. 14), lo stadio a livello zero, il settore giovanile e le
+ * scelte al draft. Farlo a mano nel database vorrebbe dire dimenticarne una.
+ */
+
+const SquadraSchema = z.object({
+  name: z.string().trim().min(2, "Il nome è troppo corto").max(40, "Il nome è troppo lungo"),
+  shortName: z
+    .string()
+    .trim()
+    .min(2, "La sigla è troppo corta")
+    .max(4, "La sigla non può superare quattro lettere")
+    .transform((s) => s.toUpperCase()),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Il colore va scritto come #1D4ED8"),
+  managerEmail: z.string().trim().toLowerCase().email("Indirizzo non valido"),
+  managerName: z.string().trim().max(60).optional(),
+});
+
+export interface CredenzialiState extends ActionResult {
+  /** Mostrata una volta sola: nel database resta solo l'impronta. */
+  credenziali?: { team: string; email: string; password: string };
+}
+
+/** Password leggibile ma non indovinabile: quattro gruppi di quattro caratteri. */
+function generaPassword(): string {
+  const alfabeto = "abcdefghijkmnopqrstuvwxyz23456789";
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  const caratteri = [...bytes].map((b) => alfabeto[b % alfabeto.length]);
+  return [0, 4, 8, 12].map((i) => caratteri.slice(i, i + 4).join("")).join("-");
+}
+
+export async function creaSquadra(_prev: CredenzialiState, formData: FormData): Promise<CredenzialiState> {
+  const session = await requireCommissioner();
+  const { league, season, ruleset } = await getLeagueContext();
+
+  const parsed = SquadraSchema.safeParse({
+    name: formData.get("name"),
+    shortName: formData.get("shortName"),
+    color: formData.get("color"),
+    managerEmail: formData.get("managerEmail"),
+    managerName: formData.get("managerName") || undefined,
+  });
+  if (!parsed.success) return refuse(parsed.error.issues[0]?.message ?? "Dati non validi");
+  const dati = parsed.data;
+
+  const quante = await db.team.count({ where: { leagueId: league.id } });
+  if (quante >= ruleset.governance.teams) {
+    return refuse(`La lega è già al completo: ${ruleset.governance.teams} squadre.`);
+  }
+
+  if (await db.team.findFirst({ where: { leagueId: league.id, name: dati.name } })) {
+    return refuse(`Esiste già una squadra che si chiama «${dati.name}».`);
+  }
+  if (await db.user.findFirst({ where: { leagueId: league.id, email: dati.managerEmail } })) {
+    return refuse(`L'indirizzo ${dati.managerEmail} è già usato da un altro accesso.`);
+  }
+
+  const password = generaPassword();
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  const team = await db.$transaction(async (tx) => {
+    const creata = await tx.team.create({
+      data: { leagueId: league.id, name: dati.name, shortName: dati.shortName, color: dati.color },
+    });
+
+    await tx.user.create({
+      data: {
+        leagueId: league.id,
+        email: dati.managerEmail,
+        name: dati.managerName ?? `Manager ${dati.shortName}`,
+        passwordHash,
+        role: "MANAGER",
+        teamId: creata.id,
+      },
+    });
+
+    await tx.capitalTransaction.create({
+      data: {
+        teamId: creata.id,
+        seasonId: season.id,
+        amount: toDecimalString(fromMillions(ruleset.capital.initialEndowment)),
+        kind: "INITIAL_ENDOWMENT",
+        description: "Dotazione iniziale (art. 14)",
+      },
+    });
+    await tx.stadium.create({ data: { teamId: creata.id, seasonId: season.id, level: 0 } });
+    await tx.academy.create({
+      data: { teamId: creata.id, seasonId: season.id, capacity: ruleset.youth.baseCapacity },
+    });
+
+    // Le scelte al draft esistono da subito perché sono scambiabili (art. 13.4):
+    // una squadra deve poterle cedere ancora prima che si estragga la lotteria,
+    // che ne fisserà l'ordine ma non chi le possiede.
+    const draft = await tx.draft.findFirst({ where: { seasonId: season.id } });
+    if (draft) {
+      for (let round = 1; round <= 3; round += 1) {
+        await tx.draftPick.create({
+          data: {
+            draftId: draft.id,
+            teamId: creata.id,
+            originalTeamId: creata.id,
+            round,
+            pickNumber: (round - 1) * ruleset.governance.teams + quante + 1,
+            forYear: season.startYear,
+          },
+        });
+      }
+    }
+
+    await recordAudit(tx, {
+      seasonId: season.id,
+      userId: session.userId,
+      action: "TEAM_CREATED",
+      summary: `Iscritta ${dati.name} (${dati.shortName}) — manager ${dati.managerEmail}`,
+      payload: { teamId: creata.id, name: dati.name, managerEmail: dati.managerEmail },
+    });
+
+    return creata;
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/lega");
+  return {
+    ok: true,
+    message: `${team.name} iscritta. Sono ${quante + 1} squadre su ${ruleset.governance.teams}.`,
+    credenziali: { team: team.name, email: dati.managerEmail, password },
+  };
+}
+
+const ModificaSchema = SquadraSchema.omit({ managerEmail: true, managerName: true }).extend({
+  teamId: z.string().min(1),
+  managerEmail: z.string().trim().toLowerCase().email("Indirizzo non valido"),
+});
+
+export async function modificaSquadra(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  const session = await requireCommissioner();
+  const { league, season } = await getLeagueContext();
+
+  const parsed = ModificaSchema.safeParse({
+    teamId: formData.get("teamId"),
+    name: formData.get("name"),
+    shortName: formData.get("shortName"),
+    color: formData.get("color"),
+    managerEmail: formData.get("managerEmail"),
+  });
+  if (!parsed.success) return refuse(parsed.error.issues[0]?.message ?? "Dati non validi");
+  const dati = parsed.data;
+
+  const team = await db.team.findFirst({
+    where: { id: dati.teamId, leagueId: league.id },
+    include: { manager: true },
+  });
+  if (!team) return refuse("Squadra inesistente.");
+
+  const omonima = await db.team.findFirst({
+    where: { leagueId: league.id, name: dati.name, id: { not: team.id } },
+  });
+  if (omonima) return refuse(`Esiste già una squadra che si chiama «${dati.name}».`);
+
+  const altroAccesso = await db.user.findFirst({
+    where: { leagueId: league.id, email: dati.managerEmail, NOT: { teamId: team.id } },
+  });
+  if (altroAccesso) return refuse(`L'indirizzo ${dati.managerEmail} è già usato da un altro accesso.`);
+
+  await db.$transaction(async (tx) => {
+    await tx.team.update({
+      where: { id: team.id },
+      data: { name: dati.name, shortName: dati.shortName, color: dati.color },
+    });
+
+    const manager = team.manager;
+    if (manager) {
+      await tx.user.update({ where: { id: manager.id }, data: { email: dati.managerEmail } });
+    } else {
+      // Squadra rimasta senza manager: gli si ridà un accesso, con una password
+      // nuova che però da qui non si vede. Si rigenera dal pulsante apposta.
+      await tx.user.create({
+        data: {
+          leagueId: league.id,
+          email: dati.managerEmail,
+          name: `Manager ${dati.shortName}`,
+          passwordHash: await bcrypt.hash(generaPassword(), 12),
+          role: "MANAGER",
+          teamId: team.id,
+        },
+      });
+    }
+
+    await recordAudit(tx, {
+      seasonId: season.id,
+      userId: session.userId,
+      action: "TEAM_UPDATED",
+      summary:
+        team.name === dati.name
+          ? `${dati.name}: dati aggiornati`
+          : `${team.name} cambia nome in ${dati.name}`,
+      payload: { teamId: team.id, name: dati.name, managerEmail: dati.managerEmail },
+    });
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/lega");
+  return { ok: true, message: `${dati.name} aggiornata.` };
+}
+
+/**
+ * Rigenera la password di un manager. Serve quando la perde: quella vecchia non
+ * è recuperabile da nessuno, commissioner compreso, perché nel database c'è solo
+ * la sua impronta.
+ */
+export async function rigeneraPassword(teamId: string): Promise<CredenzialiState> {
+  const session = await requireCommissioner();
+  const { league, season } = await getLeagueContext();
+
+  const team = await db.team.findFirst({
+    where: { id: teamId, leagueId: league.id },
+    include: { manager: true },
+  });
+  if (!team) return refuse("Squadra inesistente.");
+  const manager = team.manager;
+  if (!manager) return refuse("Questa squadra non ha ancora un manager.");
+
+  const password = generaPassword();
+  await db.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: manager.id },
+      data: { passwordHash: await bcrypt.hash(password, 12) },
+    });
+    await recordAudit(tx, {
+      seasonId: season.id,
+      userId: session.userId,
+      action: "PASSWORD_RESET",
+      summary: `Nuova password per il manager di ${team.name}`,
+      payload: { teamId: team.id, email: manager.email },
+    });
+  });
+
+  revalidatePath("/admin");
+  return {
+    ok: true,
+    message: "Password nuova. Si vede una volta sola.",
+    credenziali: { team: team.name, email: manager.email, password },
+  };
+}
+
+/**
+ * Cancella una squadra. Possibile solo finché non ha contratti: dopo l'asta una
+ * squadra non si toglie senza decidere che fine fanno i suoi giocatori, e quella
+ * è una decisione di lega, non un pulsante.
+ */
+export async function eliminaSquadra(teamId: string): Promise<ActionResult> {
+  const session = await requireCommissioner();
+  const { league, season } = await getLeagueContext();
+
+  const team = await db.team.findFirst({
+    where: { id: teamId, leagueId: league.id },
+    include: { _count: { select: { contracts: true } } },
+  });
+  if (!team) return refuse("Squadra inesistente.");
+  if (team._count.contracts > 0) {
+    return refuse(
+      `${team.name} ha ${team._count.contracts} contratti: vanno prima liberati, altrimenti resterebbero giocatori senza squadra e senza svincolo.`,
+    );
+  }
+
+  await db.$transaction(async (tx) => {
+    await tx.draftPick.deleteMany({ where: { OR: [{ teamId: team.id }, { originalTeamId: team.id }] } });
+    await tx.capitalTransaction.deleteMany({ where: { teamId: team.id } });
+    await tx.stadium.deleteMany({ where: { teamId: team.id } });
+    await tx.academy.deleteMany({ where: { teamId: team.id } });
+    await tx.scout.deleteMany({ where: { teamId: team.id } });
+    await tx.sponsorship.deleteMany({ where: { teamId: team.id } });
+    await tx.user.deleteMany({ where: { teamId: team.id } });
+    await tx.team.delete({ where: { id: team.id } });
+
+    await recordAudit(tx, {
+      seasonId: season.id,
+      userId: session.userId,
+      action: "TEAM_DELETED",
+      summary: `${team.name} ritirata dalla lega`,
+      payload: { teamId: team.id, name: team.name },
+    });
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/lega");
+  return { ok: true, message: `${team.name} ritirata.` };
+}
+
+/**
+ * Riporta la lega al giorno zero: via tutte le squadre, i manager, i contratti
+ * e il capitale; restano la stagione, il listone, le finestre, le competizioni e
+ * l'accesso del commissioner.
+ *
+ * Serve una volta sola, se si è partiti col piede sbagliato — per esempio con le
+ * squadre di prova. Chiede di riscrivere il nome della lega perché non è un
+ * pulsante da premere per sbaglio: quello che cancella non torna.
+ */
+export async function azzeraLega(conferma: string): Promise<ActionResult> {
+  const session = await requireCommissioner();
+  const { league, season } = await getLeagueContext();
+
+  if (conferma.trim().toLowerCase() !== league.name.toLowerCase()) {
+    return refuse(`Per confermare scrivi esattamente «${league.name}».`);
+  }
+
+  const quante = await db.team.count({ where: { leagueId: league.id } });
+
+  await db.$transaction(async (tx) => {
+    await tx.auctionBid.deleteMany();
+    await tx.auctionLot.deleteMany();
+    await tx.tradeItem.deleteMany();
+    await tx.trade.deleteMany();
+    await tx.waiverClaim.deleteMany();
+    await tx.marketOffer.deleteMany();
+    await tx.contractEvent.deleteMany();
+    await tx.contract.deleteMany();
+    await tx.optionUsage.deleteMany();
+    await tx.youthPlayer.deleteMany();
+    await tx.draftPick.deleteMany();
+    await tx.capitalTransaction.deleteMany();
+    await tx.stadium.deleteMany();
+    await tx.academy.deleteMany();
+    await tx.scout.deleteMany();
+    await tx.sponsorship.deleteMany();
+    await tx.standingRow.deleteMany();
+    await tx.fixture.deleteMany();
+    await tx.user.deleteMany({ where: { leagueId: league.id, role: "MANAGER" } });
+    await tx.team.deleteMany({ where: { leagueId: league.id } });
+    await tx.auction.updateMany({ where: { seasonId: season.id }, data: { status: "SCHEDULED", callOrder: [] } });
+
+    await recordAudit(tx, {
+      seasonId: season.id,
+      userId: session.userId,
+      action: "LEAGUE_RESET",
+      summary: `Lega riportata al giorno zero: ${quante} squadre rimosse, listone tutto svincolato`,
+      payload: { squadreRimosse: quante },
+    });
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/lega");
+  revalidatePath("/mercato");
+  revalidatePath("/asta");
+  return {
+    ok: true,
+    message: `Fatto: ${quante} squadre rimosse, tutti i giocatori svincolati. Ora iscrivi le squadre vere.`,
   };
 }

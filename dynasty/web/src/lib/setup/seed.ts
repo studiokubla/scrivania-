@@ -36,8 +36,13 @@ interface GiocatoreListone {
 
 const LISTONE = listone as { stagione: string; annoInizio: number; giocatori: GiocatoreListone[] };
 
-/** Squadre segnaposto: si rinominano alla prima riunione di lega. */
-const SQUADRE = [
+/**
+ * Squadre finte, con rose finte: servono a provare mercato, scambi e asta su
+ * una lega che assomigli a una vera. **Non** vengono create in produzione: una
+ * lega che parte davvero parte vuota, e le squadre le crea il commissioner con
+ * i nomi e i manager veri.
+ */
+const SQUADRE_DI_PROVA = [
   { name: "AS Sorata", short: "SOR", color: "#C2410C" },
   { name: "Real Marasca", short: "MRS", color: "#1D4ED8" },
   { name: "Atletico Buranello", short: "BUR", color: "#047857" },
@@ -63,6 +68,17 @@ export interface SeedOptions {
   managerDomain?: string;
   /** Seme dell'estrazione: lo stesso seme dà la stessa lega */
   seed?: number;
+  /**
+   * Crea dieci squadre finte con le rose già formate. Serve alle verifiche
+   * automatiche, che hanno bisogno di una lega popolata per esercitare
+   * mercato, scambi e asta.
+   *
+   * In produzione resta spento: la lega nasce con il listone tutto svincolato
+   * e nessuna squadra, e il commissioner le aggiunge dal pannello mano a mano
+   * che i manager confermano. Accendere questa opzione su una lega vera
+   * significherebbe partire con dieci rose che nessuno ha scelto.
+   */
+  conSquadreDiProva?: boolean;
 }
 
 export interface SeedResult {
@@ -221,12 +237,14 @@ export async function seedLeague(db: PrismaClient, options: SeedOptions): Promis
   });
 
   const teams = [];
-  for (const t of SQUADRE) {
-    teams.push(
-      await db.team.create({
-        data: { leagueId: league.id, name: t.name, shortName: t.short, color: t.color },
-      }),
-    );
+  if (options.conSquadreDiProva) {
+    for (const t of SQUADRE_DI_PROVA) {
+      teams.push(
+        await db.team.create({
+          data: { leagueId: league.id, name: t.name, shortName: t.short, color: t.color },
+        }),
+      );
+    }
   }
 
   // Utenti. Le password si generano qui e si restituiscono una volta sola:
@@ -287,7 +305,8 @@ export async function seedLeague(db: PrismaClient, options: SeedOptions): Promis
     })),
   });
 
-  // Rose iniziali
+  // Rose iniziali. Senza squadre di prova questo ciclo non gira nemmeno: il
+  // listone resta tutto svincolato, come dev'essere prima dell'asta.
   const presi = new Set<number>();
   let contratti = 0;
   for (const team of teams) {

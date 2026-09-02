@@ -2,10 +2,15 @@ import Link from "next/link";
 
 import { Card, Empty, Stat, Tag } from "@/components/ui";
 import { ActionButton } from "../mercato/client";
-import { ImportPanel, StandingsEditor } from "./client";
+import { ImportPanel, StandingsEditor, TeamsPanel } from "./client";
 import {
   awardPrizes,
+  azzeraLega,
   chargeStadiumMaintenance,
+  creaSquadra,
+  eliminaSquadra,
+  modificaSquadra,
+  rigeneraPassword,
   runImport,
   setSeasonPhase,
   setStandings,
@@ -37,7 +42,18 @@ export default async function AdminPage() {
       include: { standings: { orderBy: { position: "asc" }, include: { team: { select: { name: true } } } } },
       orderBy: { kind: "asc" },
     }),
-    db.team.findMany({ where: { leagueId: league.id }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    db.team.findMany({
+      where: { leagueId: league.id },
+      select: {
+        id: true,
+        name: true,
+        shortName: true,
+        color: true,
+        manager: { select: { email: true } },
+        _count: { select: { contracts: true } },
+      },
+      orderBy: { name: "asc" },
+    }),
     db.importRun.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
     verifyAuditChain(season.id),
     db.player.count({ where: { birthDate: null, contracts: { some: { status: "ACTIVE" } } } }),
@@ -82,6 +98,25 @@ export default async function AdminPage() {
           </p>
         )}
       </Card>
+
+      {/* ── Squadre e manager ───────────────────────────────────────────── */}
+      <TeamsPanel
+        teams={teams.map((t) => ({
+          id: t.id,
+          name: t.name,
+          shortName: t.shortName,
+          color: t.color,
+          managerEmail: t.manager?.email ?? null,
+          contratti: t._count.contracts,
+        }))}
+        maxTeams={ruleset.governance.teams}
+        leagueName={league.name}
+        crea={creaSquadra}
+        modifica={modificaSquadra}
+        rigenera={rigeneraPassword}
+        elimina={eliminaSquadra}
+        azzera={azzeraLega}
+      />
 
       {/* ── Fase e finestre ─────────────────────────────────────────────── */}
       <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))" }}>

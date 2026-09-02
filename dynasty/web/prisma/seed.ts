@@ -29,6 +29,9 @@ async function main() {
   const esito = await seedLeague(db, {
     commissionerEmail: "info@studiokubla.com",
     password: PASSWORD_SVILUPPO,
+    // In sviluppo servono squadre e rose: senza non c'è niente da guardare né
+    // da provare. La lega vera nasce invece vuota.
+    conSquadreDiProva: true,
   });
 
   console.log("");

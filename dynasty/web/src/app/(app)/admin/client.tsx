@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 
 import { Result } from "../mercato/client";
-import type { ImportState } from "@/app/actions/admin";
+import type { CredenzialiState, ImportState } from "@/app/actions/admin";
 import type { ActionResult } from "@/app/actions/contracts";
 
 const TIPI = [
@@ -225,6 +225,350 @@ export function StandingsEditor({
       </div>
 
       <Result result={result} />
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────── Squadre e manager (art. 1.1)
+
+const COLORI = ["#1D4ED8", "#C2410C", "#047857", "#7C3AED", "#B91C1C", "#0F766E", "#A16207", "#374151", "#BE185D", "#0369A1"];
+
+/**
+ * Le credenziali appena generate. Restano a schermo finché il commissioner non
+ * le chiude: nel database c'è solo la loro impronta, quindi questa è l'unica
+ * occasione di leggerle e passarle al manager.
+ */
+function Credenziali({
+  dati,
+  onClose,
+}: {
+  dati: { team: string; email: string; password: string };
+  onClose: () => void;
+}) {
+  const [copiato, setCopiato] = useState(false);
+  const testo = `Dynasty League — ${dati.team}\nIndirizzo: ${dati.email}\nPassword: ${dati.password}`;
+
+  return (
+    <div
+      className="avviso"
+      style={{ display: "grid", gap: 10, background: "var(--verde-tenue)", borderColor: "var(--verde-scuro)" }}
+      role="status"
+    >
+      <div>
+        <strong style={{ fontSize: 13.5 }}>Credenziali per {dati.team}</strong>
+        <div style={{ fontSize: 12.5, color: "var(--inchiostro-medio)", marginTop: 2 }}>
+          Si vedono una volta sola. Passale al manager adesso: nel database resta solo l&apos;impronta,
+          e se si perdono si rigenerano da capo.
+        </div>
+      </div>
+
+      <pre
+        style={{
+          margin: 0,
+          padding: 10,
+          background: "var(--sfondo)",
+          border: "1px solid var(--bordo)",
+          borderRadius: 8,
+          fontSize: 12.5,
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-all",
+        }}
+      >
+        {testo}
+      </pre>
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <button
+          type="button"
+          className="bottone"
+          onClick={() => {
+            navigator.clipboard?.writeText(testo).then(
+              () => setCopiato(true),
+              () => setCopiato(false),
+            );
+          }}
+        >
+          {copiato ? "Copiate" : "Copia"}
+        </button>
+        <button type="button" className="bottone" onClick={onClose}>
+          Ho finito
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface SquadraInfo {
+  id: string;
+  name: string;
+  shortName: string;
+  color: string;
+  managerEmail: string | null;
+  contratti: number;
+}
+
+export function TeamsPanel({
+  teams,
+  maxTeams,
+  leagueName,
+  crea,
+  modifica,
+  rigenera,
+  elimina,
+  azzera,
+}: {
+  teams: SquadraInfo[];
+  maxTeams: number;
+  leagueName: string;
+  crea: (prev: CredenzialiState, formData: FormData) => Promise<CredenzialiState>;
+  modifica: (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
+  rigenera: (teamId: string) => Promise<CredenzialiState>;
+  elimina: (teamId: string) => Promise<ActionResult>;
+  azzera: (conferma: string) => Promise<ActionResult>;
+}) {
+  const router = useRouter();
+  const [statoCrea, azioneCrea] = useActionState<CredenzialiState, FormData>(crea, { ok: true, message: "" });
+  const [statoModifica, azioneModifica] = useActionState<ActionResult, FormData>(modifica, { ok: true, message: "" });
+  const [inModifica, setInModifica] = useState<string | null>(null);
+  const [credenziali, setCredenziali] = useState<{ team: string; email: string; password: string } | null>(null);
+  const [esito, setEsito] = useState<ActionResult | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  // Le credenziali arrivano dal risultato dell'azione, ma vanno tenute a schermo
+  // anche dopo il ricaricamento della pagina che segue la creazione.
+  const daMostrare = credenziali ?? statoCrea.credenziali ?? null;
+
+  const mancanti = maxTeams - teams.length;
+  const senzaManager = teams.filter((t) => !t.managerEmail).length;
+
+  return (
+    <section className="carta">
+      <header style={{ padding: "12px 14px", borderBottom: "1px solid var(--bordo)" }}>
+        <h2 style={{ fontSize: 15 }}>Squadre e manager</h2>
+        <p style={{ margin: "2px 0 0", fontSize: 12.5, color: "var(--inchiostro-tenue)" }}>
+          Art. 1.1 — {teams.length} su {maxTeams}
+          {mancanti > 0 ? ` · ne mancano ${mancanti}` : " · lega al completo"}
+          {senzaManager > 0 ? ` · ${senzaManager} senza manager` : ""}
+        </p>
+      </header>
+
+      <div style={{ padding: 14, display: "grid", gap: 14 }}>
+        {daMostrare && <Credenziali dati={daMostrare} onClose={() => setCredenziali(null)} />}
+        {esito && <Result result={esito} />}
+
+        {teams.length === 0 ? (
+          <p style={{ margin: 0, fontSize: 13, color: "var(--inchiostro-medio)" }}>
+            Nessuna squadra iscritta. Aggiungile qui sotto una alla volta: ognuna nasce con la
+            dotazione iniziale, lo stadio a livello zero, il settore giovanile e le sue scelte al
+            draft. Le rose si formano all&apos;asta di settembre.
+          </p>
+        ) : (
+          <table className="griglia">
+            <thead>
+              <tr>
+                <th>Squadra</th>
+                <th>Manager</th>
+                <th style={{ textAlign: "right" }}>Rosa</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {teams.map((t) => (
+                <tr key={t.id}>
+                  <td>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 10,
+                        height: 10,
+                        borderRadius: 3,
+                        background: t.color,
+                        marginRight: 8,
+                      }}
+                    />
+                    <strong style={{ fontWeight: 550 }}>{t.name}</strong>
+                    <span style={{ color: "var(--inchiostro-tenue)", marginLeft: 6, fontSize: 12 }}>{t.shortName}</span>
+                  </td>
+                  <td style={{ fontSize: 12.5 }}>
+                    {t.managerEmail ?? <span style={{ color: "var(--avviso)" }}>nessuno</span>}
+                  </td>
+                  <td style={{ textAlign: "right", fontSize: 12.5 }}>{t.contratti}</td>
+                  <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                    <button
+                      type="button"
+                      className="bottone"
+                      onClick={() => setInModifica(inModifica === t.id ? null : t.id)}
+                    >
+                      {inModifica === t.id ? "Chiudi" : "Modifica"}
+                    </button>{" "}
+                    <button
+                      type="button"
+                      className="bottone"
+                      disabled={pending || !t.managerEmail}
+                      title={t.managerEmail ? "Genera una password nuova" : "Questa squadra non ha un manager"}
+                      onClick={() =>
+                        startTransition(async () => {
+                          const r = await rigenera(t.id);
+                          setEsito(r.ok ? null : r);
+                          if (r.credenziali) setCredenziali(r.credenziali);
+                          router.refresh();
+                        })
+                      }
+                    >
+                      Password
+                    </button>{" "}
+                    <button
+                      type="button"
+                      className="bottone bottone-pericolo"
+                      disabled={pending || t.contratti > 0}
+                      title={t.contratti > 0 ? "Ha giocatori sotto contratto" : "Ritira la squadra dalla lega"}
+                      onClick={() => {
+                        if (!window.confirm(`Ritirare ${t.name} dalla lega? L'accesso del suo manager viene cancellato.`)) return;
+                        startTransition(async () => {
+                          setEsito(await elimina(t.id));
+                          router.refresh();
+                        });
+                      }}
+                    >
+                      Ritira
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {inModifica && (
+          <form action={azioneModifica} style={{ display: "grid", gap: 10, padding: 12, border: "1px solid var(--bordo)", borderRadius: 10 }}>
+            <input type="hidden" name="teamId" value={inModifica} />
+            {(() => {
+              const t = teams.find((x) => x.id === inModifica);
+              if (!t) return null;
+              return (
+                <>
+                  <strong style={{ fontSize: 13.5 }}>Modifica {t.name}</strong>
+                  <div style={{ display: "grid", gap: 10, gridTemplateColumns: "2fr 1fr 1fr" }}>
+                    <div>
+                      <label className="etichetta" htmlFor="m-name">Nome</label>
+                      <input id="m-name" name="name" className="campo" defaultValue={t.name} required />
+                    </div>
+                    <div>
+                      <label className="etichetta" htmlFor="m-short">Sigla</label>
+                      <input id="m-short" name="shortName" className="campo" defaultValue={t.shortName} maxLength={4} required />
+                    </div>
+                    <div>
+                      <label className="etichetta" htmlFor="m-color">Colore</label>
+                      <input id="m-color" name="color" type="color" className="campo" defaultValue={t.color} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="etichetta" htmlFor="m-email">Indirizzo del manager</label>
+                    <input id="m-email" name="managerEmail" type="email" className="campo" defaultValue={t.managerEmail ?? ""} required />
+                  </div>
+                  {statoModifica.message && <Result result={statoModifica} />}
+                  <Submit label="Salva" />
+                </>
+              );
+            })()}
+          </form>
+        )}
+
+        {mancanti > 0 && (
+          <form action={azioneCrea} style={{ display: "grid", gap: 10, padding: 12, border: "1px dashed var(--bordo)", borderRadius: 10 }}>
+            <strong style={{ fontSize: 13.5 }}>Iscrivi una squadra</strong>
+            <div style={{ display: "grid", gap: 10, gridTemplateColumns: "2fr 1fr 1fr" }}>
+              <div>
+                <label className="etichetta" htmlFor="c-name">Nome</label>
+                <input id="c-name" name="name" className="campo" placeholder="Real Marasca" required />
+              </div>
+              <div>
+                <label className="etichetta" htmlFor="c-short">Sigla</label>
+                <input id="c-short" name="shortName" className="campo" placeholder="MRS" maxLength={4} required />
+              </div>
+              <div>
+                <label className="etichetta" htmlFor="c-color">Colore</label>
+                <input id="c-color" name="color" type="color" className="campo" defaultValue={COLORI[teams.length % COLORI.length]} />
+              </div>
+            </div>
+            <div style={{ display: "grid", gap: 10, gridTemplateColumns: "1fr 1fr" }}>
+              <div>
+                <label className="etichetta" htmlFor="c-email">Indirizzo del manager</label>
+                <input id="c-email" name="managerEmail" type="email" className="campo" placeholder="nome@esempio.it" required />
+              </div>
+              <div>
+                <label className="etichetta" htmlFor="c-manager">Nome del manager</label>
+                <input id="c-manager" name="managerName" className="campo" placeholder="facoltativo" />
+              </div>
+            </div>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--inchiostro-tenue)" }}>
+              La password si genera qui e si vede una volta sola.
+            </p>
+            {statoCrea.message && !statoCrea.credenziali && <Result result={statoCrea} />}
+            <Submit label="Iscrivi la squadra" />
+          </form>
+        )}
+
+        <details>
+          <summary style={{ fontSize: 12.5, color: "var(--inchiostro-tenue)", cursor: "pointer" }}>
+            Ripartire da zero
+          </summary>
+          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+            <p style={{ margin: 0, fontSize: 12.5, color: "var(--inchiostro-medio)" }}>
+              Toglie tutte le squadre, i loro manager, i contratti e il capitale, e rimette in
+              circolazione tutti i giocatori. Restano la stagione, il listone, le finestre, le
+              competizioni e il tuo accesso. Serve se la lega è partita con dati che non erano
+              quelli veri; quello che cancella non torna.
+            </p>
+            <AzzeraForm leagueName={leagueName} azzera={azzera} onEsito={setEsito} />
+          </div>
+        </details>
+      </div>
+    </section>
+  );
+}
+
+function AzzeraForm({
+  leagueName,
+  azzera,
+  onEsito,
+}: {
+  leagueName: string;
+  azzera: (conferma: string) => Promise<ActionResult>;
+  onEsito: (r: ActionResult) => void;
+}) {
+  const [conferma, setConferma] = useState("");
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  return (
+    <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+      <div style={{ flex: 1 }}>
+        <label className="etichetta" htmlFor="conferma">
+          Scrivi «{leagueName}» per confermare
+        </label>
+        <input
+          id="conferma"
+          className="campo"
+          value={conferma}
+          onChange={(e) => setConferma(e.target.value)}
+          placeholder={leagueName}
+        />
+      </div>
+      <button
+        type="button"
+        className="bottone bottone-pericolo"
+        disabled={pending || conferma.trim().toLowerCase() !== leagueName.toLowerCase()}
+        onClick={() =>
+          startTransition(async () => {
+            onEsito(await azzera(conferma));
+            setConferma("");
+            router.refresh();
+          })
+        }
+      >
+        {pending ? "In corso…" : "Azzera la lega"}
+      </button>
     </div>
   );
 }

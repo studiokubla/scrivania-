@@ -16,6 +16,7 @@
     "db:studio": "prisma studio",
     "verifica": "node scripts/verifica.mjs",
     "verifica:online": "node scripts/verifica-online.mjs",
+    "verifica:iscrizioni": "node scripts/verifica-iscrizioni.mjs",
     "build:local": "prisma generate && next build",
     "listone:json": "node scripts/listone-json.mjs",
     "presentazione": "node scripts/presentazione.mjs"
