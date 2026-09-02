@@ -9,7 +9,7 @@ import { db } from "@/lib/db";
 import { getLeagueContext, getOptionCounters, getTeamState } from "@/lib/league";
 import { formatMoney } from "@/lib/money";
 import { quoteBuyout } from "@/lib/rules/buyout";
-import { ageAtSeason, salaryInYear } from "@/lib/rules/contracts";
+import { etàAllaStagione, salaryInYear } from "@/lib/rules/contracts";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +49,7 @@ export default async function MercatoPage() {
       name: true,
       role: true,
       serieATeam: true,
-      birthDate: true,
+      birthDate: true, declaredAge: true, declaredAgeYear: true,
       seasons: { where: { seasonId: season.id }, select: { quotationCurrent: true } },
     },
     orderBy: { name: "asc" },
@@ -71,7 +71,7 @@ export default async function MercatoPage() {
       role: p.role,
       serieATeam: p.serieATeam,
       quotation: p.seasons[0]?.quotationCurrent ? Number(p.seasons[0].quotationCurrent) : null,
-      age: ageAtSeason(p.birthDate, currentYear, ruleset),
+      age: etàAllaStagione(p, currentYear, ruleset),
       contestClosesAt: contest ? contest.closesAt.toISOString() : null,
       contestOffers: contest?.count ?? 0,
     };

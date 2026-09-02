@@ -19,6 +19,33 @@ import {
  * Restituisce null se la data di nascita non è nota: senza anagrafica non si possono
  * firmare Rookie né Veteran, e la validazione lo dice esplicitamente.
  */
+/**
+ * Quanti anni ha un giocatore in una certa stagione.
+ *
+ * Due fonti, in ordine di fiducia. La **data di nascita** è esatta e arriva
+ * dall'import Transfermarkt: se c'è, decide lei. In sua assenza vale l'**età
+ * stampata sul listone**, che è un numero riferito a una stagione precisa e
+ * che quindi va invecchiato di un anno per ogni stagione trascorsa da allora.
+ *
+ * Non si costruisce una finta data di nascita a partire dall'età: sembrerebbe
+ * più comodo e funzionerebbe, ma seminerebbe nel database date inventate
+ * indistinguibili da quelle vere, e fra due stagioni nessuno saprebbe più
+ * quali fidarsi.
+ */
+export function etàAllaStagione(
+  anagrafica: { birthDate?: Date | null; declaredAge?: number | null; declaredAgeYear?: number | null },
+  seasonStartYear: number,
+  ruleset: Ruleset,
+): number | null {
+  const esatta = ageAtSeason(anagrafica.birthDate ?? null, seasonStartYear, ruleset);
+  if (esatta !== null) return esatta;
+
+  const dichiarata = anagrafica.declaredAge;
+  if (dichiarata == null) return null;
+  const anno = anagrafica.declaredAgeYear ?? seasonStartYear;
+  return dichiarata + (seasonStartYear - anno);
+}
+
 export function ageAtSeason(
   birthDate: Date | null | undefined,
   seasonStartYear: number,
@@ -103,10 +130,18 @@ export function validateContractSignature(input: {
   salary: Money;
   years: number;
   seasonStartYear: number;
-  playerBirthDate: Date | null | undefined;
+  /**
+   * L'età alla data di riferimento, o `null` se la lega non la conosce.
+   *
+   * Si passa l'età e non la data di nascita perché al regolamento la data non
+   * serve: serve sapere quanti anni ha. Da dove lo si sappia — dall'anagrafica
+   * Transfermarkt o dall'età stampata sul listone — è un problema di chi legge
+   * i dati, non delle regole. Si ricava con `etàAllaStagione`.
+   */
+  playerAge: number | null;
   ruleset: Ruleset;
 }): ValidationResult {
-  const { type, salary, years, seasonStartYear, playerBirthDate, ruleset } = input;
+  const { type, salary, years, playerAge, ruleset } = input;
   const errors = [];
   const warnings = [];
   const c = ruleset.contracts;
@@ -120,7 +155,7 @@ export function validateContractSignature(input: {
     );
   }
 
-  const age = ageAtSeason(playerBirthDate, seasonStartYear, ruleset);
+  const age = playerAge;
 
   switch (type) {
     case "ANNUALE": {

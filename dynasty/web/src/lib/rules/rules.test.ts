@@ -24,6 +24,7 @@ import {
 } from "./capital";
 import {
   ageAtSeason,
+  etàAllaStagione,
   applyTeamOption,
   buildSalarySchedule,
   franchiseTagSalary,
@@ -164,26 +165,28 @@ describe("tabella ingaggi", () => {
 });
 
 describe("validazione della firma", () => {
-  const under23 = new Date(Date.UTC(2004, 0, 1)); // 21 anni al 1/9/2025
-  const over30 = new Date(Date.UTC(1992, 0, 1)); // 33 anni al 1/9/2025
+  // Il motore riceve l'età, non la data: da dove la lega la sappia — anagrafica
+  // Transfermarkt o età stampata sul listone — non è affare suo.
+  const under23 = 21;
+  const over30 = 33;
 
   it("accetta un Rookie regolare", () => {
     const r = validateContractSignature({
-      type: "ROOKIE", salary: M(5), years: 3, seasonStartYear: 2025, playerBirthDate: under23, ruleset: R,
+      type: "ROOKIE", salary: M(5), years: 3, seasonStartYear: 2025, playerAge: under23, ruleset: R,
     });
     expect(r.ok).toBe(true);
   });
 
   it("rifiuta un Rookie sopra i 6 M", () => {
     const r = validateContractSignature({
-      type: "ROOKIE", salary: M(7), years: 3, seasonStartYear: 2025, playerBirthDate: under23, ruleset: R,
+      type: "ROOKIE", salary: M(7), years: 3, seasonStartYear: 2025, playerAge: under23, ruleset: R,
     });
     expect(r.errors.map((e) => e.code)).toContain("ROOKIE_MAX_SALARY");
   });
 
   it("rifiuta un Rookie a un giocatore troppo vecchio, e lo dice con l'età", () => {
     const r = validateContractSignature({
-      type: "ROOKIE", salary: M(5), years: 3, seasonStartYear: 2025, playerBirthDate: over30, ruleset: R,
+      type: "ROOKIE", salary: M(5), years: 3, seasonStartYear: 2025, playerAge: over30, ruleset: R,
     });
     const err = r.errors.find((e) => e.code === "ROOKIE_AGE");
     expect(err?.message).toContain("33");
@@ -191,28 +194,28 @@ describe("validazione della firma", () => {
 
   it("rifiuta il Veteran a un under 30", () => {
     const r = validateContractSignature({
-      type: "VETERAN", salary: M(8), years: 2, seasonStartYear: 2025, playerBirthDate: under23, ruleset: R,
+      type: "VETERAN", salary: M(8), years: 2, seasonStartYear: 2025, playerAge: under23, ruleset: R,
     });
     expect(r.errors.map((e) => e.code)).toContain("VETERAN_AGE");
   });
 
   it("blocca la firma se manca l'anagrafica per un contratto che dipende dall'età", () => {
     const r = validateContractSignature({
-      type: "VETERAN", salary: M(8), years: 2, seasonStartYear: 2025, playerBirthDate: null, ruleset: R,
+      type: "VETERAN", salary: M(8), years: 2, seasonStartYear: 2025, playerAge: null, ruleset: R,
     });
     expect(r.errors.map((e) => e.code)).toContain("VETERAN_AGE_UNKNOWN");
   });
 
   it("rifiuta importi fuori dal passo di 0,25 M", () => {
     const r = validateContractSignature({
-      type: "ANNUALE", salary: M(1.1), years: 1, seasonStartYear: 2025, playerBirthDate: null, ruleset: R,
+      type: "ANNUALE", salary: M(1.1), years: 1, seasonStartYear: 2025, playerAge: null, ruleset: R,
     });
     expect(r.errors.map((e) => e.code)).toContain("SALARY_OFF_STEP");
   });
 
   it("segnala, senza bloccare, uno Standard dove il Rookie converrebbe", () => {
     const r = validateContractSignature({
-      type: "STANDARD", salary: M(5), years: 3, seasonStartYear: 2025, playerBirthDate: under23, ruleset: R,
+      type: "STANDARD", salary: M(5), years: 3, seasonStartYear: 2025, playerAge: under23, ruleset: R,
     });
     expect(r.ok).toBe(true);
     expect(r.warnings.map((w) => w.code)).toContain("ROOKIE_AVAILABLE");
@@ -872,11 +875,10 @@ describe("premi e sponsor", () => {
 
 describe("idoneità al settore giovanile", () => {
   const anno = 2026;
-  const nato = (anno: number, mese: number, giorno: number) => new Date(Date.UTC(anno, mese - 1, giorno));
 
   it("accetta chi rispetta tutti e tre i requisiti", () => {
     const esito = youthEligibility(
-      { birthDate: nato(2007, 3, 10), appearances: 2, quotation: fromMillions(4) },
+      { età: 2026 - 2007, appearances: 2, quotation: fromMillions(4) },
       anno,
       DEFAULT_RULESET,
     );
@@ -886,7 +888,7 @@ describe("idoneità al settore giovanile", () => {
 
   it("rifiuta chi ha superato l'età", () => {
     const esito = youthEligibility(
-      { birthDate: nato(2000, 1, 1), appearances: 0, quotation: fromMillions(1) },
+      { età: 2026 - 2000, appearances: 0, quotation: fromMillions(1) },
       anno,
       DEFAULT_RULESET,
     );
@@ -896,7 +898,7 @@ describe("idoneità al settore giovanile", () => {
 
   it("rifiuta chi ha troppe presenze", () => {
     const esito = youthEligibility(
-      { birthDate: nato(2007, 3, 10), appearances: 12, quotation: fromMillions(1) },
+      { età: 2026 - 2007, appearances: 12, quotation: fromMillions(1) },
       anno,
       DEFAULT_RULESET,
     );
@@ -906,7 +908,7 @@ describe("idoneità al settore giovanile", () => {
 
   it("rifiuta chi è quotato troppo, anche se giovanissimo", () => {
     const esito = youthEligibility(
-      { birthDate: nato(2008, 5, 1), appearances: 0, quotation: fromMillions(12) },
+      { età: 2026 - 2008, appearances: 0, quotation: fromMillions(12) },
       anno,
       DEFAULT_RULESET,
     );
@@ -917,18 +919,18 @@ describe("idoneità al settore giovanile", () => {
   // È il caso che si presenta il primo giorno di lega, su cinquecento giocatori.
   it("senza data di nascita non dice né sì né no", () => {
     const esito = youthEligibility(
-      { birthDate: null, appearances: 0, quotation: fromMillions(2) },
+      { età: null, appearances: 0, quotation: fromMillions(2) },
       anno,
       DEFAULT_RULESET,
     );
     expect(esito.stato).toBe("DA_VERIFICARE");
-    expect(esito.motivi.join(" ")).toContain("data di nascita");
+    expect(esito.motivi.join(" ")).toContain("età");
   });
 
   // Un requisito violato basta: non serve sapere gli altri per rispondere no.
   it("un requisito violato batte un requisito ignoto", () => {
     const esito = youthEligibility(
-      { birthDate: null, appearances: null, quotation: fromMillions(20) },
+      { età: null, appearances: null, quotation: fromMillions(20) },
       anno,
       DEFAULT_RULESET,
     );
@@ -938,7 +940,7 @@ describe("idoneità al settore giovanile", () => {
   it("il limite di età è compreso", () => {
     // Vent'anni esatti al 1° settembre: dentro.
     const esito = youthEligibility(
-      { birthDate: nato(2006, 9, 1), appearances: 0, quotation: fromMillions(1) },
+      { età: 2026 - 2006, appearances: 0, quotation: fromMillions(1) },
       anno,
       DEFAULT_RULESET,
     );
@@ -950,5 +952,82 @@ describe("idoneità al settore giovanile", () => {
     expect(presenzeNote(0, null)).toBeNull();
     expect(presenzeNote(3, null)).toBe(0);
     expect(presenzeNote(3, 2)).toBe(2);
+  });
+});
+
+// ─────────────────────────────────────── Da dove si sa quanti anni ha uno
+
+describe("età alla stagione", () => {
+  const nascita = new Date(Date.UTC(2004, 0, 1)); // 21 anni al 1/9/2025
+
+  it("la data di nascita, quando c'è, decide lei", () => {
+    expect(etàAllaStagione({ birthDate: nascita }, 2025, R)).toBe(21);
+  });
+
+  it("e batte l'età dichiarata anche se discordano", () => {
+    // Il listone stampa un numero, l'anagrafica una data: la data è esatta.
+    expect(etàAllaStagione({ birthDate: nascita, declaredAge: 40, declaredAgeYear: 2025 }, 2025, R)).toBe(21);
+  });
+
+  it("senza data vale l'età dichiarata", () => {
+    expect(etàAllaStagione({ declaredAge: 27, declaredAgeYear: 2026 }, 2026, R)).toBe(27);
+  });
+
+  it("che invecchia di un anno per stagione", () => {
+    expect(etàAllaStagione({ declaredAge: 27, declaredAgeYear: 2026 }, 2029, R)).toBe(30);
+  });
+
+  it("e ringiovanisce guardando indietro", () => {
+    expect(etàAllaStagione({ declaredAge: 27, declaredAgeYear: 2026 }, 2024, R)).toBe(25);
+  });
+
+  it("senza niente non si inventa un numero", () => {
+    expect(etàAllaStagione({}, 2026, R)).toBeNull();
+    expect(etàAllaStagione({ birthDate: null, declaredAge: null }, 2026, R)).toBeNull();
+  });
+
+  // Il listone stampa l'età al 2 settembre, il regolamento la calcola al 1°:
+  // un giorno di scarto che non deve produrre un anno di differenza.
+  it("l'età dichiarata e quella calcolata coincidono alla data di riferimento", () => {
+    const chiCompieOggi = new Date(Date.UTC(1999, 7, 27)); // 27 agosto 1999
+    expect(etàAllaStagione({ birthDate: chiCompieOggi }, 2026, R)).toBe(27);
+    expect(etàAllaStagione({ declaredAge: 27, declaredAgeYear: 2026 }, 2026, R)).toBe(27);
+  });
+
+  // Il punto di tutta la faccenda: l'età presa dal listone deve *decidere*, non
+  // solo comparire. Nessun giocatore ha la data di nascita — la lega non ce
+  // l'ha — eppure Rookie e Veteran devono sapere chi possono coprire.
+  it("l'età del listone comanda i contratti che dipendono dall'età", () => {
+    const dalListone = (età: number) => etàAllaStagione({ declaredAge: età, declaredAgeYear: 2026 }, 2026, R);
+
+    const ventisettenne = validateContractSignature({
+      type: "ROOKIE", salary: M(5), years: 3, seasonStartYear: 2026, playerAge: dalListone(27), ruleset: R,
+    });
+    expect(ventisettenne.ok).toBe(false);
+    expect(ventisettenne.errors.find((e) => e.code === "ROOKIE_AGE")?.message).toContain("27");
+
+    const ventiduenne = validateContractSignature({
+      type: "ROOKIE", salary: M(5), years: 3, seasonStartYear: 2026, playerAge: dalListone(22), ruleset: R,
+    });
+    expect(ventiduenne.ok).toBe(true);
+
+    // E il Veteran dall'altra parte della stessa riga.
+    expect(
+      validateContractSignature({
+        type: "VETERAN", salary: M(8), years: 2, seasonStartYear: 2026, playerAge: dalListone(33), ruleset: R,
+      }).ok,
+    ).toBe(true);
+  });
+
+  // Un anno dopo il listone è vecchio di una stagione: l'età va invecchiata con
+  // lui, altrimenti a giugno 2027 un ventitreenne risulterebbe ancora Rookie.
+  it("l'età invecchia insieme alla stagione", () => {
+    const nel2027 = etàAllaStagione({ declaredAge: 22, declaredAgeYear: 2026 }, 2027, R);
+    expect(nel2027).toBe(23);
+    expect(
+      validateContractSignature({
+        type: "ROOKIE", salary: M(5), years: 3, seasonStartYear: 2027, playerAge: nel2027, ruleset: R,
+      }).ok,
+    ).toBe(false);
   });
 });

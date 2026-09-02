@@ -6,7 +6,7 @@
 import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
 
-const BASE = 'http://127.0.0.1:3100';
+const BASE = process.env.BASE ?? "http://127.0.0.1:3100";
 const PSQL = `PGPASSWORD=maraka psql -h 127.0.0.1 -U maraka -d dynasty -t -A`;
 const sql = (q) => execSync(`${PSQL} -c "${q.replace(/"/g, '\\"')}"`).toString().trim();
 

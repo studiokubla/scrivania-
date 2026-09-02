@@ -18,7 +18,7 @@ import {
   resolveSealedBids,
   validateAuctionBid,
 } from "@/lib/rules/auction";
-import { buildSalarySchedule, validateContractSignature } from "@/lib/rules/contracts";
+import { buildSalarySchedule, etàAllaStagione, validateContractSignature } from "@/lib/rules/contracts";
 import type { ActionResult } from "./contracts";
 
 function refuse(message: string, errors?: { article: string; message: string }[]): ActionResult {
@@ -251,7 +251,7 @@ export async function resolveDueLots(): Promise<number> {
 
   const due = await db.auctionLot.findMany({
     where: { auctionId: auction.id, status: { in: ["OPEN", "TIE_BREAK"] }, closesAt: { lte: new Date() } },
-    include: { player: { select: { id: true, name: true, birthDate: true } }, bids: true },
+    include: { player: { select: { id: true, name: true, birthDate: true, declaredAge: true, declaredAgeYear: true } }, bids: true },
   });
   if (due.length === 0) return 0;
 
@@ -291,7 +291,6 @@ export async function resolveDueLots(): Promise<number> {
         lotId: lot.id,
         playerId: lot.playerId,
         playerName: lot.player.name,
-        playerBirthDate: lot.player.birthDate,
         teamId: winnerId,
         amount: outcome.amount,
         seasonId: season.id,
@@ -321,7 +320,6 @@ export async function resolveDueLots(): Promise<number> {
       lotId: lot.id,
       playerId: lot.playerId,
       playerName: lot.player.name,
-      playerBirthDate: lot.player.birthDate,
       teamId: outcome.winnerId,
       amount: outcome.amount,
       seasonId: season.id,
@@ -339,7 +337,6 @@ async function assignLot(input: {
   lotId: string;
   playerId: string;
   playerName: string;
-  playerBirthDate: Date | null;
   teamId: string;
   amount: number;
   seasonId: string;
@@ -461,13 +458,13 @@ export async function checkContractForPlayer(input: {
   years: number;
 }) {
   const { ruleset, currentYear } = await getLeagueContext();
-  const player = await db.player.findUnique({ where: { id: input.playerId }, select: { birthDate: true } });
+  const player = await db.player.findUnique({ where: { id: input.playerId }, select: { id: true, name: true, birthDate: true, declaredAge: true, declaredAgeYear: true } });
   const result = validateContractSignature({
     type: input.type,
     salary: fromMillions(input.salaryMillions),
     years: input.years,
     seasonStartYear: currentYear,
-    playerBirthDate: player?.birthDate,
+    playerAge: player ? etàAllaStagione(player, currentYear, ruleset) : null,
     ruleset,
   });
   return { ok: result.ok, errors: result.errors, warnings: result.warnings };

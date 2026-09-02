@@ -15,6 +15,8 @@ export interface VoceListone {
   nome: string;
   ruolo: string;
   squadraSerieA: string | null;
+  /** Età al 1° settembre della stagione. `null` quando il listone non la stampa. */
+  età: number | null;
   quotazione: Money | null;
   primavera: StatoPrimavera;
   perché: string;
@@ -171,6 +173,7 @@ export function Listone({
             </div>
             <div className="didascalia" style={{ marginTop: 2 }}>
               {scelto.squadraSerieA}
+              {scelto.età !== null && ` · ${scelto.età} anni`}
               {scelto.quotazione !== null && ` · quotato ${formatMoney(scelto.quotazione)}`}
             </div>
           </div>
@@ -242,7 +245,8 @@ export function Listone({
                   <div className="riga-corpo">
                     <div className="riga-titolo">{v.nome}</div>
                     <div className="riga-nota">
-                      {v.squadraSerieA} <Etichetta stato={v.primavera} perché={v.perché} />
+                      {v.squadraSerieA}
+                      {v.età !== null && ` · ${v.età} anni`} <Etichetta stato={v.primavera} perché={v.perché} />
                     </div>
                   </div>
                   <div className="riga-valore">{v.quotazione !== null ? formatMoney(v.quotazione) : "—"}</div>
@@ -253,7 +257,8 @@ export function Listone({
                   <div className="riga-corpo">
                     <div className="riga-titolo">{v.nome}</div>
                     <div className="riga-nota">
-                      {v.squadraSerieA} <Etichetta stato={v.primavera} perché={v.perché} />
+                      {v.squadraSerieA}
+                      {v.età !== null && ` · ${v.età} anni`} <Etichetta stato={v.primavera} perché={v.perché} />
                     </div>
                   </div>
                   <div className="riga-valore">{v.quotazione !== null ? formatMoney(v.quotazione) : "—"}</div>

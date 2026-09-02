@@ -32,9 +32,17 @@ interface GiocatoreListone {
   quotazione: number;
   quotazioneIniziale: number;
   fvm: number;
+  /** Età stampata sul listone, riferita a `etàAllAnno`. Manca per pochi. */
+  età?: number;
 }
 
-const LISTONE = listone as { stagione: string; annoInizio: number; giocatori: GiocatoreListone[] };
+const LISTONE = listone as {
+  stagione: string;
+  annoInizio: number;
+  /** La stagione a cui si riferiscono le età: invecchiano di un anno l'una. */
+  etàAllAnno: number;
+  giocatori: GiocatoreListone[];
+};
 
 /**
  * Squadre finte, con rose finte: servono a provare mercato, scambi e asta su
@@ -291,6 +299,10 @@ export async function seedLeague(db: PrismaClient, options: SeedOptions): Promis
       role: p.ruolo as PlayerRole,
       mantraRoles: p.mantra,
       serieATeam: p.squadra,
+      // L'età stampata sul listone. Non è una data di nascita: quella arriva
+      // dall'import Transfermarkt e, quando arriva, ha la precedenza.
+      declaredAge: p.età ?? null,
+      declaredAgeYear: p.età !== undefined ? LISTONE.etàAllAnno : null,
     })),
   });
   const players = await db.player.findMany({ select: { id: true, lfcId: true } });

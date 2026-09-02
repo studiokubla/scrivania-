@@ -4,7 +4,7 @@ import { useActionState, useMemo, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 
-import { ContractTag, Empty, RoleBadge, Riga, Tag, Titolo } from "@/components/ui";
+import { ContractTag, Empty, RoleBadge, Tag, Titolo } from "@/components/ui";
 import { Result } from "../mercato/client";
 import { formatMoney, type Money } from "@/lib/money";
 import type { ActionResult } from "@/app/actions/contracts";
@@ -15,8 +15,9 @@ export interface Libero {
   nome: string;
   ruolo: string;
   squadraSerieA: string | null;
-  /** Senza data di nascita Rookie e Veteran non si possono firmare (art. 4.2). */
-  etàNota: boolean;
+  /** Età al 1° settembre. `null` quando il listone non la stampa: allora
+   *  Rookie e Veteran non si possono firmare (art. 4.2). */
+  età: number | null;
 }
 
 export interface VoceAttesa extends Libero {
@@ -40,7 +41,7 @@ interface TipoContratto {
   label: string;
   anni: number[];
   nota: string;
-  /** Rookie e Veteran dipendono dall'età: senza data di nascita non si firmano. */
+  /** Rookie e Veteran dipendono dall'età: se non si conosce, non si firmano. */
   serveEtà?: boolean;
 }
 
@@ -66,8 +67,8 @@ function Submit({ label, pendingLabel }: { label: string; pendingLabel: string }
  *
  * Tre campi e nient'altro: quanto, che contratto, per quanti anni. Gli anni
  * seguono il tipo — un Annuale dura un anno e basta, quindi il campo sparisce —
- * e i tipi che dipendono dall'età si spengono da soli quando la data di nascita
- * non c'è, dicendo perché invece di far scoprire il rifiuto dopo.
+ * e i tipi che dipendono dall'età si spengono da soli quando l'età non si
+ * conosce, dicendo perché invece di far scoprire il rifiuto dopo.
  */
 function Firma({
   giocatore,
@@ -100,7 +101,7 @@ function Firma({
         </div>
         <div className="didascalia" style={{ marginTop: 2 }}>
           {giocatore.squadraSerieA}
-          {!giocatore.etàNota && " · data di nascita mancante"}
+          {giocatore.età !== null ? ` · ${giocatore.età} anni` : " · età sconosciuta"}
         </div>
       </div>
 
@@ -129,12 +130,12 @@ function Firma({
         </label>
         <select id="type" name="type" className="campo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
           {CONTRATTI.map((c) => {
-            const bloccatoEtà = c.serveEtà && !giocatore.etàNota;
+            const bloccatoEtà = c.serveEtà && giocatore.età === null;
             const bloccatoSlot = c.anni[0] > 1 && slotLiberi <= 0;
             return (
               <option key={c.id} value={c.id} disabled={bloccatoEtà || bloccatoSlot}>
                 {c.label}
-                {bloccatoEtà ? " — serve la data di nascita" : bloccatoSlot ? " — slot pluriennali esauriti" : ""}
+                {bloccatoEtà ? " — serve l’età del giocatore" : bloccatoSlot ? " — slot pluriennali esauriti" : ""}
               </option>
             );
           })}
@@ -345,7 +346,10 @@ export function ComponiRosa({
                 <RoleBadge role={p.ruolo} />
                 <div className="riga-corpo">
                   <div className="riga-titolo">{p.nome}</div>
-                  <div className="riga-nota">{p.squadraSerieA}</div>
+                  <div className="riga-nota">
+                    {p.squadraSerieA}
+                    {p.età !== null && ` · ${p.età} anni`}
+                  </div>
                 </div>
                 <span className="riga-valore">+</span>
               </button>

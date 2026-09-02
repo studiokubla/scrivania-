@@ -72,8 +72,11 @@ const testoListone = await page.locator("body").innerText();
 check("il listone mostra i 531 giocatori liberi", testoListone.includes("531"), testoListone.match(/\d+\s*\n?\s*Su \d+/)?.[0]);
 check(
   "e dice che l'idoneità primavera non è ancora decidibile",
-  /da verificare/i.test(testoListone) && testoListone.includes("data di nascita"),
+  /da verificare/i.test(testoListone) && /presenze della stagione precedente/i.test(testoListone),
 );
+// L'età invece adesso c'è, e il listone la mostra: è il dato che rende
+// giudicabili i due requisiti su tre che dipendono da lui.
+check("e mostra l'età dei giocatori", /\b\d{2} anni\b/.test(testoListone), testoListone.match(/\b\d{2} anni\b/)?.[0]);
 
 // Il filtro primavera restringe davvero. L'elenco mostra solo i primi sessanta,
 // quindi contare le righe non direbbe niente: si legge il conteggio.

@@ -19,7 +19,7 @@ import { formatMoney, fromDecimal, fromMillions, isOnStep, toDecimalString, type
 import { appSecret } from "@/lib/secret";
 import { resolveSealedBids } from "@/lib/rules/auction";
 import { canAfford } from "@/lib/rules/cap";
-import { ageAtSeason, buildSalarySchedule, validateContractSignature } from "@/lib/rules/contracts";
+import { buildSalarySchedule, etàAllaStagione, validateContractSignature } from "@/lib/rules/contracts";
 import type { ActionResult } from "./contracts";
 
 function refuse(message: string, errors?: { article: string; message: string }[]): ActionResult {
@@ -93,7 +93,7 @@ export async function submitFreeAgencyOffer(input: z.input<typeof OfferSchema>):
     salary,
     years: parsed.data.years,
     seasonStartYear: currentYear,
-    playerBirthDate: player.birthDate,
+    playerAge: etàAllaStagione(player, currentYear, ruleset),
     ruleset,
   });
   if (!contractCheck.ok) {
@@ -214,7 +214,7 @@ export async function resolveDueOffers(): Promise<number> {
 
   const due = await db.marketOffer.findMany({
     where: { status: { in: ["SEALED", "REVEALED"] }, closesAt: { lte: now }, kind: "FREE_AGENCY" },
-    include: { player: { select: { id: true, name: true, birthDate: true } } },
+    include: { player: { select: { id: true, name: true, birthDate: true, declaredAge: true, declaredAgeYear: true } } },
   });
   if (due.length === 0) return 0;
 
@@ -847,6 +847,6 @@ export async function vetoTrade(tradeId: string, reason: string): Promise<Action
 /** Età del giocatore, per mostrare quali contratti gli si possono offrire. */
 export async function playerAge(playerId: string): Promise<number | null> {
   const { ruleset, currentYear } = await getLeagueContext();
-  const player = await db.player.findUnique({ where: { id: playerId }, select: { birthDate: true } });
-  return ageAtSeason(player?.birthDate, currentYear, ruleset);
+  const player = await db.player.findUnique({ where: { id: playerId }, select: { id: true, name: true, birthDate: true, declaredAge: true, declaredAgeYear: true } });
+  return player ? etàAllaStagione(player, currentYear, ruleset) : null;
 }

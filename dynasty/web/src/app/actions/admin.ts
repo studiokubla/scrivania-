@@ -970,3 +970,63 @@ export async function iscriviSquadreSegnaposto(
     elenco,
   };
 }
+
+// ───────────────────────────────────────────── Età dal listone (art. 21.1)
+
+/**
+ * Applica alla lega le età stampate sul listone.
+ *
+ * Serve a una lega già avviata: le età sono arrivate dopo, e rifare
+ * l'inizializzazione per prenderle vorrebbe dire buttare via tutto il resto.
+ *
+ * Non tocca chi ha già una data di nascita vera: quella è esatta, viene
+ * dall'anagrafica Transfermarkt, e un'età stampata non deve poterla
+ * sovrascrivere.
+ */
+export async function applicaEtàDalListone(): Promise<ActionResult> {
+  const session = await requireCommissioner();
+  const { season } = await getLeagueContext();
+
+  const listone = (await import("@/data/listone-2026-27.json")).default as unknown as {
+    etàAllAnno: number;
+    giocatori: { lfcId: number; età?: number }[];
+  };
+
+  const conEtà = listone.giocatori.filter((g) => typeof g.età === "number");
+  if (conEtà.length === 0) return refuse("Il listone non porta nessuna età.");
+
+  let aggiornati = 0;
+  // Un aggiornamento per età, non uno per giocatore: cinquecento scritture
+  // separate su un database remoto ci metterebbero un minuto.
+  const perEtà = new Map<number, number[]>();
+  for (const g of conEtà) {
+    if (!perEtà.has(g.età as number)) perEtà.set(g.età as number, []);
+    perEtà.get(g.età as number)?.push(g.lfcId);
+  }
+
+  for (const [età, lfcIds] of perEtà) {
+    const esito = await db.player.updateMany({
+      where: { lfcId: { in: lfcIds }, birthDate: null },
+      data: { declaredAge: età, declaredAgeYear: listone.etàAllAnno },
+    });
+    aggiornati += esito.count;
+  }
+
+  await recordAudit(db, {
+    seasonId: season.id,
+    userId: session.userId,
+    action: "IMPORT",
+    summary: `Applicate le età del listone a ${aggiornati} giocatori`,
+    payload: { aggiornati, anno: listone.etàAllAnno },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/listone");
+  revalidatePath("/rosa");
+  return {
+    ok: true,
+    message:
+      `${aggiornati} giocatori hanno ora un'età. ` +
+      `Rookie, Veteran e idoneità primavera si sbloccano da soli.`,
+  };
+}

@@ -1,4 +1,3 @@
-import { ageAtSeason } from "./contracts";
 import { fromMillions, type Money } from "../money";
 import type { Ruleset } from "../ruleset";
 
@@ -9,9 +8,10 @@ import type { Ruleset } from "../ruleset";
  * cinque presenze** in Serie A, **quotazione non superiore a sette milioni**.
  *
  * Il problema è che la lega possiede i tre dati in momenti diversi. La
- * quotazione arriva col listone, il primo giorno. La data di nascita arriva
- * con l'import Transfermarkt, che si fa dopo. Le presenze si accumulano con
- * gli import dei voti, giornata per giornata.
+ * quotazione arriva col listone, il primo giorno. L'età pure, adesso che il
+ * listone la stampa. Le presenze della stagione precedente invece la lega non
+ * le ha finché non ha vissuto una stagione intera: alla prima non esistono, e
+ * nessuna fonte gliele può dare a posteriori.
  *
  * Perciò la risposta non è sì o no: è **sì**, **no**, oppure **non lo so
  * ancora**. Dire "non idoneo" a un ragazzo di diciotto anni solo perché manca
@@ -35,8 +35,9 @@ export interface EsitoPrimavera {
 }
 
 export interface GiocatorePerPrimavera {
-  birthDate?: Date | null;
-  /** Presenze in Serie A note alla lega. `null` se non è stato importato niente. */
+  /** Età alla data di riferimento, da `etàAllaStagione`. `null` se ignota. */
+  età?: number | null;
+  /** Presenze con voto nella stagione precedente. `null` se la lega non le ha. */
   appearances?: number | null;
   /** Quotazione corrente, in centesimi di milione. `null` se non quotato. */
   quotation?: Money | null;
@@ -47,9 +48,10 @@ export function youthEligibility(
   seasonStartYear: number,
   ruleset: Ruleset,
 ): EsitoPrimavera {
+  void seasonStartYear;
   const limiteQuotazione = fromMillions(ruleset.youth.maxQuotation);
 
-  const età = ageAtSeason(giocatore.birthDate ?? null, seasonStartYear, ruleset);
+  const età = giocatore.età ?? null;
   const presenze = giocatore.appearances ?? null;
   const quotazione = giocatore.quotation ?? null;
 
@@ -80,8 +82,8 @@ export function youthEligibility(
 
   // Nessuna violazione, ma qualcosa non si sa ancora.
   const mancanti: string[] = [];
-  if (requisiti.età.rispettato === null) mancanti.push("manca la data di nascita");
-  if (requisiti.presenze.rispettato === null) mancanti.push("mancano le presenze");
+  if (requisiti.età.rispettato === null) mancanti.push("manca l'età");
+  if (requisiti.presenze.rispettato === null) mancanti.push("mancano le presenze della stagione precedente");
   if (requisiti.quotazione.rispettato === null) mancanti.push("manca la quotazione");
   if (mancanti.length > 0) return { stato: "DA_VERIFICARE", motivi: mancanti, requisiti };
 
@@ -99,4 +101,22 @@ export function youthEligibility(
 export function presenzeNote(righeVoto: number, presenze: number | null | undefined): number | null {
   if (righeVoto === 0) return null;
   return presenze ?? 0;
+}
+
+/**
+ * Cosa manca, detto per esteso.
+ *
+ * Serve all'interfaccia: «da verificare» senza il perché è una risposta che
+ * non aiuta nessuno, e il perché cambia — alla prima stagione mancano le
+ * presenze e non ci si può fare niente, più avanti mancherà semmai l'età di
+ * qualche nuovo arrivato.
+ */
+export function motivoPiùFrequente(esiti: EsitoPrimavera[]): string | null {
+  const conteggio = new Map<string, number>();
+  for (const e of esiti) {
+    if (e.stato !== "DA_VERIFICARE") continue;
+    for (const m of e.motivi) conteggio.set(m, (conteggio.get(m) ?? 0) + 1);
+  }
+  const ordinati = [...conteggio.entries()].sort((a, b) => b[1] - a[1]);
+  return ordinati[0]?.[0] ?? null;
 }

@@ -10,7 +10,7 @@ import { getLeagueContext, getTeamState } from "@/lib/league";
 import { formatMoney, fromDecimal, fromMillions, roundToStep, toDecimalString } from "@/lib/money";
 import { matchPlayer, type Candidate } from "@/lib/import/match";
 import { pickColumn, readUpload, toNumber } from "@/lib/import/parse";
-import { buildSalarySchedule, validateContractSignature } from "@/lib/rules/contracts";
+import { buildSalarySchedule, etàAllaStagione, validateContractSignature } from "@/lib/rules/contracts";
 import { canAfford } from "@/lib/rules/cap";
 import type { ContractType } from "@/lib/rules/types";
 import type { ActionResult } from "./contracts";
@@ -117,7 +117,7 @@ export async function firmaInRosa(_prev: ActionResult, formData: FormData): Prom
     salary: importo,
     years: dati.years,
     seasonStartYear: currentYear,
-    playerBirthDate: player.birthDate,
+    playerAge: etàAllaStagione(player, currentYear, ruleset),
     ruleset,
   });
   if (firma.errors.length > 0) {
@@ -343,7 +343,7 @@ export async function importaRosa(_prev: ImportRosaState, formData: FormData): P
   const auth = await autorizza(teamId);
   if (auth.errore) return auth.errore;
   const { session, contesto, team } = auth;
-  const { ruleset, season, currentYear } = contesto;
+  const { season } = contesto;
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) return refuse("Scegli un file.");
@@ -353,7 +353,7 @@ export async function importaRosa(_prev: ImportRosaState, formData: FormData): P
 
   const liberi = await db.player.findMany({
     where: { contracts: { none: { status: "ACTIVE" } } },
-    select: { id: true, name: true, serieATeam: true, lfcId: true, birthDate: true },
+    select: { id: true, name: true, serieATeam: true, lfcId: true, birthDate: true, declaredAge: true, declaredAgeYear: true },
   });
   const candidati: Candidate[] = liberi.map((p) => ({
     id: p.id,

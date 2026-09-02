@@ -4,6 +4,7 @@ import { Card, Empty, Stat, Tag } from "@/components/ui";
 import { ActionButton } from "../mercato/client";
 import { ImportPanel, StandingsEditor, TeamsPanel } from "./client";
 import {
+  applicaEtàDalListone,
   awardPrizes,
   azzeraLega,
   chargeStadiumMaintenance,
@@ -57,11 +58,16 @@ export default async function AdminPage() {
     }),
     db.importRun.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
     verifyAuditChain(season.id),
-    db.player.count({ where: { birthDate: null, contracts: { some: { status: "ACTIVE" } } } }),
+    db.player.count({ where: { birthDate: null, declaredAge: null, contracts: { some: { status: "ACTIVE" } } } }),
     db.importRun.findMany({ where: { status: "PARTIAL" }, orderBy: { createdAt: "desc" }, take: 1 }),
   ]);
 
   const lastUnmatched = (unmatchedRuns[0]?.unmatched ?? []) as { name: string; reason: string }[];
+
+  // Quante età il listone potrebbe dare, per non proporre un pulsante inutile.
+  const etàNelListone = (
+    (await import("@/data/listone-2026-27.json")).default as unknown as { giocatori: { età?: number }[] }
+  ).giocatori.filter((g) => typeof g.età === "number").length;
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
@@ -86,17 +92,30 @@ export default async function AdminPage() {
             hint={`${chain.entries} operazioni`}
           />
           <Stat
-            label="Anagrafiche mancanti"
+            label="Età mancanti"
             value={missingBirthDates}
             tone={missingBirthDates > 0 ? "avviso" : "positivo"}
-            hint="giocatori senza data di nascita"
+            hint="giocatori sotto contratto"
           />
         </div>
         {missingBirthDates > 0 && (
-          <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--avviso)" }}>
-            Senza data di nascita non si possono firmare contratti Rookie e Veteran (art. 4.2) né
-            verificare i requisiti primavera. Importa i dati Transfermarkt.
-          </p>
+          <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
+            <p style={{ margin: 0, fontSize: 12.5, color: "var(--avviso)" }}>
+              Senza età non si firmano contratti Rookie e Veteran (art. 4.2) né si verifica
+              l&apos;idoneità primavera (art. 16.1). Il listone ne porta {etàNelListone}: applicale
+              qui, oppure importa le anagrafiche Transfermarkt per avere le date esatte.
+            </p>
+            <div>
+              <ActionButton
+                label="Applica le età del listone"
+                variant="primario"
+                action={async () => {
+                  "use server";
+                  return applicaEtàDalListone();
+                }}
+              />
+            </div>
+          </div>
         )}
       </Card>
 

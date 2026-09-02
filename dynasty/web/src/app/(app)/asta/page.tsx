@@ -16,7 +16,7 @@ import { getLeagueContext, getTeamState } from "@/lib/league";
 import { formatMoney, fromDecimal, toMillions } from "@/lib/money";
 import { basePriceFor } from "@/lib/rules/auction";
 import { canAfford } from "@/lib/rules/cap";
-import { ageAtSeason } from "@/lib/rules/contracts";
+import { etàAllaStagione } from "@/lib/rules/contracts";
 
 export const dynamic = "force-dynamic";
 
@@ -71,7 +71,7 @@ export default async function AstaPage() {
         name: true,
         role: true,
         serieATeam: true,
-        birthDate: true,
+        birthDate: true, declaredAge: true, declaredAgeYear: true,
         seasons: { where: { seasonId: season.id }, select: { quotationCurrent: true } },
       },
       orderBy: { name: "asc" },
@@ -85,7 +85,7 @@ export default async function AstaPage() {
       role: p.role,
       serieATeam: p.serieATeam,
       quotation: q,
-      age: ageAtSeason(p.birthDate, currentYear, ruleset),
+      age: etàAllaStagione(p, currentYear, ruleset),
       basePrice: toMillions(basePriceFor(q, ruleset)),
     };
   });

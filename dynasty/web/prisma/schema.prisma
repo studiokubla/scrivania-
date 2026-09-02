@@ -155,6 +155,11 @@ model Player {
   mantraRoles    String[]   @default([])
   serieATeam     String?
   birthDate      DateTime?
+  /// Età stampata sul listone, quando la data di nascita non si conosce.
+  /// Vale per la stagione in `declaredAgeYear` e invecchia di un anno per
+  /// stagione: non è una data di nascita e non va confusa con una.
+  declaredAge     Int?
+  declaredAgeYear Int?
   nationality    String?
 
   // Dati Transfermarkt (art. 21.2 — nessun effetto regolamentare)

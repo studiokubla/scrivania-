@@ -97,7 +97,9 @@ check("il contratto nasce del tipo scelto", sql(`select type from "Contract";`) 
 check("e della durata scelta", sql(`select years from "Contract";`) === "3");
 check("occupa uno slot pluriennale", (await page.locator("body").innerText()).includes("8"), "slot liberi");
 
-// ── 3. I tipi che dipendono dall'età sono spenti, e lo dicono ───────────
+// ── 3. L'età del listone comanda i tipi di contratto ────────────────────
+// Svilar ha 27 anni sul listone: il Rookie è selezionabile — l'età si conosce —
+// ma il motore lo deve respingere. È la prova che l'età serve davvero a qualcosa.
 await page.fill('input[aria-label="Cerca fra gli svincolati"]', "Svilar");
 await page.waitForTimeout(600);
 await page.click('button.riga:has-text("Svilar")');
@@ -107,13 +109,39 @@ await page.waitForSelector("text=Metti in rosa");
 check("il tipo di contratto riparte da Annuale", (await page.locator("#type").inputValue()) === "ANNUALE", await page.locator("#type").inputValue());
 
 const rookie = page.locator('#type option[value="ROOKIE"]');
-check("senza data di nascita Rookie è disabilitato", await rookie.isDisabled());
-check("e spiega perché", (await rookie.innerText()).includes("data di nascita"), (await rookie.innerText()).trim());
+check("con l'età nota il Rookie è selezionabile", !(await rookie.isDisabled()));
+check("e la scheda non lamenta età mancanti", !(await page.locator("form.carta-menta").innerText()).includes("età sconosciuta"));
 
+await page.selectOption("#type", "ROOKIE");
+await page.waitForTimeout(200);
+// Cinque milioni: sotto il tetto del Rookie, così a respingerlo resta solo
+// l'età. Con dodici parlerebbe prima la regola sull'ingaggio.
+await page.fill("#amount", "5");
+await page.click('button:has-text("Metti in rosa")');
+await page.waitForSelector(".avviso-errore");
+const rifiuto = await page.locator(".avviso-errore").first().innerText();
+check("un ventisettenne non può firmare da Rookie", /Under 23/i.test(rifiuto), rifiuto.slice(0, 90));
+check("e l'età citata è quella del listone", /\b27\b/.test(rifiuto), rifiuto.slice(0, 90));
+check("nessun contratto è nato dal rifiuto", sql(`select count(*) from "Contract";`) === "1");
+
+await page.selectOption("#type", "ANNUALE");
+await page.waitForTimeout(200);
 await page.fill("#amount", "12");
 await page.click('button:has-text("Metti in rosa")');
-await page.waitForSelector(".avviso-ok, .avviso-errore");
+await page.waitForSelector(".avviso-ok");
 check("l'Annuale invece passa", sql(`select count(*) from "Contract";`) === "2");
+
+// ── 3b. Chi l'età non ce l'ha lo dice, e spegne i tipi che la richiedono ─
+// Cinque giocatori sul listone non hanno età stampata. Su di loro il Rookie
+// dev'essere spento *prima*, non rifiutato dopo.
+await page.fill('input[aria-label="Cerca fra gli svincolati"]', "Delprato");
+await page.waitForTimeout(600);
+await page.click('button.riga:has-text("Delprato")');
+await page.waitForSelector("text=Metti in rosa");
+const senzaEtà = page.locator('#type option[value="ROOKIE"]');
+check("senza età il Rookie è disabilitato", await senzaEtà.isDisabled());
+check("e spiega che serve l'età", (await senzaEtà.innerText()).includes("età"), (await senzaEtà.innerText()).trim());
+check("e la scheda lo segnala", (await page.locator("form.carta-menta").innerText()).includes("età sconosciuta"));
 
 // ── 4. Il foglio completo mette in rosa direttamente ────────────────────
 const completo = `${TMP}/rosa-completa.csv`;

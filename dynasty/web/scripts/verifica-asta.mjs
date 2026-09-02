@@ -9,7 +9,7 @@
 import { chromium } from "playwright";
 import { execSync } from "node:child_process";
 
-const BASE = "http://127.0.0.1:3100";
+const BASE = process.env.BASE ?? "http://127.0.0.1:3100";
 const sql = (q) =>
   execSync(`PGPASSWORD=maraka psql -h 127.0.0.1 -U maraka -d dynasty -t -A -c "${q.replace(/"/g, '\\"')}"`)
     .toString()

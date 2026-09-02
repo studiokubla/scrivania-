@@ -9,7 +9,7 @@ import { db } from "@/lib/db";
 import { getLeagueContext, getTeamState } from "@/lib/league";
 import { formatMoney, fromDecimal } from "@/lib/money";
 import { countByRole } from "@/lib/rules/cap";
-import { salaryInYear } from "@/lib/rules/contracts";
+import { etàAllaStagione, salaryInYear } from "@/lib/rules/contracts";
 
 /**
  * Componi rosa.
@@ -64,12 +64,12 @@ export default async function RosaPage({ searchParams }: { searchParams: Promise
     getTeamState({ teamId, seasonId: season.id, currentYear, ruleset }),
     db.player.findMany({
       where: { contracts: { none: { status: "ACTIVE" } } },
-      select: { id: true, name: true, role: true, serieATeam: true, birthDate: true },
+      select: { id: true, name: true, role: true, serieATeam: true, birthDate: true, declaredAge: true, declaredAgeYear: true },
       orderBy: [{ role: "asc" }, { name: "asc" }],
     }),
     db.auctionEntry.findMany({
       where: { teamId, seasonId: season.id },
-      include: { player: { select: { id: true, name: true, role: true, serieATeam: true, birthDate: true } } },
+      include: { player: { select: { id: true, name: true, role: true, serieATeam: true, birthDate: true, declaredAge: true, declaredAgeYear: true } } },
       orderBy: { createdAt: "asc" },
     }),
   ]);
@@ -80,16 +80,17 @@ export default async function RosaPage({ searchParams }: { searchParams: Promise
   const ruoli = countByRole(inRosa);
   const corrente = state.capMatrix[0];
 
-  // Rookie e Veteran dipendono dall'età: senza data di nascita non si possono
-  // firmare, e l'interfaccia deve dirlo prima, non dopo il rifiuto.
-  const conEtà = (d: Date | null) => d !== null;
+  // Rookie e Veteran dipendono dall'età: senza, non si possono firmare, e
+  // l'interfaccia deve dirlo prima invece di far scoprire il rifiuto dopo.
+  const età = (p: { birthDate: Date | null; declaredAge: number | null; declaredAgeYear: number | null }) =>
+    etàAllaStagione(p, currentYear, ruleset);
 
   const liberi: Libero[] = liberiRaw.map((p) => ({
     id: p.id,
     nome: p.name,
     ruolo: p.role,
     squadraSerieA: p.serieATeam,
-    etàNota: conEtà(p.birthDate),
+    età: età(p),
   }));
 
   const attesa: VoceAttesa[] = attesaRaw.map((v) => ({
@@ -98,7 +99,7 @@ export default async function RosaPage({ searchParams }: { searchParams: Promise
     nome: v.player.name,
     ruolo: v.player.role,
     squadraSerieA: v.player.serieATeam,
-    etàNota: conEtà(v.player.birthDate),
+    età: età(v.player),
     importo: v.amount ? fromDecimal(v.amount) : null,
     tipo: v.type,
     anni: v.years,

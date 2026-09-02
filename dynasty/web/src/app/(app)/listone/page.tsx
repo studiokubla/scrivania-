@@ -5,7 +5,8 @@ import { requireSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getLeagueContext } from "@/lib/league";
 import { fromDecimal } from "@/lib/money";
-import { presenzeNote, youthEligibility } from "@/lib/rules/youth";
+import { etàAllaStagione } from "@/lib/rules/contracts";
+import { motivoPiùFrequente, presenzeNote, youthEligibility } from "@/lib/rules/youth";
 
 /**
  * Il listone.
@@ -35,7 +36,7 @@ export default async function ListonePage() {
         name: true,
         role: true,
         serieATeam: true,
-        birthDate: true,
+        birthDate: true, declaredAge: true, declaredAgeYear: true,
         seasons: {
           where: { seasonId: season.id },
           select: { quotationCurrent: true, appearances: true },
@@ -64,29 +65,34 @@ export default async function ListonePage() {
       : Promise.resolve([]),
   ]);
 
+  const esiti: ReturnType<typeof youthEligibility>[] = [];
   const voci: VoceListone[] = liberi.map((p) => {
     const stagione = p.seasons[0];
     const quotazione = stagione?.quotationCurrent ? fromDecimal(stagione.quotationCurrent) : null;
+    const età = etàAllaStagione(p, currentYear, ruleset);
     const esito = youthEligibility(
       {
-        birthDate: p.birthDate,
+        età,
         appearances: presenzeNote(giornateImportate.matchday, stagione?.appearances),
         quotation: quotazione,
       },
       currentYear,
       ruleset,
     );
+    esiti.push(esito);
     return {
       id: p.id,
       nome: p.name,
       ruolo: p.role,
       squadraSerieA: p.serieATeam,
+      età,
       quotazione,
       primavera: esito.stato,
       perché: esito.motivi.join(", "),
     };
   });
 
+  const perché = motivoPiùFrequente(esiti);
   const totale = voci.length + quantiSottoContratto;
   const idonei = voci.filter((v) => v.primavera === "IDONEO").length;
   const daVerificare = voci.filter((v) => v.primavera === "DA_VERIFICARE").length;
@@ -116,19 +122,14 @@ export default async function ListonePage() {
           hint="under 20, ≤5 presenze, ≤7 M"
           tinta="menta"
         />
-        <Tessera
-          label="Da verificare"
-          value={daVerificare}
-          hint="manca la data di nascita"
-          tinta="pesca"
-        />
+        <Tessera label="Da verificare" value={daVerificare} hint={perché ?? "dati incompleti"} tinta="pesca" />
       </div>
 
       {daVerificare > 0 && (
         <div className="avviso avviso-attenzione">
-          Per {daVerificare} giocatori l&apos;idoneità al settore giovanile non è decidibile: il
-          listone di Leghe Fantacalcio non porta le date di nascita. Arrivano con l&apos;import
-          Transfermarkt dal pannello di gestione, e questi numeri si sistemano da soli.
+          Per {daVerificare} giocatori l&apos;idoneità al settore giovanile non è decidibile:{" "}
+          {perché}. L&apos;art. 16.1 guarda le presenze della stagione precedente, e questa lega la
+          sua prima stagione la sta giocando adesso: il requisito lo valuta il commissioner.
         </div>
       )}
 
