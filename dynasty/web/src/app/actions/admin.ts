@@ -664,11 +664,16 @@ export async function eliminaSquadra(teamId: string): Promise<ActionResult> {
  * Serve una volta sola, se si è partiti col piede sbagliato — per esempio con le
  * squadre di prova. Chiede di riscrivere il nome della lega perché non è un
  * pulsante da premere per sbaglio: quello che cancella non torna.
+ *
+ * È un modulo e non un pulsante perché così funziona anche senza JavaScript,
+ * come il login: è l'unica operazione che può servire quando l'applicazione è
+ * in uno stato in cui non ci si fida del resto.
  */
-export async function azzeraLega(conferma: string): Promise<ActionResult> {
+export async function azzeraLega(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const session = await requireCommissioner();
   const { league, season } = await getLeagueContext();
 
+  const conferma = String(formData.get("conferma") ?? "");
   if (conferma.trim().toLowerCase() !== league.name.toLowerCase()) {
     return refuse(`Per confermare scrivi esattamente «${league.name}».`);
   }

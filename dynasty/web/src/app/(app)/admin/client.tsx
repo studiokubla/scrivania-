@@ -324,7 +324,7 @@ export function TeamsPanel({
   modifica: (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
   rigenera: (teamId: string) => Promise<CredenzialiState>;
   elimina: (teamId: string) => Promise<ActionResult>;
-  azzera: (conferma: string) => Promise<ActionResult>;
+  azzera: (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
 }) {
   const router = useRouter();
   const [statoCrea, azioneCrea] = useActionState<CredenzialiState, FormData>(crea, { ok: true, message: "" });
@@ -520,7 +520,7 @@ export function TeamsPanel({
               competizioni e il tuo accesso. Serve se la lega è partita con dati che non erano
               quelli veri; quello che cancella non torna.
             </p>
-            <AzzeraForm leagueName={leagueName} azzera={azzera} onEsito={setEsito} />
+            <AzzeraForm leagueName={leagueName} azzera={azzera} />
           </div>
         </details>
       </div>
@@ -528,47 +528,50 @@ export function TeamsPanel({
   );
 }
 
+function AzzeraSubmit({ attivo }: { attivo: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" className="bottone bottone-pericolo" disabled={pending || !attivo}>
+      {pending ? "In corso…" : "Azzera la lega"}
+    </button>
+  );
+}
+
+/**
+ * Un modulo vero, non un pulsante: così l'azzeramento resta raggiungibile anche
+ * se il JavaScript non è partito. Il nome da riscrivere è la sola protezione,
+ * ed è voluta — quello che questa operazione cancella non torna.
+ */
 function AzzeraForm({
   leagueName,
   azzera,
-  onEsito,
 }: {
   leagueName: string;
-  azzera: (conferma: string) => Promise<ActionResult>;
-  onEsito: (r: ActionResult) => void;
+  azzera: (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
 }) {
+  const [stato, azione] = useActionState<ActionResult, FormData>(azzera, { ok: true, message: "" });
   const [conferma, setConferma] = useState("");
-  const [pending, startTransition] = useTransition();
-  const router = useRouter();
 
   return (
-    <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-      <div style={{ flex: 1 }}>
-        <label className="etichetta" htmlFor="conferma">
-          Scrivi «{leagueName}» per confermare
-        </label>
-        <input
-          id="conferma"
-          className="campo"
-          value={conferma}
-          onChange={(e) => setConferma(e.target.value)}
-          placeholder={leagueName}
-        />
+    <form action={azione} style={{ display: "grid", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+        <div style={{ flex: 1 }}>
+          <label className="etichetta" htmlFor="conferma">
+            Scrivi «{leagueName}» per confermare
+          </label>
+          <input
+            id="conferma"
+            name="conferma"
+            className="campo"
+            value={conferma}
+            onChange={(e) => setConferma(e.target.value)}
+            placeholder={leagueName}
+            autoComplete="off"
+          />
+        </div>
+        <AzzeraSubmit attivo={conferma.trim().toLowerCase() === leagueName.toLowerCase()} />
       </div>
-      <button
-        type="button"
-        className="bottone bottone-pericolo"
-        disabled={pending || conferma.trim().toLowerCase() !== leagueName.toLowerCase()}
-        onClick={() =>
-          startTransition(async () => {
-            onEsito(await azzera(conferma));
-            setConferma("");
-            router.refresh();
-          })
-        }
-      >
-        {pending ? "In corso…" : "Azzera la lega"}
-      </button>
-    </div>
+      {stato.message && <Result result={stato} />}
+    </form>
   );
 }
