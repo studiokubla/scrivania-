@@ -43,6 +43,13 @@ const ICONE: Record<string, React.ReactNode> = {
       <path d="M3 21h8" />
     </svg>
   ),
+  listone: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 6h10M4 12h10M4 18h6" />
+      <path d="M18 5v8" />
+      <circle cx="18" cy="17.5" r="2.2" />
+    </svg>
+  ),
   registro: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
       <path d="M5 3h11l4 4v14H5z" />

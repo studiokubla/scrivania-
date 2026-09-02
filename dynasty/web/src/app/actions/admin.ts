@@ -7,10 +7,12 @@ import { z } from "zod";
 import { requireCommissioner } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { db } from "@/lib/db";
-import { getLeagueContext } from "@/lib/league";
+import { getLeagueContext, getTeamState } from "@/lib/league";
 import { importMatchdayVotes, importQuotations, type ImportOutcome } from "@/lib/import/lfc";
 import { importTransfermarkt } from "@/lib/import/transfermarkt";
-import { formatMoney, fromDecimal, fromMillions, toDecimalString } from "@/lib/money";
+import { formatMoney, fromDecimal, fromMillions, roundToStep, toDecimalString } from "@/lib/money";
+import { buildSalarySchedule } from "@/lib/rules/contracts";
+import { canAfford } from "@/lib/rules/cap";
 import { competitionPrize, cupPrize, stadiumTier } from "@/lib/rules/capital";
 import type { ActionResult } from "./contracts";
 
@@ -719,5 +721,246 @@ export async function azzeraLega(_prev: ActionResult, formData: FormData): Promi
   return {
     ok: true,
     message: `Fatto: ${quante} squadre rimosse, tutti i giocatori svincolati. Ora iscrivi le squadre vere.`,
+  };
+}
+
+// ──────────────────────────────────── Asta dal vivo: registrazione (art. 8)
+
+/**
+ * Registra un acquisto deciso **al tavolo**.
+ *
+ * L'asta della lega si fa in presenza, non dall'applicazione: dieci persone
+ * intorno a un tavolo che si rilanciano a voce. Quello che serve qui non è
+ * un'asta a buste, è un registratore: il commissioner scrive chi ha preso chi
+ * e a quanto, e il listone si svuota di conseguenza.
+ *
+ * Non è un semplice inserimento, però. Passa dagli stessi controlli di
+ * qualunque altra firma — tetto salariale, posti in rosa, minimi di ruolo,
+ * riserva per completare la rosa — perché un'asta dal vivo è esattamente il
+ * momento in cui, nella foga, si sfora. Meglio che lo dica l'applicazione
+ * mentre tutti sono ancora seduti al tavolo che scoprirlo a settembre finito.
+ */
+
+const AcquistoSchema = z.object({
+  playerId: z.string().min(1, "Scegli un giocatore"),
+  teamId: z.string().min(1, "Scegli la squadra"),
+  /** In milioni, come si grida al tavolo. */
+  amount: z.coerce.number().positive("L'importo dev'essere maggiore di zero"),
+});
+
+export async function registraAcquisto(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
+  const session = await requireCommissioner();
+  const { league, ruleset, season, currentYear } = await getLeagueContext();
+
+  const parsed = AcquistoSchema.safeParse({
+    playerId: formData.get("playerId"),
+    teamId: formData.get("teamId"),
+    amount: formData.get("amount"),
+  });
+  if (!parsed.success) return refuse(parsed.error.issues[0]?.message ?? "Dati non validi");
+
+  const importo = roundToStep(fromMillions(parsed.data.amount));
+  const team = await db.team.findFirst({ where: { id: parsed.data.teamId, leagueId: league.id } });
+  if (!team) return refuse("Squadra inesistente.");
+
+  const player = await db.player.findUnique({
+    where: { id: parsed.data.playerId },
+    include: { contracts: { where: { status: "ACTIVE" }, include: { team: { select: { name: true } } } } },
+  });
+  if (!player) return refuse("Giocatore inesistente.");
+  if (player.contracts.length > 0) {
+    return refuse(`${player.name} è già sotto contratto con ${player.contracts[0].team.name}.`);
+  }
+
+  // Gli stessi controlli di qualunque altra firma: chi compra al tavolo non ha
+  // meno vincoli di chi compra dall'applicazione.
+  const state = await getTeamState({ teamId: team.id, seasonId: season.id, currentYear, ruleset });
+  const capienza = canAfford({
+    contracts: state.contracts,
+    year: currentYear,
+    amount: importo,
+    ruleset,
+    enforceReserve: true,
+  });
+  if (!capienza.ok) {
+    return refuse(
+      `${team.name} non può arrivare a ${formatMoney(importo)}: al massimo ${formatMoney(capienza.maxAffordable)}, ` +
+        `perché ${formatMoney(capienza.reserve)} restano riservati per completare la rosa (art. 8.6).`,
+    );
+  }
+
+  const schedule = buildSalarySchedule({
+    type: "ANNUALE",
+    baseSalary: importo,
+    years: 1,
+    startYear: currentYear,
+    ruleset,
+  });
+
+  await db.$transaction(async (tx) => {
+    const contract = await tx.contract.create({
+      data: {
+        teamId: team.id,
+        playerId: player.id,
+        seasonId: season.id,
+        type: "ANNUALE",
+        baseSalary: toDecimalString(importo),
+        years: 1,
+        startYear: currentYear,
+        endYear: currentYear,
+        salarySchedule: schedule.map((r) => ({ year: r.year, salary: r.salary, source: r.source })) as never,
+      },
+    });
+
+    await tx.contractEvent.create({
+      data: {
+        contractId: contract.id,
+        type: "SIGNED",
+        effectiveYear: currentYear,
+        amountAfter: toDecimalString(importo),
+        note: "Aggiudicato all'asta dal vivo",
+      },
+    });
+
+    await recordAudit(tx, {
+      seasonId: season.id,
+      teamId: team.id,
+      userId: session.userId,
+      action: "AUCTION_LIVE",
+      summary: `${player.name} va a ${team.name} per ${formatMoney(importo)} all'asta dal vivo`,
+      payload: { playerId: player.id, teamId: team.id, amount: toDecimalString(importo) },
+    });
+  });
+
+  revalidatePath("/listone");
+  revalidatePath("/lega");
+  revalidatePath(`/squadra/${team.id}`);
+  revalidatePath("/registro");
+  return { ok: true, message: `${player.name} a ${team.name} per ${formatMoney(importo)}.` };
+}
+
+/**
+ * Annulla l'ultimo acquisto registrato per una squadra.
+ *
+ * All'asta dal vivo si sbaglia a digitare, e ci si accorge subito. Cancella il
+ * contratto e rimette il giocatore nel listone; il registro conserva sia la
+ * firma sia l'annullamento, perché il registro non si riscrive (art. 22).
+ */
+export async function annullaAcquisto(contractId: string): Promise<ActionResult> {
+  const session = await requireCommissioner();
+  const { season } = await getLeagueContext();
+
+  const contract = await db.contract.findUnique({
+    where: { id: contractId },
+    include: { player: { select: { name: true } }, team: { select: { id: true, name: true } } },
+  });
+  if (!contract) return refuse("Contratto inesistente.");
+  if (contract.status !== "ACTIVE") return refuse("Questo contratto non è più attivo.");
+
+  await db.$transaction(async (tx) => {
+    await tx.contractEvent.deleteMany({ where: { contractId } });
+    await tx.contract.delete({ where: { id: contractId } });
+    await recordAudit(tx, {
+      seasonId: season.id,
+      teamId: contract.team.id,
+      userId: session.userId,
+      action: "AUCTION_LIVE_VOID",
+      summary: `Annullato l'acquisto di ${contract.player.name} da parte di ${contract.team.name}`,
+      payload: { contractId, playerName: contract.player.name },
+    });
+  });
+
+  revalidatePath("/listone");
+  revalidatePath("/lega");
+  revalidatePath(`/squadra/${contract.team.id}`);
+  revalidatePath("/registro");
+  return { ok: true, message: `${contract.player.name} torna nel listone.` };
+}
+
+/**
+ * Iscrive in un colpo solo le dieci squadre segnaposto.
+ *
+ * Serve il primo giorno: i nomi veri arrivano quando i presidenti li scelgono,
+ * ma le squadre devono esistere prima — l'asta si fa fra squadre, non fra
+ * intenzioni. Si rinominano poi una per una, senza perdere niente.
+ */
+export async function iscriviSquadreSegnaposto(): Promise<CredenzialiState & { elenco?: { team: string; email: string; password: string }[] }> {
+  const session = await requireCommissioner();
+  const { league, season, ruleset } = await getLeagueContext();
+
+  const esistenti = await db.team.count({ where: { leagueId: league.id } });
+  if (esistenti > 0) {
+    return refuse(`Ci sono già ${esistenti} squadre: le segnaposto si creano solo su una lega vuota.`);
+  }
+
+  const COLORI = ["#1D4ED8", "#C2410C", "#047857", "#7C3AED", "#B91C1C", "#0F766E", "#A16207", "#374151", "#BE185D", "#0369A1"];
+  const elenco: { team: string; email: string; password: string }[] = [];
+  const draft = await db.draft.findFirst({ where: { seasonId: season.id } });
+
+  for (let i = 0; i < ruleset.governance.teams; i += 1) {
+    const nome = `Squadra ${i + 1}`;
+    const email = `manager${i + 1}@dynasty.it`;
+    const password = generaPassword();
+
+    await db.$transaction(async (tx) => {
+      const creata = await tx.team.create({
+        data: { leagueId: league.id, name: nome, shortName: `S${i + 1}`, color: COLORI[i % COLORI.length] },
+      });
+      await tx.user.create({
+        data: {
+          leagueId: league.id,
+          email,
+          name: `Manager ${i + 1}`,
+          passwordHash: await bcrypt.hash(password, 12),
+          role: "MANAGER",
+          teamId: creata.id,
+        },
+      });
+      await tx.capitalTransaction.create({
+        data: {
+          teamId: creata.id,
+          seasonId: season.id,
+          amount: toDecimalString(fromMillions(ruleset.capital.initialEndowment)),
+          kind: "INITIAL_ENDOWMENT",
+          description: "Dotazione iniziale (art. 14)",
+        },
+      });
+      await tx.stadium.create({ data: { teamId: creata.id, seasonId: season.id, level: 0 } });
+      await tx.academy.create({
+        data: { teamId: creata.id, seasonId: season.id, capacity: ruleset.youth.baseCapacity },
+      });
+      if (draft) {
+        for (let round = 1; round <= 3; round += 1) {
+          await tx.draftPick.create({
+            data: {
+              draftId: draft.id,
+              teamId: creata.id,
+              originalTeamId: creata.id,
+              round,
+              pickNumber: (round - 1) * ruleset.governance.teams + i + 1,
+              forYear: season.startYear,
+            },
+          });
+        }
+      }
+    });
+
+    elenco.push({ team: nome, email, password });
+  }
+
+  await recordAudit(db, {
+    seasonId: season.id,
+    userId: session.userId,
+    action: "TEAM_CREATED",
+    summary: `Iscritte ${elenco.length} squadre segnaposto, da rinominare`,
+    payload: { quante: elenco.length },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/lega");
+  return {
+    ok: true,
+    message: `${elenco.length} squadre iscritte. Le password si vedono una volta sola: salvale ora.`,
+    elenco,
   };
 }

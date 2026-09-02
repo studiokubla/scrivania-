@@ -34,6 +34,7 @@ import {
 } from "./contracts";
 import { validateTrade, type TradeSide } from "./trade";
 import type { ContractView, PlayerRole } from "./types";
+import { presenzeNote, youthEligibility } from "./youth";
 
 const R = DEFAULT_RULESET;
 const M = fromMillions;
@@ -864,5 +865,90 @@ describe("premi e sponsor", () => {
   it("le proposte non si ripetono nello stesso giro", () => {
     const offers = generateSponsorOffers({ previousPosition: 5, seed: "y", ruleset: R });
     expect(new Set(offers.map((o) => o.name)).size).toBe(offers.length);
+  });
+});
+
+// ───────────────────────────────────────────── Settore giovanile (art. 16.1)
+
+describe("idoneità al settore giovanile", () => {
+  const anno = 2026;
+  const nato = (anno: number, mese: number, giorno: number) => new Date(Date.UTC(anno, mese - 1, giorno));
+
+  it("accetta chi rispetta tutti e tre i requisiti", () => {
+    const esito = youthEligibility(
+      { birthDate: nato(2007, 3, 10), appearances: 2, quotation: fromMillions(4) },
+      anno,
+      DEFAULT_RULESET,
+    );
+    expect(esito.stato).toBe("IDONEO");
+    expect(esito.motivi).toEqual([]);
+  });
+
+  it("rifiuta chi ha superato l'età", () => {
+    const esito = youthEligibility(
+      { birthDate: nato(2000, 1, 1), appearances: 0, quotation: fromMillions(1) },
+      anno,
+      DEFAULT_RULESET,
+    );
+    expect(esito.stato).toBe("NON_IDONEO");
+    expect(esito.motivi[0]).toContain("anni");
+  });
+
+  it("rifiuta chi ha troppe presenze", () => {
+    const esito = youthEligibility(
+      { birthDate: nato(2007, 3, 10), appearances: 12, quotation: fromMillions(1) },
+      anno,
+      DEFAULT_RULESET,
+    );
+    expect(esito.stato).toBe("NON_IDONEO");
+    expect(esito.motivi[0]).toContain("presenze");
+  });
+
+  it("rifiuta chi è quotato troppo, anche se giovanissimo", () => {
+    const esito = youthEligibility(
+      { birthDate: nato(2008, 5, 1), appearances: 0, quotation: fromMillions(12) },
+      anno,
+      DEFAULT_RULESET,
+    );
+    expect(esito.stato).toBe("NON_IDONEO");
+    expect(esito.motivi[0]).toContain("quotato");
+  });
+
+  // È il caso che si presenta il primo giorno di lega, su cinquecento giocatori.
+  it("senza data di nascita non dice né sì né no", () => {
+    const esito = youthEligibility(
+      { birthDate: null, appearances: 0, quotation: fromMillions(2) },
+      anno,
+      DEFAULT_RULESET,
+    );
+    expect(esito.stato).toBe("DA_VERIFICARE");
+    expect(esito.motivi.join(" ")).toContain("data di nascita");
+  });
+
+  // Un requisito violato basta: non serve sapere gli altri per rispondere no.
+  it("un requisito violato batte un requisito ignoto", () => {
+    const esito = youthEligibility(
+      { birthDate: null, appearances: null, quotation: fromMillions(20) },
+      anno,
+      DEFAULT_RULESET,
+    );
+    expect(esito.stato).toBe("NON_IDONEO");
+  });
+
+  it("il limite di età è compreso", () => {
+    // Vent'anni esatti al 1° settembre: dentro.
+    const esito = youthEligibility(
+      { birthDate: nato(2006, 9, 1), appearances: 0, quotation: fromMillions(1) },
+      anno,
+      DEFAULT_RULESET,
+    );
+    expect(esito.requisiti.età.valore).toBe(20);
+    expect(esito.stato).toBe("IDONEO");
+  });
+
+  it("distingue «nessun voto importato» da «zero presenze»", () => {
+    expect(presenzeNote(0, null)).toBeNull();
+    expect(presenzeNote(3, null)).toBe(0);
+    expect(presenzeNote(3, 2)).toBe(2);
   });
 });

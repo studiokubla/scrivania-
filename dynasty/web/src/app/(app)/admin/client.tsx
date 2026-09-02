@@ -316,6 +316,7 @@ export function TeamsPanel({
   rigenera,
   elimina,
   azzera,
+  segnaposto,
 }: {
   teams: SquadraInfo[];
   maxTeams: number;
@@ -325,12 +326,14 @@ export function TeamsPanel({
   rigenera: (teamId: string) => Promise<CredenzialiState>;
   elimina: (teamId: string) => Promise<ActionResult>;
   azzera: (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
+  segnaposto: () => Promise<CredenzialiState & { elenco?: { team: string; email: string; password: string }[] }>;
 }) {
   const router = useRouter();
   const [statoCrea, azioneCrea] = useActionState<CredenzialiState, FormData>(crea, { ok: true, message: "" });
   const [statoModifica, azioneModifica] = useActionState<ActionResult, FormData>(modifica, { ok: true, message: "" });
   const [inModifica, setInModifica] = useState<string | null>(null);
   const [credenziali, setCredenziali] = useState<{ team: string; email: string; password: string } | null>(null);
+  const [gruppo, setGruppo] = useState<{ team: string; email: string; password: string }[]>([]);
   const [esito, setEsito] = useState<ActionResult | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -356,12 +359,66 @@ export function TeamsPanel({
         {daMostrare && <Credenziali dati={daMostrare} onClose={() => setCredenziali(null)} />}
         {esito && <Result result={esito} />}
 
+        {gruppo.length > 0 && (
+          <div className="avviso avviso-ok" style={{ display: "block" }}>
+            <strong>Ecco le {gruppo.length} squadre e le loro password.</strong> Si vedono una volta
+            sola: copiale adesso.
+            <pre
+              style={{
+                margin: "10px 0 0",
+                padding: 10,
+                background: "var(--sfondo)",
+                border: "1px solid var(--bordo)",
+                borderRadius: 8,
+                fontSize: 12.5,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-all",
+                color: "var(--inchiostro)",
+              }}
+            >
+              {gruppo.map((g) => `${g.team}\n  ${g.email}\n  ${g.password}`).join("\n\n")}
+            </pre>
+            <button
+              type="button"
+              className="bottone bottone-piccolo"
+              style={{ marginTop: 10 }}
+              onClick={() =>
+                navigator.clipboard?.writeText(
+                  gruppo.map((g) => `${g.team}\n  ${g.email}\n  ${g.password}`).join("\n\n"),
+                )
+              }
+            >
+              Copia tutte
+            </button>
+          </div>
+        )}
+
         {teams.length === 0 ? (
-          <p style={{ margin: 0, fontSize: 13, color: "var(--inchiostro-medio)" }}>
-            Nessuna squadra iscritta. Aggiungile qui sotto una alla volta: ognuna nasce con la
-            dotazione iniziale, lo stadio a livello zero, il settore giovanile e le sue scelte al
-            draft. Le rose si formano all&apos;asta di settembre.
-          </p>
+          <div style={{ display: "grid", gap: 12 }}>
+            <p style={{ margin: 0, fontSize: 14, color: "var(--inchiostro-medio)" }}>
+              Nessuna squadra iscritta. Ognuna nasce con la dotazione iniziale, lo stadio a livello
+              zero, il settore giovanile e le sue scelte al draft; le rose si formano all&apos;asta.
+            </p>
+            <button
+              type="button"
+              className="bottone bottone-primario bottone-largo"
+              disabled={pending}
+              onClick={() =>
+                startTransition(async () => {
+                  const r = await segnaposto();
+                  setEsito(r.ok ? null : r);
+                  if (r.elenco) setGruppo(r.elenco);
+                  router.refresh();
+                })
+              }
+            >
+              {pending ? "Iscrivo…" : `Iscrivi ${maxTeams} squadre segnaposto`}
+            </button>
+            <p className="didascalia" style={{ margin: 0 }}>
+              Si chiameranno «Squadra 1»…«Squadra {maxTeams}» e si rinominano quando i presidenti
+              scelgono i nomi veri. In alternativa, aggiungile una alla volta qui sotto.
+            </p>
+          </div>
         ) : (
           <div className="scorre">
           <table className="griglia" style={{ minWidth: 560 }}>

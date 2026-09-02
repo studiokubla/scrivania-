@@ -27,14 +27,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const commissioner = session.role === "COMMISSIONER";
 
   // Cinque voci al massimo: sotto ognuna ci sta un nome leggibile, sopra no.
-  // Al commissioner il registro passa dentro il pannello, che è dove lo cerca.
+  //
+  // La sala d'asta a buste non è in barra perché la lega l'asta la fa in
+  // presenza: al suo posto c'è il listone, che durante l'asta è il tabellone e
+  // per il resto della stagione è l'elenco di chi si può ancora prendere. Chi
+  // volesse l'asta dall'applicazione la raggiunge dal pannello di gestione.
   const voci: Voce[] = [
     { href: "/lega", label: "Lega", icona: "lega" },
     ...(session.teamId
       ? [{ href: `/squadra/${session.teamId}`, label: "Squadra", icona: "squadra" as const }]
       : []),
+    { href: "/listone", label: "Listone", icona: "listone" },
     { href: "/mercato", label: "Mercato", icona: "mercato" },
-    { href: "/asta", label: "Asta", icona: "asta" },
     ...(commissioner
       ? [{ href: "/admin", label: "Gestione", icona: "admin" as const }]
       : [{ href: "/registro", label: "Registro", icona: "registro" as const }]),

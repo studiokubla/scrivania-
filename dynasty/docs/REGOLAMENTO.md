@@ -176,12 +176,22 @@ stagione, salvo waiver per sostituire un infortunato di lungo corso.
 
 ### Art. 8 — Asta di settembre
 
-1. Il software estrae l'ordine di chiamata.
-2. A turno ogni manager chiama un giocatore. **Nessuno può passare** finché non ha 25 giocatori;
-   una volta raggiunti i 25, può dichiarare chiusa la propria asta, e la decisione è definitiva.
-3. Su ogni chiamata tutti i manager inseriscono nel software un'offerta segreta entro **20
-   secondi**. Chi non è interessato inserisce 0. Le offerte si aprono tutte insieme.
-4. Rilancio minimo **0,25 M**. Base d'asta secondo la quotazione Leghe Fantacalcio:
+L'asta si tiene **in presenza**, tutti allo stesso tavolo, e si rilancia a voce. Il software non
+la conduce: la registra mentre si svolge, e mentre lo fa controlla.
+
+1. Il commissioner registra ogni aggiudicazione nell'applicazione appena avviene: giocatore,
+   squadra, cifra. Il listone si accorcia sotto gli occhi di tutti, e ogni rosa si aggiorna.
+2. **Nessuno può passare** finché non ha 25 giocatori; una volta raggiunti i 25, può dichiarare
+   chiusa la propria asta, e la decisione è definitiva.
+3. Il software rifiuta un'aggiudicazione che lascerebbe una squadra senza spazio salariale
+   sufficiente a completare la rosa minima di 25 giocatori a 0,5 M ciascuno. È il controllo che
+   al tavolo, nella foga, non farebbe nessuno.
+4. Un errore di battitura si annulla dal listone e il giocatore torna disponibile. Il registro
+   conserva sia l'aggiudicazione sia l'annullamento: non si riscrive (art. 22).
+5. Ogni acquisto nasce **Annuale**. Chi vuole legare un giocatore per più stagioni converte il
+   contratto dalla propria scrivania, se ha slot e requisiti (art. 4).
+
+Rilancio minimo **0,25 M**. Base d'asta secondo la quotazione Leghe Fantacalcio:
 
    | Quotazione LFC | Base d'asta |
    |---|---|
@@ -190,14 +200,15 @@ stagione, salvo waiver per sostituire un infortunato di lungo corso.
    | 20-29 | 4 M |
    | 30 e oltre | 5 M |
 
-5. A parità di offerta più alta, i manager in parità ripetono l'offerta segreta. Se la parità
-   persiste, il giocatore va a chi ha chiamato per primo nell'ordine estratto.
-6. Il software rifiuta un'offerta che lascerebbe il manager senza spazio salariale sufficiente a
-   completare la rosa minima di 25 giocatori a 0,5 M ciascuno.
+▸ **Cambia.** L'asta resta quella di sempre — una sera, un tavolo, la voce — perché è la parte
+divertente e non c'era niente da riparare. Cambia che il conto lo tiene il software invece dei
+fogli: il punto 3 risolve il problema classico dell'asta al rialzo, cioè chi spende tutto sui
+primi nomi e poi non può completare la rosa. Ora è l'applicazione a fermarlo, mentre tutti sono
+ancora seduti, senza discussioni a posteriori.
 
-▸ **Cambia.** Le lavagnette diventano schermi. Il punto 6 è nuovo e risolve il problema classico
-dell'asta a busta chiusa: chi spende tutto sui primi nomi e poi non può completare la rosa. Ora è
-il software a impedirlo, in tempo reale, senza discussioni.
+L'applicazione porta anche un'asta a buste chiuse, utilizzabile se un anno la lega non riuscisse
+a trovarsi di persona. Non è la modalità ordinaria: sta nel pannello del commissioner, non nel
+menù principale.
 
 ### Art. 9 — Free agency
 

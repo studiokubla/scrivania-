@@ -8,6 +8,7 @@ import {
   azzeraLega,
   chargeStadiumMaintenance,
   creaSquadra,
+  iscriviSquadreSegnaposto,
   eliminaSquadra,
   modificaSquadra,
   rigeneraPassword,
@@ -116,6 +117,7 @@ export default async function AdminPage() {
         rigenera={rigeneraPassword}
         elimina={eliminaSquadra}
         azzera={azzeraLega}
+        segnaposto={iscriviSquadreSegnaposto}
       />
 
       {/* ── Fase e finestre ─────────────────────────────────────────────── */}

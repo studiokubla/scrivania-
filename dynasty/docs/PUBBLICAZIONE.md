@@ -125,18 +125,29 @@ niente: si può rilanciare quando si vuole.
 
 ## 4 · Le prime cose da fare dentro l'app
 
-1. **Iscrivi le squadre.** Amministrazione → *Squadre e manager*: nome, sigla,
-   colore e l'indirizzo del manager. Ognuna nasce con la dotazione iniziale
-   (art. 14), lo stadio a livello zero, il settore giovanile e le sue tre scelte
-   al draft. **La password compare una volta sola**: copiala e mandala al
-   manager. Se si perde, il pulsante *Password* ne genera un'altra — la vecchia
-   non è recuperabile da nessuno, commissioner compreso.
+1. **Iscrivi le squadre.** Gestione → *Squadre e manager*. Su una lega vuota c'è
+   un solo pulsante che ne crea dieci in un colpo, chiamate «Squadra 1»…«Squadra
+   10», e restituisce le dieci password insieme; si rinominano quando i
+   presidenti scelgono i nomi veri. Altrimenti si aggiungono una alla volta, con
+   nome, sigla, colore e indirizzo del manager. Ognuna nasce con la dotazione
+   iniziale (art. 14), lo stadio a livello zero, il settore giovanile e le sue
+   tre scelte al draft. **Le password si vedono una volta sola**: copiale e
+   mandale. Se una si perde, il pulsante *Password* ne genera un'altra — la
+   vecchia non è recuperabile da nessuno, commissioner compreso.
 2. **Importa le anagrafiche Transfermarkt.** Il listone non porta le date di
-   nascita, e senza quelle i contratti Rookie e Veteran non si possono firmare
-   (art. 4.2). Il pannello dice quanti giocatori sotto contratto ne sono privi,
-   e da lì si scarica il modello del foglio da compilare.
-3. **Apri l'asta** quando siete tutti collegati: il commissioner estrae l'ordine
-   di chiamata dalla Sala d'asta.
+   nascita. Senza quelle non si firmano contratti Rookie e Veteran (art. 4.2)
+   **e non si può dire chi è idoneo al settore giovanile** (art. 16.1): il
+   listone li marca «da verificare» finché il dato non arriva. Il pannello dice
+   quanti ne mancano e da lì si scarica il modello del foglio.
+3. **L'asta si fa al tavolo.** L'applicazione non la conduce: la registra. Il
+   commissioner apre il **Listone**, cerca il giocatore appena aggiudicato,
+   sceglie la squadra e scrive la cifra; il listone si accorcia e le rose si
+   riempiono sotto gli occhi di tutti. Se una cifra sfora il tetto o
+   lascerebbe una squadra senza spazio per completare la rosa, l'applicazione
+   la rifiuta mentre siete ancora seduti. Un errore di battitura si annulla
+   dalla stessa pagina.
+4. **Ad asta finita** il mercato passa dall'applicazione: offerte a busta chiusa
+   sugli svincolati rimasti, waiver e scambi (artt. 9, 10 e 13).
 
 Finché una squadra non ha contratti si può ritirare dalla lega; dopo l'asta no,
 perché toglierla lascerebbe i suoi giocatori senza squadra e senza svincolo — e
