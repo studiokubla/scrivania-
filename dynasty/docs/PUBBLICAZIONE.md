@@ -28,7 +28,8 @@ di compilare, quindi al primo deploy le tabelle vengono create.
 L'applicazione sta in `dynasty/web`, non nella radice del repository: è
 l'unico dettaglio da non dimenticare.
 
-1. Su Vercel, **Add New → Project**, e scegli questo repository.
+1. Su Vercel, **Add New → Project**, e scegli questo repository. Scorciatoia:
+   [vercel.com/new](https://vercel.com/new) → *Import Git Repository* → `studiokubla/scrivania-`.
 2. **Root Directory**: `dynasty/web`.
 3. Framework: Next.js (lo riconosce da solo).
 4. Prima di premere *Deploy*, apri **Environment Variables** e aggiungi:
@@ -56,7 +57,11 @@ https://<il-tuo-dominio>/api/salute
 ```
 
 Deve rispondere `{"database":"raggiungibile","lega":null,"inizializzata":false}`.
-Se dice `non raggiungibile`, la `DATABASE_URL` è sbagliata.
+Se dice `non raggiungibile`, la `DATABASE_URL` è sbagliata o non è stata salvata.
+
+Se le variabili mancano del tutto, il deploy **riesce lo stesso**: la build salta
+l'allineamento dello schema e lo scrive nei log, l'applicazione parte e questa
+rotta spiega cosa manca. Basta aggiungere le variabili e rilanciare il deploy.
 
 Poi crea la lega:
 
