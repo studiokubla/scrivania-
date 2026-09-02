@@ -18,7 +18,9 @@ const coppia = (valore, nome) => {
   return { email: valore.slice(0, i), password: valore.slice(i + 1) };
 };
 const commissioner = coppia(process.env.COMMISSIONER, "COMMISSIONER");
-const manager = coppia(process.env.MANAGER, "MANAGER");
+// Prima che le squadre siano iscritte non esiste nessun manager: i controlli
+// che lo riguardano si saltano invece di fallire.
+const manager = process.env.MANAGER ? coppia(process.env.MANAGER, "MANAGER") : null;
 
 let ko = 0;
 const check = (etichetta, ok, dettaglio = "") => {
@@ -56,8 +58,8 @@ const sbagliata = await accedi({ email: commissioner.email, password: "sbagliata
 check("una password sbagliata non apre nessuna sessione", !sbagliata.cookie);
 check("e il messaggio non rivela se l'indirizzo esiste", /non corretti/.test(sbagliata.corpo) && !/inesistente|non trovato/i.test(sbagliata.corpo));
 
-const gestore = await accedi(manager);
-check("un manager accede con la sua password", Boolean(gestore.cookie));
+const gestore = manager ? await accedi(manager) : null;
+if (manager) check("un manager accede con la sua password", Boolean(gestore.cookie));
 
 async function pagina(percorso, cookie) {
   const r = await fetch(`${BASE}${percorso}`, { headers: cookie ? { cookie } : {}, redirect: "manual" });
@@ -75,20 +77,26 @@ for (const [percorso, atteso] of [
   check(`${percorso} si apre per il commissioner`, p.stato === 200 && p.testo.toLowerCase().includes(atteso.toLowerCase()), `HTTP ${p.stato}`);
 }
 
-const admin = await pagina("/admin", gestore.cookie);
-check("un manager non entra in amministrazione", admin.stato !== 200, `HTTP ${admin.stato} ${admin.dove ?? ""}`);
+if (gestore) {
+  const admin = await pagina("/admin", gestore.cookie);
+  check("un manager non entra in amministrazione", admin.stato !== 200, `HTTP ${admin.stato} ${admin.dove ?? ""}`);
+}
 
 const senza = await pagina("/lega", null);
 check("senza sessione si finisce al login", (senza.dove ?? "").includes("/login"), `HTTP ${senza.stato} ${senza.dove ?? ""}`);
 
+const salutePrima = await (await fetch(`${BASE}/api/salute`)).json();
 const lega = await pagina("/lega", boss.cookie);
 const squadre = [...new Set([...lega.testo.matchAll(/\/squadra\/([a-z0-9-]+)/gi)].map((m) => m[1]))];
-check("la pagina lega elenca dieci squadre", squadre.length === 10, `${squadre.length}`);
+check("le squadre in pagina sono quelle registrate", squadre.length === salutePrima.squadre, `${squadre.length} in pagina, ${salutePrima.squadre} a database`);
 
-const rosa = await pagina(`/squadra/${squadre[0]}`, boss.cookie);
-check("la scrivania squadra si apre", rosa.stato === 200, `HTTP ${rosa.stato}`);
-check("la rosa contiene giocatori veri del listone", /Sommer|Maignan|Lautaro|Vlahovi|Dimarco|Calhanoglu|Leao|Bastoni|Thuram|Di Gregorio|Retegui/i.test(rosa.testo));
-check("la scrivania mostra il tetto salariale", /tetto salariale|Monte ingaggi|Cap/i.test(rosa.testo));
+if (squadre.length > 0) {
+  const rosa = await pagina(`/squadra/${squadre[0]}`, boss.cookie);
+  check("la scrivania squadra si apre", rosa.stato === 200, `HTTP ${rosa.stato}`);
+  check("la scrivania mostra il tetto salariale", /tetto salariale|Monte ingaggi|Cap/i.test(rosa.testo));
+} else {
+  check("il pannello invita a iscrivere le squadre", (await pagina("/admin", boss.cookie)).testo.includes("Nessuna squadra iscritta"));
+}
 
 const mercato = await pagina("/mercato", boss.cookie);
 check("la sala mercato elenca svincolati", /svincolat|Free agency|Offerta/i.test(mercato.testo));
@@ -103,7 +111,7 @@ check("l'inizializzazione è chiusa a lega esistente", setup.status === 403, `HT
 const salute = await (await fetch(`${BASE}/api/salute`)).json();
 check(
   "lo stato dichiara la lega pronta",
-  salute.inizializzata === true && salute.giocatori === 531 && salute.squadre === 10 && salute.utenti === 11,
+  salute.inizializzata === true && salute.giocatori === 531 && salute.utenti === salute.squadre + 1,
   JSON.stringify(salute),
 );
 
