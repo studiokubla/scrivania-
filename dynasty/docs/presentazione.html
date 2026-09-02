@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Dynasty League — Regolamento 2026/27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /*
+    Presentazione del regolamento — identità Dynasty League.
+
+    Diapositive 16:9 da 1280×720, una per pagina PDF. Tre colori: verde, nero,
+    carta. Il verde riempie le pagine di stacco, il nero le pagine di peso, la
+    carta quelle di lettura: chi sfoglia capisce a colpo d'occhio dove si trova.
+  */
+  @page { size: 1280px 720px; margin: 0; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --verde: #3EE68C;
+    --verde-scuro: #067A45;
+    --rosa: #F5B8E0;
+    --nero: #101010;
+    --carta: #F7F7F5;
+    --grigio: #EBEBE8;
+    --tenue: #86867D;
+  }
+
+  body {
+    font-family: Archivo, system-ui, sans-serif;
+    color: var(--nero);
+    -webkit-font-smoothing: antialiased;
+    background: #ddd;
+  }
+
+  .slide {
+    width: 1280px;
+    height: 720px;
+    padding: 72px 88px;
+    background: var(--carta);
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .slide:last-child { page-break-after: auto; }
+
+  .slide.nera { background: var(--nero); color: #fff; }
+  .slide.verde { background: var(--verde); }
+
+  h1 { font-size: 68px; font-weight: 800; letter-spacing: -0.04em; line-height: 0.98; }
+  h2 { font-size: 46px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; }
+  h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+
+  .occhiello {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .16em; color: var(--tenue);
+  }
+  .nera .occhiello { color: var(--verde); }
+  .verde .occhiello { color: rgba(16,16,16,.55); }
+
+  p { font-size: 19px; line-height: 1.55; max-width: 62ch; color: #33332e; }
+  .nera p { color: rgba(255,255,255,.78); }
+  .verde p { color: rgba(16,16,16,.8); }
+
+  .piede {
+    position: absolute; left: 88px; right: 88px; bottom: 34px;
+    display: flex; justify-content: space-between;
+    font-size: 12px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--tenue);
+  }
+  .nera .piede { color: rgba(255,255,255,.35); }
+  .verde .piede { color: rgba(16,16,16,.45); }
+
+  .corpo { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+  /* Griglie di contenuto */
+  .colonne { display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); gap: 26px; }
+  .scheda {
+    background: #fff; border: 1px solid var(--grigio); border-radius: 14px;
+    padding: 24px 24px 26px;
+  }
+  .nera .scheda { background: #1b1c1b; border-color: #2c2d2c; }
+  .verde .scheda { background: rgba(255,255,255,.72); border-color: rgba(16,16,16,.1); }
+  .scheda .n { font-size: 13px; font-weight: 800; color: var(--verde-scuro); letter-spacing: .1em; }
+  .scheda h3 { margin: 8px 0 8px; }
+  .scheda p { font-size: 15.5px; line-height: 1.5; }
+
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th {
+    text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .09em; color: var(--tenue); padding: 10px 14px;
+    border-bottom: 2px solid var(--nero);
+  }
+  td { padding: 11px 14px; font-size: 17px; border-bottom: 1px solid var(--grigio); }
+  td.num, th.num { text-align: right; }
+  tbody tr:last-child td { border-bottom: none; }
+  .verde th { color: rgba(16,16,16,.55); border-bottom-color: var(--nero); }
+  .verde td { border-bottom-color: rgba(16,16,16,.14); }
+  .forte { font-weight: 700; }
+  .buono { color: var(--verde-scuro); font-weight: 700; }
+  .male { color: #B4231F; font-weight: 700; }
+
+  .marchio { display: flex; align-items: center; gap: 18px; }
+  .marchio svg { width: 84px; height: 84px; }
+  .marchio .nome { font-size: 60px; font-weight: 800; letter-spacing: -.04em; line-height: .95; }
+
+  .numerone {
+    font-size: 220px; font-weight: 800; letter-spacing: -.06em; line-height: .8;
+    color: rgba(16,16,16,.14);
+  }
+  .nera .numerone { color: rgba(62,230,140,.22); }
+
+  .elenco { list-style: none; display: grid; gap: 14px; }
+  .elenco li { display: flex; gap: 14px; align-items: flex-start; font-size: 19px; line-height: 1.45; }
+  .elenco .pallino {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--verde-scuro);
+    margin-top: 9px; flex-shrink: 0;
+  }
+  .nera .elenco .pallino { background: var(--verde); }
+  .verde .elenco .pallino { background: var(--nero); }
+
+  .evidenza {
+    display: inline-block; background: var(--verde); color: var(--nero);
+    padding: 1px 9px; border-radius: 6px; font-weight: 700;
+  }
+  .nera .evidenza { background: var(--verde); }
+
+  .prima-dopo { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 14px; overflow: hidden; }
+  .prima-dopo > div { padding: 26px 28px; }
+  .prima { background: var(--grigio); }
+  .dopo { background: var(--verde); }
+  .prima-dopo .occhiello { margin-bottom: 10px; }
+  .prima-dopo .dopo .occhiello { color: rgba(16,16,16,.6); }
+  .prima-dopo p { font-size: 16.5px; }
+
+  .cifra-grande { font-size: 62px; font-weight: 800; letter-spacing: -.04em; line-height: 1; white-space: nowrap; }
+  .cifra-etichetta { font-size: 14px; font-weight: 600; color: var(--tenue); margin-top: 4px; }
+  .verde .cifra-etichetta { color: rgba(16,16,16,.6); }
+</style>
+</head>
+<body>
+
+<!-- ═══ 1 · Copertina ═══════════════════════════════════════════════════ -->
+<section class="slide nera">
+  <div class="corpo">
+    <div class="marchio" style="margin-bottom:56px">
+      <svg viewBox="0 0 100 100"><defs><clipPath id="c1"><rect x="0" y="8" width="100" height="25"/><rect x="0" y="39" width="100" height="22"/><rect x="0" y="67" width="100" height="25"/></clipPath></defs><path d="M14 8 H48 A42 42 0 0 1 48 92 H14 Z M32 26 H48 A24 24 0 0 1 48 74 H32 Z" fill-rule="evenodd" clip-path="url(#c1)" fill="#3EE68C"/></svg>
+      <div class="nome">Dynasty<br>League</div>
+    </div>
+    <div class="occhiello">Regolamento · stagione 2026/27</div>
+    <h2 style="margin-top:12px">Un fantacalcio<br>che si gioca anche<br>fuori dal campo.</h2>
+  </div>
+  <div class="piede"><span>Dynasty League</span><span>Versione 3.0</span></div>
+</section>
+
+<!-- ═══ 2 · Il problema ═════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Da dove veniamo</div>
+    <h2 style="margin:10px 0 30px; max-width:22ch">Il gioco funzionava.<br>La gestione no.</h2>
+    <div class="colonne" style="--n:3">
+      <div class="scheda">
+        <div class="n">01</div>
+        <h3>Regole che convivevano senza accordarsi</h3>
+        <p>Il Max Contract durava «1-3 anni» in un documento e «2-5» in un altro. Il Rookie aveva tre tetti diversi. Il Veteran calava di 1 M nel testo e del 10% nella tabella sotto.</p>
+      </div>
+      <div class="scheda">
+        <div class="n">02</div>
+        <h3>Una regola che nessuno poteva applicare</h3>
+        <p>Il giocatore svincolato «occupava lo stesso il tetto salariale». Per quanto? Non era scritto. Risultato: nessuno svincolava nessuno.</p>
+      </div>
+      <div class="scheda">
+        <div class="n">03</div>
+        <h3>Numeri che non stavano in piedi</h3>
+        <p>Uno stadio di livello 1 costava 50 M, ne chiedeva 15 all'anno e ne rendeva 9,5. Ogni impianto era in perdita permanente, a ogni livello.</p>
+      </div>
+    </div>
+  </div>
+  <div class="piede"><span>Le premesse</span><span>02</span></div>
+</section>
+
+<!-- ═══ 3 · Il criterio ═════════════════════════════════════════════════ -->
+<section class="slide verde">
+  <div class="corpo">
+    <div class="occhiello">Il criterio</div>
+    <h1 style="margin:18px 0 26px; max-width:17ch">Se una regola non è verificabile, non è una regola.</h1>
+    <p style="font-size:22px; max-width:56ch">Ogni articolo di questo regolamento si può calcolare dai dati che la lega possiede — voti, presenze, età, quotazioni, importi, date. Quello che avrebbe richiesto un arbitro è stato riscritto o eliminato.</p>
+  </div>
+  <div class="piede"><span>Criterio guida</span><span>03</span></div>
+</section>
+
+<!-- ═══ 4 · Le due economie ═════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 2</div>
+    <h2 style="margin:10px 0 28px">Due economie che non si toccano</h2>
+    <table>
+      <thead><tr><th style="width:24%"></th><th>Tetto salariale</th><th>Capitale</th></tr></thead>
+      <tbody>
+        <tr><td class="forte">A cosa serve</td><td>pagare gli ingaggi</td><td>far crescere la società</td></tr>
+        <tr><td class="forte">Dotazione</td><td class="forte">85 M, uguale per tutti</td><td class="forte">40 M all'inizio, poi si accumula</td></tr>
+        <tr><td class="forte">Si alimenta con</td><td>nulla: è un tetto, non un portafoglio</td><td>premi, stadio, sponsor</td></tr>
+        <tr><td class="forte">Si spende in</td><td>ingaggi</td><td>stadio, primavera, osservatori, penali</td></tr>
+        <tr><td class="forte">A fine anno</td><td class="male">si azzera</td><td class="buono">si accumula</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:26px"><span class="evidenza">Nessuna operazione converte capitale in spazio salariale.</span> È la risposta alle plusvalenze fantasma: non si vendono giocatori per fare cassa, si liberano ingaggi.</p>
+  </div>
+  <div class="piede"><span>Le due economie</span><span>04</span></div>
+</section>
+
+<!-- ═══ 5 · La rosa ═════════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 3</div>
+    <h2 style="margin:10px 0 34px">La rosa</h2>
+    <div class="colonne" style="--n:4; margin-bottom:34px">
+      <div><div class="cifra-grande">85 M</div><div class="cifra-etichetta">tetto salariale</div></div>
+      <div><div class="cifra-grande">25–30</div><div class="cifra-etichetta">giocatori</div></div>
+      <div><div class="cifra-grande">9</div><div class="cifra-etichetta">contratti pluriennali</div></div>
+      <div><div class="cifra-grande">0,25 M</div><div class="cifra-etichetta">rilancio minimo</div></div>
+    </div>
+    <p>Minimi per ruolo: <span class="forte">3 portieri, 8 difensori, 8 centrocampisti, 6 attaccanti</span>. Il software rifiuta ogni operazione che violi uno di questi limiti — in asta, nel mercato, in uno scambio — e dice quale.</p>
+  </div>
+  <div class="piede"><span>La rosa</span><span>05</span></div>
+</section>
+
+<!-- ═══ 6 · I contratti ═════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 4 · da cinque tipi a tre</div>
+    <h2 style="margin:10px 0 26px">I contratti</h2>
+    <table>
+      <thead><tr><th>Tipo</th><th>Requisito</th><th>Durata</th><th>Ingaggio</th><th>Ogni anno</th><th class="num">Slot</th></tr></thead>
+      <tbody>
+        <tr><td class="forte">Annuale</td><td>nessuno</td><td>1 anno</td><td>libero</td><td>—</td><td class="num">no</td></tr>
+        <tr><td class="forte">Standard</td><td>nessuno</td><td>2-3 anni</td><td>libero</td><td class="male">+10%</td><td class="num">sì</td></tr>
+        <tr><td class="forte">Rookie</td><td>Under 23 alla firma</td><td>2-4 anni</td><td>max 6 M</td><td>invariato</td><td class="num">sì</td></tr>
+        <tr><td class="forte">Veteran</td><td>Over 30 alla firma</td><td>2 anni</td><td>max 10 M</td><td class="buono">−20%</td><td class="num">sì</td></tr>
+        <tr><td class="forte">Tampone</td><td>nessuno</td><td>4 giornate</td><td>max 1 M</td><td>—</td><td class="num">no</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:24px">Ogni acquisto all'asta nasce <span class="forte">Annuale</span>: si converte in pluriennale al momento dell'aggiudicazione, se ci sono slot e requisiti. Il <span class="forte">Max Contract sparisce</span>: un contratto sopra i 10 M è semplicemente uno Standard grosso.</p>
+  </div>
+  <div class="piede"><span>I contratti</span><span>06</span></div>
+</section>
+
+<!-- ═══ 7 · Franchise Tag ═══════════════════════════════════════════════ -->
+<section class="slide nera">
+  <div class="corpo">
+    <div class="occhiello">Articolo 6.2 · lo strumento nuovo</div>
+    <h1 style="margin:16px 0 24px">Franchise Tag</h1>
+    <p style="font-size:22px; max-width:54ch; margin-bottom:26px">Blinda <span class="evidenza">un solo giocatore</span> in scadenza per una stagione. L'ingaggio diventa il maggiore tra il 120% dell'ultimo e la media dei tre ingaggi più alti del suo ruolo in tutta la lega.</p>
+    <ul class="elenco">
+      <li><span class="pallino"></span><span>Non può ricevere pre-contract e non può essere scambiato.</span></li>
+      <li><span class="pallino"></span><span>Uno solo per stagione, e mai due anni di fila sullo stesso giocatore.</span></li>
+      <li><span class="pallino"></span><span>Sostituisce «Giocatore protetto»: proteggerne cinque gratis non era una scelta. Taggarne uno a prezzo di mercato sì.</span></li>
+    </ul>
+  </div>
+  <div class="piede"><span>Gli strumenti del manager</span><span>07</span></div>
+</section>
+
+<!-- ═══ 8 · Le opzioni ══════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 6 · si azzerano il 1° luglio</div>
+    <h2 style="margin:10px 0 26px">Quello che hai in mano, ogni stagione</h2>
+    <table>
+      <thead><tr><th>Strumento</th><th class="num">Quante volte</th><th>Quando</th><th>Effetto</th></tr></thead>
+      <tbody>
+        <tr><td class="forte">Team Option</td><td class="num">3</td><td>fine stagione</td><td>estende un contratto di 1 anno a <span class="forte">+20%</span></td></tr>
+        <tr><td class="forte">Franchise Tag</td><td class="num">1</td><td>fine stagione</td><td>blinda 1 giocatore in scadenza</td></tr>
+        <tr><td class="forte">Performance buy-out</td><td class="num">3</td><td>finestre di mercato</td><td>svincolo a <span class="forte">costo dimezzato</span></td></tr>
+        <tr><td class="forte">Offerte free agency</td><td class="num">5</td><td>finestre di mercato</td><td>apre una contesa su uno svincolato</td></tr>
+        <tr><td class="forte">Pre-contract</td><td class="num">3</td><td>finestra di marzo</td><td>offerta a un giocatore altrui in scadenza</td></tr>
+        <tr><td class="forte">Contratti tampone</td><td class="num">3</td><td>a campionato in corso</td><td>copre un infortunio per 4 giornate</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="piede"><span>Le opzioni</span><span>08</span></div>
+</section>
+
+<!-- ═══ 9 · Il mercato ══════════════════════════════════════════════════ -->
+<section class="slide verde">
+  <div class="corpo">
+    <div class="occhiello">Articolo 7</div>
+    <h2 style="margin:10px 0 30px">Quattro momenti, tutto l'anno</h2>
+    <div class="colonne" style="--n:4">
+      <div class="scheda">
+        <div class="n">SETTEMBRE</div>
+        <h3>Asta</h3>
+        <p>Si forma la rosa. Asta a chiamata e draft primavera.</p>
+      </div>
+      <div class="scheda">
+        <div class="n">NOVEMBRE</div>
+        <h3>Prima finestra</h3>
+        <p>Free agency, scambi, svincoli. Dopo la 12ª giornata.</p>
+      </div>
+      <div class="scheda">
+        <div class="n">GENNAIO</div>
+        <h3>Seconda finestra</h3>
+        <p>Come novembre. Dopo la 20ª giornata.</p>
+      </div>
+      <div class="scheda">
+        <div class="n">MARZO</div>
+        <h3>Ultima finestra</h3>
+        <p>Anche i pre-contract. Dopo la 28ª è trade deadline.</p>
+      </div>
+    </div>
+    <p style="margin-top:28px">Il <span class="forte">waiver</span> è sempre attivo: 48 ore in cui reclamare chi è appena stato svincolato.</p>
+  </div>
+  <div class="piede"><span>Il mercato</span><span>09</span></div>
+</section>
+
+<!-- ═══ 10 · L'asta ═════════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 8</div>
+    <h2 style="margin:10px 0 24px">L'asta di settembre</h2>
+    <div style="display:grid; grid-template-columns:1.15fr .85fr; gap:44px; align-items:start">
+      <ul class="elenco">
+        <li><span class="pallino"></span><span>Il software estrae l'ordine di chiamata.</span></li>
+        <li><span class="pallino"></span><span>A turno un manager chiama un giocatore. <span class="forte">Nessuno può passare</span> finché non ha 25 giocatori.</span></li>
+        <li><span class="pallino"></span><span>Su ogni chiamata tutti inseriscono un'offerta segreta entro <span class="forte">20 secondi</span>. Chi non è interessato scrive 0. Le buste si aprono tutte insieme.</span></li>
+        <li><span class="pallino"></span><span>A parità si ripete l'offerta; al secondo pareggio decide l'ordine estratto.</span></li>
+      </ul>
+      <div>
+        <div class="occhiello" style="margin-bottom:12px">Base d'asta</div>
+        <table>
+          <thead><tr><th>Quotazione</th><th class="num">Base</th></tr></thead>
+          <tbody>
+            <tr><td>fino a 14</td><td class="num forte">0,5 M</td></tr>
+            <tr><td>15 – 19</td><td class="num forte">3 M</td></tr>
+            <tr><td>20 – 29</td><td class="num forte">4 M</td></tr>
+            <tr><td>30 e oltre</td><td class="num forte">5 M</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="margin-top:26px"><span class="evidenza">Non si può spendere tutto sui primi nomi.</span> Il software rifiuta l'offerta che non lascerebbe abbastanza per completare la rosa minima, e dice qual è il massimo che puoi offrire.</p>
+  </div>
+  <div class="piede"><span>L'asta</span><span>10</span></div>
+</section>
+
+<!-- ═══ 11 · Free agency ════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 9 · buste chiuse</div>
+    <h2 style="margin:10px 0 30px">La free agency</h2>
+    <div class="colonne" style="--n:4">
+      <div class="scheda"><div class="n">1</div><h3>Offri</h3><p>Ingaggio, durata, tipo di contratto. L'offerta resta sigillata.</p></div>
+      <div class="scheda"><div class="n">2</div><h3>Si apre la contesa</h3><p>Il registro annuncia che c'è una contesa, <span class="forte">senza l'importo</span>. Gli altri hanno 24 ore per rilanciare, anch'essi in segreto.</p></div>
+      <div class="scheda"><div class="n">3</div><h3>Si aprono le buste</h3><p>Allo scadere tutte insieme. Vince l'offerta più alta.</p></div>
+      <div class="scheda"><div class="n">4</div><h3>A parità</h3><p>Prima la durata maggiore, poi <span class="forte">la squadra peggio classificata</span>.</p></div>
+    </div>
+    <p style="margin-top:30px">Nessun manager riceve più le offerte degli altri in privato: <span class="forte">il commissioner non ha una squadra e non fa offerte</span>. È la ragione per cui le buste possono passare dal sistema senza conflitto d'interesse.</p>
+  </div>
+  <div class="piede"><span>La free agency</span><span>11</span></div>
+</section>
+
+<!-- ═══ 12 · Svincolo ═══════════════════════════════════════════════════ -->
+<section class="slide nera">
+  <div class="corpo">
+    <div class="occhiello">Articolo 12 · la modifica più importante</div>
+    <h1 style="margin:16px 0 28px">Paghi, liberi il campo,<br>ti resta una cicatrice.</h1>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:start">
+      <div>
+        <table>
+          <thead><tr><th style="color:rgba(255,255,255,.45); border-bottom-color:#3EE68C">Anni residui</th><th class="num" style="color:rgba(255,255,255,.45); border-bottom-color:#3EE68C">Penale</th></tr></thead>
+          <tbody style="color:#fff">
+            <tr><td style="border-bottom-color:#2c2d2c">1 anno</td><td class="num forte" style="border-bottom-color:#2c2d2c">100%</td></tr>
+            <tr><td style="border-bottom-color:#2c2d2c">2 anni</td><td class="num forte" style="border-bottom-color:#2c2d2c">110%</td></tr>
+            <tr><td style="border-bottom-color:#2c2d2c">3 anni</td><td class="num forte" style="border-bottom-color:#2c2d2c">120%</td></tr>
+            <tr><td>4 anni</td><td class="num forte">130%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="elenco">
+        <li><span class="pallino"></span><span>La penale esce dal <span class="forte">Capitale</span>: svincolare significa rinunciare a un pezzo di stadio.</span></li>
+        <li><span class="pallino"></span><span>Lo spazio salariale si libera subito, tranne un <span class="evidenza">dead cap del 25%</span> fino a fine stagione.</span></li>
+        <li><span class="pallino"></span><span>Con il <span class="forte">performance buy-out</span> la penale è dimezzata e il dead cap non si applica.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="piede"><span>Lo svincolo</span><span>12</span></div>
+</section>
+
+<!-- ═══ 13 · Performance buy-out ════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 12.4 · tre condizioni, ne basta una</div>
+    <h2 style="margin:10px 0 14px">Niente più discussioni su chi «non ha reso»</h2>
+    <p style="margin-bottom:30px">Le tre condizioni si misurano sui dati ufficiali importati. Il software dice se sono soddisfatte e mostra i numeri che lo dimostrano.</p>
+    <div class="colonne" style="--n:3">
+      <div class="scheda">
+        <div class="n">CONDIZIONE 1</div>
+        <h3>Presenze insufficienti</h3>
+        <p>Ha giocato meno del <span class="forte">50%</span> delle giornate disputate.</p>
+      </div>
+      <div class="scheda">
+        <div class="n">CONDIZIONE 2</div>
+        <h3>Media sotto la sufficienza</h3>
+        <p>Media voto <span class="forte">sotto 6</span> su almeno 10 presenze.</p>
+      </div>
+      <div class="scheda">
+        <div class="n">CONDIZIONE 3</div>
+        <h3>Infortunio prolungato</h3>
+        <p>Nessun voto per <span class="forte">5 giornate consecutive</span>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="piede"><span>Il performance buy-out</span><span>13</span></div>
+</section>
+
+<!-- ═══ 14 · Scambi ═════════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 11</div>
+    <h2 style="margin:10px 0 26px">Gli scambi</h2>
+    <ul class="elenco" style="margin-bottom:28px">
+      <li><span class="pallino"></span><span>Si scambiano <span class="forte">giocatori con il loro contratto</span>, scelte al draft e capitale. Mai spazio salariale.</span></li>
+      <li><span class="pallino"></span><span>Il contratto <span class="forte">viaggia intatto</span>: non si può ristrutturare per alleggerirlo. Se pesa troppo, è un problema da valutare prima di accettare.</span></li>
+      <li><span class="pallino"></span><span>Il software valida <span class="forte">entrambe le rose</span>, anche sulle stagioni future: se un lato non torna, lo scambio non si può nemmeno proporre.</span></li>
+      <li><span class="pallino"></span><span>48 ore per accettare. Il commissioner può annullare entro le 24 successive solo se lo scambio è manifestamente di comodo, motivando pubblicamente.</span></li>
+    </ul>
+    <div class="prima-dopo">
+      <div class="prima"><div class="occhiello">Prima</div><p>«La nuova squadra può ristrutturare il contratto.» Due manager d'accordo potevano azzerare un ingaggio scomodo.</p></div>
+      <div class="dopo"><div class="occhiello">Adesso</div><p>Il contratto è parte del giocatore. Prenderlo significa prenderne il peso, che è la decisione interessante.</p></div>
+    </div>
+  </div>
+  <div class="piede"><span>Gli scambi</span><span>14</span></div>
+</section>
+
+<!-- ═══ 15 · Lo stadio ══════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articolo 15 · numeri rifatti</div>
+    <h2 style="margin:10px 0 22px">Lo stadio torna a essere un investimento</h2>
+    <table>
+      <thead><tr><th>Livello</th><th class="num">Costruzione</th><th class="num">Manutenzione</th><th class="num">Incasso/stagione</th><th class="num">Netto</th><th class="num">Fantapunti</th><th class="num">Rientro</th></tr></thead>
+      <tbody>
+        <tr><td class="forte">1 · Comunale</td><td class="num">30 M</td><td class="num">3 M</td><td class="num">9,5 M</td><td class="num buono">+6,5 M</td><td class="num">+0,5</td><td class="num">4,6 stagioni</td></tr>
+        <tr><td class="forte">2 · Rinnovato</td><td class="num">60 M</td><td class="num">6 M</td><td class="num">17,1 M</td><td class="num buono">+11,1 M</td><td class="num">+1,0</td><td class="num">5,4 stagioni</td></tr>
+        <tr><td class="forte">3 · Moderno</td><td class="num">100 M</td><td class="num">10 M</td><td class="num">26,6 M</td><td class="num buono">+16,6 M</td><td class="num">+1,5</td><td class="num">6,0 stagioni</td></tr>
+        <tr><td class="forte">4 · Grande impianto</td><td class="num">150 M</td><td class="num">15 M</td><td class="num">38,0 M</td><td class="num buono">+23,0 M</td><td class="num">+2,0</td><td class="num">6,5 stagioni</td></tr>
+        <tr><td class="forte">5 · Cattedrale</td><td class="num">210 M</td><td class="num">21 M</td><td class="num">51,3 M</td><td class="num buono">+30,3 M</td><td class="num">+2,5</td><td class="num">6,9 stagioni</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:22px">Si sale <span class="forte">un livello alla volta</span> pagando la differenza; per saltarne uno si demolisce e si ricostruisce da zero. Chi non copre la manutenzione vede l'impianto scendere di un livello.</p>
+  </div>
+  <div class="piede"><span>Lo stadio</span><span>15</span></div>
+</section>
+
+<!-- ═══ 16 · Primavera e osservatori ════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Articoli 16 e 17</div>
+    <h2 style="margin:10px 0 28px">Il vivaio e la rete osservatori</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:44px">
+      <div>
+        <h3 style="margin-bottom:14px">Settore giovanile</h3>
+        <ul class="elenco">
+          <li><span class="pallino"></span><span>Under 21, massimo 5 presenze a voto l'anno prima, quotazione fino a 7 M.</span></li>
+          <li><span class="pallino"></span><span><span class="forte">Non percepiscono ingaggio</span> e non occupano spazio salariale.</span></li>
+          <li><span class="pallino"></span><span>Tre posti di base, fino a undici con investimento. Draft a lotteria pesata verso chi è andato peggio.</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-bottom:14px">Osservatori</h3>
+        <ul class="elenco">
+          <li><span class="pallino"></span><span>Danno il <span class="forte">diritto di pareggio</span>: eguagli l'offerta più alta e te lo porti via.</span></li>
+          <li><span class="pallino"></span><span>Prima il campionato, poi — in una sessione successiva — un club specifico.</span></li>
+          <li><span class="pallino"></span><span>Chi ha scoutizzato il club batte chi ha scoutizzato il campionato. A parità, <span class="forte">chi ha investito prima</span>: il registro tiene l'ora.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="piede"><span>Vivaio e osservatori</span><span>16</span></div>
+</section>
+
+<!-- ═══ 17 · Competizioni ═══════════════════════════════════════════════ -->
+<section class="slide verde">
+  <div class="corpo">
+    <div class="occhiello">Articolo 19</div>
+    <h2 style="margin:10px 0 26px">Cinque trofei, una stagione</h2>
+    <div style="display:grid; grid-template-columns:1.1fr .9fr; gap:44px; align-items:start">
+      <table>
+        <thead><tr><th>Competizione</th><th>Formato</th><th class="num">Al primo</th></tr></thead>
+        <tbody>
+          <tr><td class="forte">Dynasty Apertura</td><td>girone unico, 3ª → 20ª</td><td class="num forte">27 M</td></tr>
+          <tr><td class="forte">Dynasty Clausura</td><td>girone unico, 21ª → 38ª</td><td class="num forte">27 M</td></tr>
+          <tr><td class="forte">Dynasty Cup</td><td>gironi, poi andata e ritorno</td><td class="num forte">15 M</td></tr>
+          <tr><td class="forte">Super Cup</td><td>le prime 4 di ciascuna</td><td class="num forte">7 M</td></tr>
+          <tr><td class="forte">Dynasty Youth</td><td>media voto dei primavera</td><td class="num forte">5 M</td></tr>
+        </tbody>
+      </table>
+      <div>
+        <div class="occhiello" style="margin-bottom:12px">In euro</div>
+        <p style="font-size:17px">Quota d'iscrizione <span class="forte">75 € a squadra</span>.<br><br>Apertura e Clausura: 130 / 100 / 70 €.<br>Dynasty Cup: 75 / 50 €.<br>Super Cup: 25 €.<br>Dynasty Youth: 30 / 15 €.</p>
+      </div>
+    </div>
+  </div>
+  <div class="piede"><span>Le competizioni</span><span>17</span></div>
+</section>
+
+<!-- ═══ 18 · Cosa cambia ════════════════════════════════════════════════ -->
+<section class="slide">
+  <div class="corpo">
+    <div class="occhiello">Appendice B</div>
+    <h2 style="margin:10px 0 22px">Le tredici modifiche</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 44px; font-size:16.5px; line-height:1.5">
+      <ol style="padding-left:22px; display:grid; gap:9px">
+        <li>Commissioner non giocante: via il conflitto d'interesse.</li>
+        <li>Tipi di contratto da cinque a tre più uno.</li>
+        <li>Max Contract abolito: era uno Standard con un altro nome.</li>
+        <li>Veteran a −20% l'anno: a −10% non conveniva a nessuno.</li>
+        <li>Franchise Tag al posto di «Giocatore protetto».</li>
+        <li>Il contratto non si ristruttura in uno scambio.</li>
+        <li>Il buy-out libera il cap e lascia il 25% di dead cap.</li>
+      </ol>
+      <ol start="8" style="padding-left:22px; display:grid; gap:9px">
+        <li>Waiver di 48 ore: niente corsa al click.</li>
+        <li>In free agency la parità la vince chi sta peggio.</li>
+        <li>Stadio riequilibrato: prima era in perdita a ogni livello.</li>
+        <li>Prelazione osservatori = diritto di pareggio.</li>
+        <li>Sponsor formalizzati: c'erano nei fogli, in nessun regolamento.</li>
+        <li>Registro pubblico immutabile.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="piede"><span>Cosa cambia</span><span>18</span></div>
+</section>
+
+<!-- ═══ 19 · Il registro ════════════════════════════════════════════════ -->
+<section class="slide nera">
+  <div class="corpo">
+    <div class="occhiello">Articolo 22</div>
+    <h1 style="margin:16px 0 26px; max-width:20ch">Nessuna operazione esiste se non è a registro.</h1>
+    <p style="font-size:22px; max-width:58ch">Firme, rinnovi, opzioni, svincoli, scambi, reclami, investimenti, premi: tutto è scritto in ordine di tempo, visibile a tutti. Ogni riga porta l'impronta della precedente, quindi una modifica fatta a posteriori spezza la catena — e la pagina lo dice.</p>
+    <p style="margin-top:22px; font-size:19px">È la cura vera per gli «scambi poco chiari» da cui siamo partiti.</p>
+  </div>
+  <div class="piede"><span>Il registro</span><span>19</span></div>
+</section>
+
+<!-- ═══ 20 · Chiusura ═══════════════════════════════════════════════════ -->
+<section class="slide verde">
+  <div class="corpo" style="justify-content:space-between">
+    <div>
+      <div class="occhiello">Buona stagione</div>
+      <h1 style="margin:16px 0 24px; max-width:16ch">Adesso il conto lo tiene il software.</h1>
+      <p style="font-size:21px; max-width:54ch">Le formazioni restano su Leghe Fantacalcio. Rose, contratti, tetto salariale, mercato e capitale stanno qui: aggiornati in tempo reale, uguali per tutti, con la regola citata accanto a ogni rifiuto.</p>
+    </div>
+    <div class="marchio" style="margin-top:40px">
+      <svg viewBox="0 0 100 100"><defs><clipPath id="c2"><rect x="0" y="8" width="100" height="25"/><rect x="0" y="39" width="100" height="22"/><rect x="0" y="67" width="100" height="25"/></clipPath></defs><path d="M14 8 H48 A42 42 0 0 1 48 92 H14 Z M32 26 H48 A24 24 0 0 1 48 74 H32 Z" fill-rule="evenodd" clip-path="url(#c2)" fill="#101010"/></svg>
+      <div class="nome">Dynasty League</div>
+    </div>
+  </div>
+  <div class="piede"><span>Regolamento 2026/27 · versione 3.0</span><span>20</span></div>
+</section>
+
+</body>
+</html>

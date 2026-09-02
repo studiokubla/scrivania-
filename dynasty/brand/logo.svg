@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Dynasty League">
+  <!--
+    Il marchio è una D tagliata in tre fasce.
+
+    Una dinastia è una successione: tre generazioni che formano una cosa sola.
+    Le fasce sono la successione, la D è la lega. Niente altro — nessuna corona,
+    nessun pallone, nessuno scudetto: a sedici pixel sopravvive solo la forma.
+
+    Una figura sola, un colore solo, nessun tratto: funziona in positivo e in
+    negativo, in stampa e su schermo, e ritagliata dentro un cerchio.
+  -->
+  <defs>
+    <clipPath id="fasce">
+      <rect x="0" y="8" width="100" height="25" />
+      <rect x="0" y="39" width="100" height="22" />
+      <rect x="0" y="67" width="100" height="25" />
+    </clipPath>
+  </defs>
+  <path
+    d="M14 8 H48 A42 42 0 0 1 48 92 H14 Z M32 26 H48 A24 24 0 0 1 48 74 H32 Z"
+    fill-rule="evenodd"
+    clip-path="url(#fasce)"
+    fill="currentColor"
+  />
+</svg>

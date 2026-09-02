@@ -1,0 +1,311 @@
+@import "tailwindcss";
+
+/*
+  Dynasty League — sistema visivo.
+
+  Tre colori e nient'altro: verde, nero, carta. Il rosa compare una volta sola,
+  dove serve un accento caldo che il verde non può dare.
+
+  L'app è un front office: si guardano tabelle di numeri per minuti interi, spesso
+  dal telefono durante un'asta. Quindi il verde è un accento, non un fondo — su
+  una schermata piena di cifre stanca in trenta secondi. Sta sui bottoni primari,
+  sugli stati positivi e sul marchio; il resto è nero su carta.
+*/
+
+:root {
+  /* Marchio */
+  --verde: #3ee68c;
+  --verde-scuro: #067a45;
+  --rosa: #f5b8e0;
+
+  /* Superfici */
+  --sfondo: #f7f7f5;
+  --carta: #ffffff;
+  --carta-alt: #f2f2f0;
+  --bordo: #e6e5e1;
+  --bordo-forte: #d0cfc9;
+
+  /* Testo */
+  --inchiostro: #101010;
+  --inchiostro-medio: #56564f;
+  --inchiostro-tenue: #86867d;
+
+  /* Stati. Il verde acceso non ha contrasto sufficiente per il testo su chiaro,
+     quindi come colore di testo si usa la sua versione scura e quello acceso
+     resta ai fondi e ai riempimenti. */
+  --accento: var(--verde-scuro);
+  --accento-tenue: #e4fbef;
+  --positivo: var(--verde-scuro);
+  --positivo-tenue: #e4fbef;
+  --allarme: #c02626;
+  --allarme-tenue: #fdeceb;
+  --avviso: #9a6708;
+  --avviso-tenue: #fdf3e2;
+
+  --ombra: 0 1px 2px rgba(16, 16, 16, 0.05), 0 1px 3px rgba(16, 16, 16, 0.04);
+  --raggio: 10px;
+  --display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="chiaro"]) {
+    --sfondo: #0d0e0e;
+    --carta: #171818;
+    --carta-alt: #1e1f1e;
+    --bordo: #2b2c2b;
+    --bordo-forte: #3d3e3c;
+
+    --inchiostro: #f4f4f1;
+    --inchiostro-medio: #b0b0a8;
+    --inchiostro-tenue: #83837b;
+
+    /* Sul nero il verde acceso è leggibile: torna a essere anche colore di testo */
+    --accento: var(--verde);
+    --accento-tenue: #0f2a1d;
+    --positivo: var(--verde);
+    --positivo-tenue: #0f2a1d;
+    --allarme: #ff8a8a;
+    --allarme-tenue: #2e1616;
+    --avviso: #f0b34a;
+    --avviso-tenue: #2b2210;
+
+    --ombra: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--sfondo);
+  color: var(--inchiostro);
+  font-family: var(--display);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Le cifre devono incolonnarsi: in una matrice di ingaggi è la differenza tra
+   leggere e decifrare. */
+.cifre {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.occhiello {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--inchiostro-tenue);
+}
+
+.carta {
+  background: var(--carta);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  box-shadow: var(--ombra);
+}
+
+/* ── Marchio ─────────────────────────────────────────────────────────────── */
+
+.marchio {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.marchio svg {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  color: var(--inchiostro);
+}
+
+.marchio b {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+/* ── Tabelle ─────────────────────────────────────────────────────────────── */
+
+table.griglia {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+table.griglia th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+  color: var(--inchiostro-tenue);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--bordo);
+  white-space: nowrap;
+  background: var(--carta-alt);
+}
+
+table.griglia td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--bordo);
+  vertical-align: middle;
+}
+
+table.griglia tbody tr:last-child td {
+  border-bottom: none;
+}
+
+table.griglia tbody tr:hover td {
+  background: var(--carta-alt);
+}
+
+table.griglia .num {
+  text-align: right;
+}
+
+/* Contenitore che scorre da solo: le tabelle larghe non devono far scorrere la pagina */
+.scorre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Etichette ───────────────────────────────────────────────────────────── */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.tag-neutro { background: var(--carta-alt); color: var(--inchiostro-medio); border-color: var(--bordo); }
+.tag-accento { background: var(--accento-tenue); color: var(--accento); }
+.tag-positivo { background: var(--positivo-tenue); color: var(--positivo); }
+.tag-allarme { background: var(--allarme-tenue); color: var(--allarme); }
+.tag-avviso { background: var(--avviso-tenue); color: var(--avviso); }
+
+/* ── Comandi ─────────────────────────────────────────────────────────────── */
+
+.bottone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--bordo-forte);
+  background: var(--carta);
+  color: var(--inchiostro);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.bottone:hover:not(:disabled) { background: var(--carta-alt); }
+.bottone:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Il bottone primario è la sola cosa verde piena della pagina: nero su verde,
+   come nel marchio. Nero anche in tema scuro — il verde resta il fondo. */
+.bottone-primario {
+  background: var(--verde);
+  border-color: var(--verde);
+  color: #101010;
+}
+.bottone-primario:hover:not(:disabled) { background: #2cd47c; border-color: #2cd47c; }
+
+.bottone-pericolo {
+  background: var(--allarme-tenue);
+  border-color: var(--allarme);
+  color: var(--allarme);
+}
+
+.campo {
+  font: inherit;
+  font-size: 14px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--bordo-forte);
+  background: var(--carta);
+  color: var(--inchiostro);
+}
+
+.campo:focus {
+  outline: 2px solid var(--verde-scuro);
+  outline-offset: -1px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="chiaro"]) .campo:focus { outline-color: var(--verde); }
+}
+
+label.etichetta {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--inchiostro-medio);
+  margin-bottom: 4px;
+}
+
+/* ── Barra del tetto salariale ───────────────────────────────────────────── */
+
+.barra {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bordo);
+  overflow: hidden;
+  display: flex;
+}
+
+.barra span { display: block; height: 100%; }
+.barra .quota-ingaggi { background: var(--verde); }
+.barra .quota-morta { background: var(--allarme); }
+
+/* ── Avvisi ──────────────────────────────────────────────────────────────── */
+
+.avviso {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid;
+  line-height: 1.45;
+}
+
+.avviso-errore { background: var(--allarme-tenue); border-color: color-mix(in srgb, var(--allarme) 30%, transparent); color: var(--allarme); }
+.avviso-attenzione { background: var(--avviso-tenue); border-color: color-mix(in srgb, var(--avviso) 30%, transparent); color: var(--avviso); }
+.avviso-ok { background: var(--positivo-tenue); border-color: color-mix(in srgb, var(--positivo) 30%, transparent); color: var(--positivo); }
+.avviso-nota { background: var(--accento-tenue); border-color: color-mix(in srgb, var(--accento) 25%, transparent); color: var(--accento); }
