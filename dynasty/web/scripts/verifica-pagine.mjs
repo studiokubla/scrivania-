@@ -70,6 +70,40 @@ console.log(`\nErrori JavaScript: ${errors.length}`);
 for (const e of errors.slice(0, 10)) console.log("  -", e);
 if (errors.length > 0) failures += 1;
 
+// ── Nessuna pagina scorre di lato ───────────────────────────────────────
+//
+// È il difetto che rendeva l'applicazione inutilizzabile da telefono: una
+// tabella più larga dello schermo si trascina dietro tutta la pagina, e il
+// testo che ci starebbe finisce fuori. Si misura, non si guarda.
+console.log("\n— su schermo da telefono —");
+{
+  const LARGO = 390;
+  const ctx = await browser.newContext({ viewport: { width: LARGO, height: 844 } });
+  const page = await ctx.newPage();
+  page.setDefaultTimeout(30000);
+  await page.goto(`${BASE}/login`);
+  await page.fill("#email", "info@studiokubla.com");
+  await page.fill("#password", "dynasty");
+  await page.click('button:has-text("Entra")');
+  await page.waitForURL("**/lega");
+
+  for (const percorso of ["/lega", "/mercato", "/asta", "/registro", "/admin", "/mercato/scambi"]) {
+    await page.goto(`${BASE}${percorso}`);
+    await page.waitForTimeout(400);
+    const larghezza = await page.evaluate(() => document.documentElement.scrollWidth);
+    const dentro = larghezza <= LARGO;
+    console.log(`${dentro ? "OK  " : "FAIL"}  ${percorso.padEnd(18)} ci sta — ${larghezza}px su ${LARGO}`);
+    if (!dentro) failures += 1;
+  }
+
+  // La navigazione dev'essere dove arriva il pollice, sempre.
+  const barra = await page.locator(".barra-basso").boundingBox();
+  const inBasso = barra !== null && barra.y > 600;
+  console.log(`${inBasso ? "OK  " : "FAIL"}  la barra di navigazione è in fondo — ${barra ? `y=${Math.round(barra.y)}` : "assente"}`);
+  if (!inBasso) failures += 1;
+}
+
 console.log(failures === 0 ? "\nTutte le pagine rispondono." : `\n${failures} controlli falliti.`);
+
 await browser.close();
 process.exitCode = failures === 0 ? 0 : 1;

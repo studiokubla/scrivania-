@@ -63,8 +63,11 @@ check('contatore offerte consumato', used === '1', `used=${used}`);
 // ── 4. Un secondo manager rilancia ──────────────────────────────────────
 const m2 = await loginAs('manager2@dynasty.it');
 await m2.page.goto(`${BASE}/mercato`);
-const contese = await m2.page.locator('table').first().textContent();
+// Si guarda il testo della pagina, non la forma che ha: se domani le contese
+// diventano schede invece di righe, questa verifica deve continuare a valere.
+const contese = await m2.page.locator('body').innerText();
 check('la contesa è visibile agli altri', contese.includes(target));
+check("ma non l'importo offerto", !contese.includes('2 M') && !contese.includes('2,00'));
 
 await m2.page.fill('#cerca', target.split(' ')[0]);
 await m2.page.click(`button:has-text("${target}")`);

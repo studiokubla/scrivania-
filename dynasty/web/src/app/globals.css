@@ -3,55 +3,84 @@
 /*
   Dynasty League — sistema visivo.
 
-  Tre colori e nient'altro: verde, nero, carta. Il rosa compare una volta sola,
-  dove serve un accento caldo che il verde non può dare.
+  È un gioco, non un gestionale. La versione precedente era un foglio di calcolo
+  travestito da applicazione: nove tabelle su una schermata da telefono, righe
+  alte diciotto pixel, tutto grigio. Corretta nei numeri e impossibile da usare.
 
-  L'app è un front office: si guardano tabelle di numeri per minuti interi, spesso
-  dal telefono durante un'asta. Quindi il verde è un accento, non un fondo — su
-  una schermata piena di cifre stanca in trenta secondi. Sta sui bottoni primari,
-  sugli stati positivi e sul marchio; il resto è nero su carta.
+  Le regole ora sono quattro:
+
+  1. **Una cosa per volta.** Ogni scheda dice un fatto solo, grande. Il dettaglio
+     si apre toccando, non sta lì da sempre a occupare spazio.
+  2. **Il colore classifica.** Ogni pastello ha un significato fisso — il capitale
+     è lilla, il mercato pesca, la rosa azzurra, l'asta menta — così l'occhio
+     trova la scheda giusta prima di leggerla.
+  3. **Niente è piccolo da toccare.** Quarantaquattro pixel di lato minimo: si
+     usa in piedi, con una mano, durante un'asta.
+  4. **Il verde è del marchio.** Riempie i bottoni primari e il momento buono.
+     Non fa da fondo alle pagine: su una schermata di cifre stanca in trenta
+     secondi.
+
+  I pastelli restano identici in tema chiaro e scuro nella tinta, ma cambiano
+  luminosità: sul nero un pastello pieno acceca.
 */
 
 :root {
   /* Marchio */
   --verde: #3ee68c;
   --verde-scuro: #067a45;
+  --verde-tenue: #e4fbef;
+
+  /* Pastelli: ognuno ha un mestiere, dichiarato dove viene usato */
+  --lilla: #cdbdf5;
+  --lilla-tenue: #efeaFD;
+  --pesca: #fdcf95;
+  --pesca-tenue: #fdf0e0;
+  --azzurro: #b8d9f5;
+  --azzurro-tenue: #e8f2fb;
   --rosa: #f5b8e0;
+  --rosa-tenue: #fceaf6;
+  --menta: #b6efd2;
+  --menta-tenue: #e4fbef;
 
   /* Superfici */
-  --sfondo: #f7f7f5;
+  --sfondo: #f4f4f1;
   --carta: #ffffff;
-  --carta-alt: #f2f2f0;
-  --bordo: #e6e5e1;
-  --bordo-forte: #d0cfc9;
+  --carta-alt: #f4f4f1;
+  --bordo: #e8e7e3;
+  --bordo-forte: #d4d3cd;
 
   /* Testo */
   --inchiostro: #101010;
   --inchiostro-medio: #56564f;
-  --inchiostro-tenue: #86867d;
+  --inchiostro-tenue: #8a8a81;
+  /* Testo sopra un pastello: sempre l'inchiostro pieno, mai il grigio */
+  --su-pastello: #101010;
 
-  /* Stati. Il verde acceso non ha contrasto sufficiente per il testo su chiaro,
-     quindi come colore di testo si usa la sua versione scura e quello acceso
-     resta ai fondi e ai riempimenti. */
+  /* Stati */
   --accento: var(--verde-scuro);
-  --accento-tenue: #e4fbef;
+  --accento-tenue: var(--verde-tenue);
   --positivo: var(--verde-scuro);
-  --positivo-tenue: #e4fbef;
+  --positivo-tenue: var(--verde-tenue);
   --allarme: #c02626;
   --allarme-tenue: #fdeceb;
   --avviso: #9a6708;
   --avviso-tenue: #fdf3e2;
 
-  --ombra: 0 1px 2px rgba(16, 16, 16, 0.05), 0 1px 3px rgba(16, 16, 16, 0.04);
-  --raggio: 10px;
+  --ombra: 0 1px 2px rgba(16, 16, 16, 0.04);
+  --ombra-alta: 0 8px 30px rgba(16, 16, 16, 0.13);
+  --raggio: 22px;
+  --raggio-piccolo: 14px;
   --display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  /* Spazio per la barra di navigazione che galleggia in basso */
+  --spazio-barra: 92px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema="chiaro"]) {
     --sfondo: #0d0e0e;
-    --carta: #171818;
-    --carta-alt: #1e1f1e;
+    --carta: #191a19;
+    --carta-alt: #202120;
     --bordo: #2b2c2b;
     --bordo-forte: #3d3e3c;
 
@@ -59,41 +88,58 @@
     --inchiostro-medio: #b0b0a8;
     --inchiostro-tenue: #83837b;
 
-    /* Sul nero il verde acceso è leggibile: torna a essere anche colore di testo */
+    /* I pastelli si spengono: pieni, sul nero, sarebbero insostenibili. Il testo
+       che ci sta sopra però resta nero, perché restano comunque chiari. */
+    --lilla: #a894d8;
+    --lilla-tenue: #241f33;
+    --pesca: #dfb075;
+    --pesca-tenue: #2e2318;
+    --azzurro: #93bcdd;
+    --azzurro-tenue: #17222c;
+    --rosa: #d896c2;
+    --rosa-tenue: #2b1d26;
+    --menta: #8fd2b3;
+    --menta-tenue: #0f2a1d;
+    --verde-tenue: #0f2a1d;
+
     --accento: var(--verde);
-    --accento-tenue: #0f2a1d;
     --positivo: var(--verde);
-    --positivo-tenue: #0f2a1d;
     --allarme: #ff8a8a;
     --allarme-tenue: #2e1616;
     --avviso: #f0b34a;
     --avviso-tenue: #2b2210;
 
     --ombra: none;
+    --ombra-alta: 0 8px 30px rgba(0, 0, 0, 0.5);
   }
 }
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
+  /* Nessuna pagina scorre di lato. Se un contenuto è più largo dello schermo
+     scorre lui, dentro `.scorre`: una pagina che balla in orizzontale rende
+     illeggibile anche il testo che ci starebbe. */
+  overflow-x: hidden;
 }
 
 body {
   background: var(--sfondo);
   color: var(--inchiostro);
   font-family: var(--display);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Le cifre devono incolonnarsi: in una matrice di ingaggi è la differenza tra
-   leggere e decifrare. */
+/* Le cifre devono incolonnarsi: fra due ingaggi è la differenza tra leggere e
+   decifrare. */
 .cifre {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
@@ -103,9 +149,14 @@ h1,
 h2,
 h3 {
   margin: 0;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   font-weight: 800;
+  line-height: 1.1;
 }
+
+h1 { font-size: 30px; }
+h2 { font-size: 19px; }
+h3 { font-size: 16px; }
 
 a {
   color: inherit;
@@ -115,16 +166,419 @@ a {
 .occhiello {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 700;
+  letter-spacing: 0.11em;
+  font-weight: 800;
   color: var(--inchiostro-tenue);
 }
 
+/* ── Impaginato ──────────────────────────────────────────────────────────── */
+
+.pagina {
+  display: grid;
+  gap: 12px;
+  /* Senza questo una griglia figlia si allarga oltre lo schermo invece di
+     restringersi: è il comportamento predefinito di `grid`. */
+  min-width: 0;
+  padding: 0 16px var(--spazio-barra);
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  .pagina {
+    max-width: 1080px;
+    padding-bottom: 40px;
+  }
+}
+
+/* Due schede affiancate che a telefono restano affiancate: sono piccole
+   apposta, e incolonnarle sprecherebbe l'altezza che serve alle liste. */
+.duetto {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  min-width: 0;
+}
+
+.duetto > * { min-width: 0; }
+
+.griglia-schede {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/* ── Schede ──────────────────────────────────────────────────────────────── */
+
 .carta {
+  min-width: 0;
   background: var(--carta);
-  border: 1px solid var(--bordo);
   border-radius: var(--raggio);
   box-shadow: var(--ombra);
+  border: 1px solid var(--bordo);
+}
+
+/* Le schede colorate non hanno bordo: il colore stesso le separa dal fondo, e
+   un bordo sopra un pastello lo sporca. */
+.carta-lilla,
+.carta-pesca,
+.carta-azzurro,
+.carta-rosa,
+.carta-menta,
+.carta-inchiostro {
+  border-radius: var(--raggio);
+  border: none;
+  box-shadow: none;
+  color: var(--su-pastello);
+}
+
+.carta-lilla { background: var(--lilla); }
+.carta-pesca { background: var(--pesca); }
+.carta-azzurro { background: var(--azzurro); }
+.carta-rosa { background: var(--rosa); }
+.carta-menta { background: var(--menta); }
+.carta-inchiostro { background: var(--inchiostro); color: var(--sfondo); }
+
+.carta-lilla .occhiello,
+.carta-pesca .occhiello,
+.carta-azzurro .occhiello,
+.carta-rosa .occhiello,
+.carta-menta .occhiello {
+  color: rgba(16, 16, 16, 0.62);
+}
+
+.carta-inchiostro .occhiello {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.imbottita { padding: 18px; }
+
+/* ── Cifre grandi ────────────────────────────────────────────────────────── */
+
+/* Il numero che conta va letto da lontano, in piedi, con il telefono in mano. */
+.numerone {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.numeretto {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.didascalia {
+  font-size: 12.5px;
+  color: var(--inchiostro-tenue);
+  line-height: 1.35;
+}
+
+.carta-lilla .didascalia,
+.carta-pesca .didascalia,
+.carta-azzurro .didascalia,
+.carta-rosa .didascalia,
+.carta-menta .didascalia {
+  color: rgba(16, 16, 16, 0.66);
+}
+
+.carta-inchiostro .didascalia {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ── Righe di elenco ─────────────────────────────────────────────────────── */
+
+/* Sostituiscono le tabelle. Una tabella con sei colonne su 390 pixel non è una
+   tabella: è un rebus. */
+.elenco {
+  display: grid;
+}
+
+.riga {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 56px;
+  border-bottom: 1px solid var(--bordo);
+  width: 100%;
+  text-align: left;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  font: inherit;
+  color: inherit;
+}
+
+.elenco > .riga:last-child { border-bottom: none; }
+
+button.riga,
+a.riga {
+  cursor: pointer;
+}
+
+button.riga:hover,
+a.riga:hover {
+  background: var(--carta-alt);
+}
+
+.riga-corpo { flex: 1; min-width: 0; }
+
+.riga-titolo {
+  font-weight: 650;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.riga-nota {
+  font-size: 12.5px;
+  color: var(--inchiostro-tenue);
+  margin-top: 1px;
+}
+
+.riga-valore {
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Pastiglia del ruolo: P, D, C, A. Sostituisce una colonna intera. */
+.ruolo {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+  color: var(--su-pastello);
+}
+
+.ruolo-P { background: var(--pesca); }
+.ruolo-D { background: var(--azzurro); }
+.ruolo-C { background: var(--menta); }
+.ruolo-A { background: var(--rosa); }
+
+/* ── Etichette ───────────────────────────────────────────────────────────── */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 750;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.tag-neutro { background: var(--carta-alt); color: var(--inchiostro-medio); }
+.tag-accento { background: var(--accento-tenue); color: var(--accento); }
+.tag-positivo { background: var(--positivo-tenue); color: var(--positivo); }
+.tag-allarme { background: var(--allarme-tenue); color: var(--allarme); }
+.tag-avviso { background: var(--avviso-tenue); color: var(--avviso); }
+
+/* Sopra un pastello le etichette diventano trasparenti: un pastello sull'altro
+   non si distinguerebbe. */
+.carta-lilla .tag-neutro,
+.carta-pesca .tag-neutro,
+.carta-azzurro .tag-neutro,
+.carta-rosa .tag-neutro,
+.carta-menta .tag-neutro {
+  background: rgba(16, 16, 16, 0.1);
+  color: rgba(16, 16, 16, 0.75);
+}
+
+/* ── Comandi ─────────────────────────────────────────────────────────────── */
+
+.bottone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font: inherit;
+  font-weight: 750;
+  font-size: 14.5px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1.5px solid var(--bordo-forte);
+  background: var(--carta);
+  color: var(--inchiostro);
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+.bottone:active:not(:disabled) { transform: scale(0.97); }
+.bottone:hover:not(:disabled) { background: var(--carta-alt); }
+.bottone:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Il bottone primario è la sola cosa verde piena della pagina: nero su verde,
+   come nel marchio. Nero anche in tema scuro — il verde resta il fondo. */
+.bottone-primario {
+  background: var(--verde);
+  border-color: var(--verde);
+  color: #101010;
+}
+.bottone-primario:hover:not(:disabled) { background: #2cd47c; border-color: #2cd47c; }
+
+.bottone-pericolo {
+  background: transparent;
+  border-color: var(--allarme);
+  color: var(--allarme);
+}
+
+.bottone-piccolo {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 13.5px;
+  border-width: 1.5px;
+}
+
+.bottone-largo { width: 100%; }
+
+.campo {
+  font: inherit;
+  font-size: 16px; /* sotto i 16 iOS ingrandisce la pagina da solo al focus */
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: var(--raggio-piccolo);
+  border: 1.5px solid var(--bordo);
+  background: var(--carta);
+  color: var(--inchiostro);
+}
+
+textarea.campo,
+select.campo {
+  padding: 12px 16px;
+}
+
+.campo:focus {
+  outline: none;
+  border-color: var(--verde-scuro);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="chiaro"]) .campo:focus { border-color: var(--verde); }
+}
+
+label.etichetta {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 750;
+  color: var(--inchiostro-medio);
+  margin-bottom: 6px;
+}
+
+/* ── Barra del tetto salariale ───────────────────────────────────────────── */
+
+.barra {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(16, 16, 16, 0.12);
+  overflow: hidden;
+  display: flex;
+}
+
+.barra span { display: block; height: 100%; }
+.barra .quota-ingaggi { background: var(--inchiostro); }
+.barra .quota-morta { background: var(--allarme); }
+
+.carta-inchiostro .barra { background: rgba(255, 255, 255, 0.18); }
+.carta-inchiostro .barra .quota-ingaggi { background: var(--verde); }
+
+/* ── Avvisi ──────────────────────────────────────────────────────────────── */
+
+.avviso {
+  display: flex;
+  gap: 9px;
+  padding: 13px 15px;
+  border-radius: var(--raggio-piccolo);
+  font-size: 13.5px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.avviso-errore { background: var(--allarme-tenue); color: var(--allarme); }
+.avviso-attenzione { background: var(--avviso-tenue); color: var(--avviso); }
+.avviso-ok { background: var(--positivo-tenue); color: var(--positivo); }
+.avviso-nota { background: var(--carta-alt); color: var(--inchiostro-medio); }
+
+/* ── Navigazione ─────────────────────────────────────────────────────────── */
+
+/* Galleggia sul fondo, come nelle applicazioni che la gente usa già. Su schermo
+   largo torna in cima: là il pollice non c'entra niente. */
+.barra-basso {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  gap: 2px;
+  padding: 7px;
+  border-radius: 999px;
+  background: var(--inchiostro);
+  box-shadow: var(--ombra-alta);
+  max-width: calc(100vw - 24px);
+}
+
+.voce-barra {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  min-width: 60px;
+  height: 54px;
+  border-radius: 18px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.voce-barra svg { width: 21px; height: 21px; }
+
+.voce-barra[data-attiva="si"] {
+  background: var(--verde);
+  color: #101010;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="chiaro"]) .barra-basso { background: #232423; }
+}
+
+@media (min-width: 900px) {
+  .barra-basso {
+    position: sticky;
+    top: 14px;
+    bottom: auto;
+    margin: 14px auto;
+  }
+}
+
+/* ── Intestazione ────────────────────────────────────────────────────────── */
+
+.testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 16px 10px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  .testata { max-width: 1080px; }
 }
 
 /* ── Marchio ─────────────────────────────────────────────────────────────── */
@@ -150,162 +604,77 @@ a {
 
 /* ── Tabelle ─────────────────────────────────────────────────────────────── */
 
+/* Restano solo dove una tabella è davvero la forma giusta: la proiezione del
+   tetto su cinque stagioni, le classifiche, il pannello del commissioner. In
+   quei casi scorrono per conto loro dentro `.scorre`. */
+
 table.griglia {
   width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
 }
+
+/* Fuori da un contenitore che scorre, una tabella si stringe fino a entrare:
+   meglio due righe di testo che una pagina che balla in orizzontale. */
+:not(.scorre) > table.griglia { max-width: 100%; }
+:not(.scorre) > table.griglia td { overflow-wrap: anywhere; }
 
 table.griglia th {
   text-align: left;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--inchiostro-tenue);
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--bordo);
   white-space: nowrap;
-  background: var(--carta-alt);
 }
 
 table.griglia td {
-  padding: 7px 10px;
+  padding: 11px 12px;
   border-bottom: 1px solid var(--bordo);
   vertical-align: middle;
 }
 
-table.griglia tbody tr:last-child td {
-  border-bottom: none;
-}
+table.griglia tbody tr:last-child td { border-bottom: none; }
+table.griglia .num { text-align: right; }
 
-table.griglia tbody tr:hover td {
-  background: var(--carta-alt);
-}
-
-table.griglia .num {
-  text-align: right;
-}
-
-/* Contenitore che scorre da solo: le tabelle larghe non devono far scorrere la pagina */
 .scorre {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
-/* ── Etichette ───────────────────────────────────────────────────────────── */
+/* ── Pieghe ──────────────────────────────────────────────────────────────── */
 
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 5px;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-
-.tag-neutro { background: var(--carta-alt); color: var(--inchiostro-medio); border-color: var(--bordo); }
-.tag-accento { background: var(--accento-tenue); color: var(--accento); }
-.tag-positivo { background: var(--positivo-tenue); color: var(--positivo); }
-.tag-allarme { background: var(--allarme-tenue); color: var(--allarme); }
-.tag-avviso { background: var(--avviso-tenue); color: var(--avviso); }
-
-/* ── Comandi ─────────────────────────────────────────────────────────────── */
-
-.bottone {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font: inherit;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--bordo-forte);
-  background: var(--carta);
-  color: var(--inchiostro);
+/* Il dettaglio che prima stava sempre aperto: ora si apre toccando. */
+details.piega > summary {
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
-}
-
-.bottone:hover:not(:disabled) { background: var(--carta-alt); }
-.bottone:disabled { opacity: 0.45; cursor: not-allowed; }
-
-/* Il bottone primario è la sola cosa verde piena della pagina: nero su verde,
-   come nel marchio. Nero anche in tema scuro — il verde resta il fondo. */
-.bottone-primario {
-  background: var(--verde);
-  border-color: var(--verde);
-  color: #101010;
-}
-.bottone-primario:hover:not(:disabled) { background: #2cd47c; border-color: #2cd47c; }
-
-.bottone-pericolo {
-  background: var(--allarme-tenue);
-  border-color: var(--allarme);
-  color: var(--allarme);
-}
-
-.campo {
-  font: inherit;
-  font-size: 14px;
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--bordo-forte);
-  background: var(--carta);
-  color: var(--inchiostro);
-}
-
-.campo:focus {
-  outline: 2px solid var(--verde-scuro);
-  outline-offset: -1px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-tema="chiaro"]) .campo:focus { outline-color: var(--verde); }
-}
-
-label.etichetta {
-  display: block;
-  font-size: 12px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 15px 18px;
+  min-height: 52px;
   font-weight: 700;
-  color: var(--inchiostro-medio);
-  margin-bottom: 4px;
+  font-size: 15px;
 }
 
-/* ── Barra del tetto salariale ───────────────────────────────────────────── */
+details.piega > summary::-webkit-details-marker { display: none; }
 
-.barra {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--bordo);
-  overflow: hidden;
-  display: flex;
+details.piega > summary::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--inchiostro-tenue);
+  border-bottom: 2px solid var(--inchiostro-tenue);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
 }
 
-.barra span { display: block; height: 100%; }
-.barra .quota-ingaggi { background: var(--verde); }
-.barra .quota-morta { background: var(--allarme); }
-
-/* ── Avvisi ──────────────────────────────────────────────────────────────── */
-
-.avviso {
-  display: flex;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  border: 1px solid;
-  line-height: 1.45;
-}
-
-.avviso-errore { background: var(--allarme-tenue); border-color: color-mix(in srgb, var(--allarme) 30%, transparent); color: var(--allarme); }
-.avviso-attenzione { background: var(--avviso-tenue); border-color: color-mix(in srgb, var(--avviso) 30%, transparent); color: var(--avviso); }
-.avviso-ok { background: var(--positivo-tenue); border-color: color-mix(in srgb, var(--positivo) 30%, transparent); color: var(--positivo); }
-.avviso-nota { background: var(--accento-tenue); border-color: color-mix(in srgb, var(--accento) 25%, transparent); color: var(--accento); }
+details.piega[open] > summary::after { transform: rotate(-135deg); }

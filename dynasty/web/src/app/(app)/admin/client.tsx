@@ -363,7 +363,8 @@ export function TeamsPanel({
             draft. Le rose si formano all&apos;asta di settembre.
           </p>
         ) : (
-          <table className="griglia">
+          <div className="scorre">
+          <table className="griglia" style={{ minWidth: 560 }}>
             <thead>
               <tr>
                 <th>Squadra</th>
@@ -437,6 +438,7 @@ export function TeamsPanel({
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         {inModifica && (

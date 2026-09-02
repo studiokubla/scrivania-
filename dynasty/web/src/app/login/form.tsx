@@ -8,7 +8,7 @@ import { login, type LoginState } from "@/app/actions/auth";
 function Submit() {
   const { pending } = useFormStatus();
   return (
-    <button className="bottone bottone-primario" style={{ width: "100%" }} disabled={pending}>
+    <button className="bottone bottone-primario bottone-largo" disabled={pending}>
       {pending ? "Verifica…" : "Entra"}
     </button>
   );
@@ -18,7 +18,7 @@ export function LoginForm() {
   const [state, action] = useActionState<LoginState, FormData>(login, {});
 
   return (
-    <form action={action} style={{ display: "grid", gap: 12 }}>
+    <form action={action} style={{ display: "grid", gap: 14 }}>
       <div>
         <label className="etichetta" htmlFor="email">
           Indirizzo email

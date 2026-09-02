@@ -1,9 +1,18 @@
 import Link from "next/link";
 
+import { Nav, type Voce } from "./nav";
 import { Logo } from "@/components/logo";
 import { logout } from "@/app/actions/auth";
 import { requireSession } from "@/lib/auth";
 import { getLeagueContext } from "@/lib/league";
+
+/**
+ * Il guscio.
+ *
+ * Una testata sottile con il marchio e l'uscita, e la navigazione che galleggia
+ * in basso. La testata non è appiccicata: durante un'asta ogni riga di schermo
+ * conta, e il marchio non serve a nessuno mentre si rilancia.
+ */
 
 const FASE: Record<string, string> = {
   PRESEASON: "Precampionato",
@@ -15,83 +24,45 @@ const FASE: Record<string, string> = {
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession();
   const { league, season } = await getLeagueContext();
+  const commissioner = session.role === "COMMISSIONER";
 
-  const voci = [
-    { href: "/lega", label: "Lega" },
-    ...(session.teamId ? [{ href: `/squadra/${session.teamId}`, label: "La mia squadra" }] : []),
-    { href: "/mercato", label: "Mercato" },
-    { href: "/asta", label: "Asta" },
-    { href: "/registro", label: "Registro" },
-    ...(session.role === "COMMISSIONER" ? [{ href: "/admin", label: "Amministrazione" }] : []),
+  // Cinque voci al massimo: sotto ognuna ci sta un nome leggibile, sopra no.
+  // Al commissioner il registro passa dentro il pannello, che è dove lo cerca.
+  const voci: Voce[] = [
+    { href: "/lega", label: "Lega", icona: "lega" },
+    ...(session.teamId
+      ? [{ href: `/squadra/${session.teamId}`, label: "Squadra", icona: "squadra" as const }]
+      : []),
+    { href: "/mercato", label: "Mercato", icona: "mercato" },
+    { href: "/asta", label: "Asta", icona: "asta" },
+    ...(commissioner
+      ? [{ href: "/admin", label: "Gestione", icona: "admin" as const }]
+      : [{ href: "/registro", label: "Registro", icona: "registro" as const }]),
   ];
 
   return (
-    <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
-      <header
-        style={{
-          borderBottom: "1px solid var(--bordo)",
-          background: "var(--carta)",
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1180,
-            margin: "0 auto",
-            padding: "10px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          <Link href="/lega" style={{ display: "flex", alignItems: "center", gap: 9 }}>
-            <Logo size={26} title={league.name} />
-            <strong style={{ fontSize: 17, letterSpacing: "-0.035em", fontWeight: 800 }}>{league.name}</strong>
-            <span className="occhiello" style={{ marginLeft: 2 }}>
-              {season.label} · {FASE[season.phase] ?? season.phase}
-            </span>
-          </Link>
+    <div style={{ minHeight: "100dvh" }}>
+      <header className="testata">
+        <Link href="/lega" className="marchio" style={{ minWidth: 0 }}>
+          <Logo size={26} title={league.name} />
+          <b style={{ whiteSpace: "nowrap" }}>{league.name}</b>
+        </Link>
 
-          <nav style={{ display: "flex", gap: 2, marginLeft: "auto", flexWrap: "wrap" }}>
-            {voci.map((v) => (
-              <Link
-                key={v.href}
-                href={v.href}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: 7,
-                  fontSize: 13,
-                  fontWeight: 550,
-                  color: "var(--inchiostro-medio)",
-                }}
-              >
-                {v.label}
-              </Link>
-            ))}
-          </nav>
-
-          <form action={logout} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12.5, color: "var(--inchiostro-tenue)" }}>
-              {session.name}
-              {session.role === "COMMISSIONER" && " · commissioner"}
-            </span>
-            <button
-              className="bottone"
-              style={{ padding: "5px 10px", fontSize: 12 }}
-              title="Esci dalla sessione"
-            >
-              Esci
-            </button>
-          </form>
-        </div>
+        <form action={logout} style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+          <span className="didascalia" style={{ textAlign: "right", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {season.label}
+            <br />
+            {FASE[season.phase] ?? season.phase}
+          </span>
+          <button className="bottone bottone-piccolo" title={`Esci — ${session.name}`}>
+            Esci
+          </button>
+        </form>
       </header>
 
-      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "20px 16px 60px", width: "100%", flex: 1 }}>
-        {children}
-      </main>
+      <main className="pagina">{children}</main>
+
+      <Nav voci={voci} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Card, Empty, RoleBadge, Stat, Tag } from "@/components/ui";
+import { Card, Empty, Piega, Riga, RoleBadge, Tag, Tessera, TesseraGrande, Titolo } from "@/components/ui";
 import { ActionButton } from "../mercato/client";
 import { AuctionFloor, type CallablePlayer } from "./floor";
 import {
@@ -94,63 +94,64 @@ export default async function AstaPage() {
   const hasPassed = Boolean(session.teamId && auction?.passedTeams.includes(session.teamId));
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
-        <div>
-          <div className="occhiello">Art. 8</div>
-          <h1 style={{ fontSize: 26 }}>Sala d&apos;asta</h1>
-        </div>
-        {session.role === "COMMISSIONER" && (
-          <div style={{ marginLeft: "auto", display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {(!auction || auction.status === "FINISHED" || auction.status === "SCHEDULED") && (
-              <ActionButton
-                label={auction?.status === "FINISHED" ? "Riapri e riestrai" : "Apri l'asta ed estrai l'ordine"}
-                variant="primario"
-                confirm="Estrarre l'ordine di chiamata e aprire l'asta?"
-                action={async () => {
-                  "use server";
-                  return startAuction();
-                }}
-              />
-            )}
-            {auction?.status === "RUNNING" && (
-              <>
-                <ActionButton
-                  label="Pausa"
-                  action={async () => {
-                    "use server";
-                    return pauseAuction(true);
-                  }}
-                />
-                <ActionButton
-                  label="Chiudi l'asta"
-                  variant="pericolo"
-                  confirm="Chiudere l'asta?"
-                  action={async () => {
-                    "use server";
-                    return finishAuction();
-                  }}
-                />
-              </>
-            )}
-            {auction?.status === "PAUSED" && (
-              <ActionButton
-                label="Riprendi"
-                variant="primario"
-                action={async () => {
-                  "use server";
-                  return pauseAuction(false);
-                }}
-              />
-            )}
-          </div>
-        )}
+    <>
+      <div style={{ padding: "6px 4px 2px" }}>
+        <div className="occhiello">Art. 8</div>
+        <h1>Sala d&apos;asta</h1>
       </div>
 
+      {session.role === "COMMISSIONER" && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {(!auction || auction.status === "FINISHED" || auction.status === "SCHEDULED") && (
+            <ActionButton
+              label={auction?.status === "FINISHED" ? "Riapri e riestrai" : "Apri l'asta ed estrai l'ordine"}
+              variant="primario"
+              confirm="Estrarre l'ordine di chiamata e aprire l'asta?"
+              action={async () => {
+                "use server";
+                return startAuction();
+              }}
+            />
+          )}
+          {auction?.status === "RUNNING" && (
+            <>
+              <ActionButton
+                label="Pausa"
+                action={async () => {
+                  "use server";
+                  return pauseAuction(true);
+                }}
+              />
+              <ActionButton
+                label="Chiudi l'asta"
+                variant="pericolo"
+                confirm="Chiudere l'asta?"
+                action={async () => {
+                  "use server";
+                  return finishAuction();
+                }}
+              />
+            </>
+          )}
+          {auction?.status === "PAUSED" && (
+            <ActionButton
+              label="Riprendi"
+              variant="primario"
+              action={async () => {
+                "use server";
+                return pauseAuction(false);
+              }}
+            />
+          )}
+        </div>
+      )}
+
       {!auction || auction.status === "SCHEDULED" ? (
-        <Card>
+        <Card padded={false}>
           <Empty>
-            L&apos;asta non è ancora aperta. Il commissioner estrae l&apos;ordine di chiamata e la avvia.
+            L&apos;asta non è ancora aperta.
+            <br />
+            Il commissioner estrae l&apos;ordine di chiamata e la avvia.
           </Empty>
         </Card>
       ) : (
@@ -162,152 +163,172 @@ export default async function AstaPage() {
             </div>
           )}
 
+          {/* Durante un'asta la domanda è una sola: fin dove posso spingermi? */}
           {myState && (
-            <Card>
-              <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
-                <Stat label="Spazio salariale" value={formatMoney(myState.capMatrix[0].space)} />
-                <Stat
-                  label="Offerta massima"
-                  value={maxBid ? formatMoney(maxBid.maxAffordable) : "—"}
-                  hint={maxBid ? `riserva ${formatMoney(maxBid.reserve)} per la rosa minima` : undefined}
-                  tone="avviso"
+            <>
+              <TesseraGrande
+                label={isMyTurn ? "Tocca a te — offerta massima" : "Offerta massima"}
+                value={maxBid ? formatMoney(maxBid.maxAffordable) : "—"}
+                hint={
+                  maxBid
+                    ? `Oltre non si può: ${formatMoney(maxBid.reserve)} restano riservati per completare la rosa (art. 8.6)`
+                    : undefined
+                }
+                tinta={isMyTurn ? "menta" : "inchiostro"}
+              />
+
+              <div className="duetto">
+                <Tessera
+                  label="Spazio salariale"
+                  value={formatMoney(myState.capMatrix[0].space)}
+                  hint="sul tetto"
+                  tinta="azzurro"
                 />
-                <Stat
+                <Tessera
                   label="Rosa"
                   value={myState.capMatrix[0].playerCount}
-                  hint={`ne mancano ${myState.capMatrix[0].missingToMinimum} al minimo`}
+                  hint={
+                    myState.capMatrix[0].missingToMinimum > 0
+                      ? `ne mancano ${myState.capMatrix[0].missingToMinimum}`
+                      : "al minimo"
+                  }
+                  tinta="pesca"
                 />
-                <Stat label="Turno" value={isMyTurn ? "Tocca a te" : "Attendi"} tone={isMyTurn ? "positivo" : "neutro"} />
+              </div>
+            </>
+          )}
+
+          <AuctionFloor
+            status={auction.status}
+            bidWindowSeconds={auction.bidWindowSeconds}
+            isMyTurn={isMyTurn && !hasPassed}
+            hasPassed={hasPassed}
+            canParticipate={Boolean(session.teamId)}
+            maxBidMillions={maxBid ? toMillions(maxBid.maxAffordable) : 0}
+            callable={callable}
+            lot={
+              openLot
+                ? {
+                    id: openLot.id,
+                    playerName: openLot.player.name,
+                    role: openLot.player.role,
+                    serieATeam: openLot.player.serieATeam,
+                    basePrice: toMillions(fromDecimal(openLot.basePrice)),
+                    closesAt: openLot.closesAt?.toISOString() ?? null,
+                    calledBy: teamById.get(openLot.calledById)?.name ?? "—",
+                    tieBreakRound: openLot.tieBreakRound,
+                    bidsReceived: openLot.bids.filter((b) => b.round === openLot.tieBreakRound).length,
+                    myBid: myBid ? toMillions(fromDecimal(myBid.amount)) : null,
+                  }
+                : null
+            }
+            call={async (playerId: string) => {
+              "use server";
+              return callPlayer(playerId);
+            }}
+            bid={async (lotId: string, amount: number) => {
+              "use server";
+              return submitAuctionBid(lotId, amount);
+            }}
+            pass={async () => {
+              "use server";
+              return passAuctionTurn();
+            }}
+          />
+
+          {/* ── Ordine di chiamata ─────────────────────────────────────── */}
+          <Titolo>Ordine di chiamata</Titolo>
+          <Card padded={false}>
+            <div className="elenco">
+              {auction.callOrder.map((id, i) => {
+                const t = teamById.get(id);
+                const passed = auction.passedTeams.includes(id);
+                const isCurrent = id === currentCallerId;
+                return (
+                  <Riga
+                    key={id}
+                    icona={
+                      <span
+                        className="ruolo"
+                        style={{ background: "var(--carta-alt)", color: "var(--inchiostro-tenue)" }}
+                      >
+                        {i + 1}
+                      </span>
+                    }
+                    titolo={
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: isCurrent ? 800 : 650 }}>
+                        <span
+                          aria-hidden
+                          style={{ width: 8, height: 20, borderRadius: 4, background: t?.color, flexShrink: 0 }}
+                        />
+                        {t?.name}
+                      </span>
+                    }
+                    coda={passed ? <Tag>chiusa</Tag> : isCurrent ? <Tag tone="accento">chiama</Tag> : undefined}
+                  />
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* ── Chiamate concluse ──────────────────────────────────────── */}
+          <Titolo>Chiamate</Titolo>
+          {lots.filter((l) => l.status === "ASSIGNED" || l.status === "VOIDED").length === 0 ? (
+            <Card padded={false}>
+              <Empty>Nessuna chiamata conclusa.</Empty>
+            </Card>
+          ) : (
+            <Card padded={false}>
+              <div className="elenco">
+                {lots
+                  .filter((l) => l.status === "ASSIGNED" || l.status === "VOIDED")
+                  .map((l) => (
+                    <Riga
+                      key={l.id}
+                      icona={<RoleBadge role={l.player.role} />}
+                      titolo={l.player.name}
+                      nota={
+                        l.wonByTeamId
+                          ? `a ${teamById.get(l.wonByTeamId)?.name} · chiamato da ${teamById.get(l.calledById)?.shortName}`
+                          : `nessuno · chiamato da ${teamById.get(l.calledById)?.shortName}`
+                      }
+                      valore={l.winningAmount ? formatMoney(fromDecimal(l.winningAmount)) : "—"}
+                      sottovalore={
+                        l.bids
+                          .filter((b) => fromDecimal(b.amount) > 0)
+                          .sort((a, b) => fromDecimal(b.amount) - fromDecimal(a.amount))
+                          .map((b) => `${b.team.shortName} ${toMillions(fromDecimal(b.amount))}`)
+                          .join(" · ") || "nessuna offerta"
+                      }
+                    />
+                  ))}
               </div>
             </Card>
           )}
 
-          <div style={{ display: "grid", gap: 16, gridTemplateColumns: "minmax(0, 1fr) minmax(260px, 320px)" }}>
-            <div style={{ display: "grid", gap: 16, alignContent: "start" }}>
-              <AuctionFloor
-                status={auction.status}
-                bidWindowSeconds={auction.bidWindowSeconds}
-                isMyTurn={isMyTurn && !hasPassed}
-                hasPassed={hasPassed}
-                canParticipate={Boolean(session.teamId)}
-                maxBidMillions={maxBid ? toMillions(maxBid.maxAffordable) : 0}
-                callable={callable}
-                lot={
-                  openLot
-                    ? {
-                        id: openLot.id,
-                        playerName: openLot.player.name,
-                        role: openLot.player.role,
-                        serieATeam: openLot.player.serieATeam,
-                        basePrice: toMillions(fromDecimal(openLot.basePrice)),
-                        closesAt: openLot.closesAt?.toISOString() ?? null,
-                        calledBy: teamById.get(openLot.calledById)?.name ?? "—",
-                        tieBreakRound: openLot.tieBreakRound,
-                        bidsReceived: openLot.bids.filter((b) => b.round === openLot.tieBreakRound).length,
-                        myBid: myBid ? toMillions(fromDecimal(myBid.amount)) : null,
-                      }
-                    : null
-                }
-                call={async (playerId: string) => {
-                  "use server";
-                  return callPlayer(playerId);
-                }}
-                bid={async (lotId: string, amount: number) => {
-                  "use server";
-                  return submitAuctionBid(lotId, amount);
-                }}
-                pass={async () => {
-                  "use server";
-                  return passAuctionTurn();
-                }}
-              />
-
-              <Card title="Chiamate" subtitle="All'apertura di ogni busta tutte le offerte diventano pubbliche (art. 8.3)" padded={false}>
-                {lots.filter((l) => l.status === "ASSIGNED" || l.status === "VOIDED").length === 0 ? (
-                  <Empty>Nessuna chiamata conclusa.</Empty>
-                ) : (
-                  <div className="scorre">
-                    <table className="griglia">
-                      <thead>
-                        <tr>
-                          <th className="num">#</th>
-                          <th style={{ width: 30 }} />
-                          <th>Giocatore</th>
-                          <th>Chiamato da</th>
-                          <th>Aggiudicato a</th>
-                          <th className="num">Prezzo</th>
-                          <th>Offerte</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {lots
-                          .filter((l) => l.status === "ASSIGNED" || l.status === "VOIDED")
-                          .map((l) => (
-                            <tr key={l.id}>
-                              <td className="num" style={{ color: "var(--inchiostro-tenue)" }}>{l.sequence}</td>
-                              <td>
-                                <RoleBadge role={l.player.role} />
-                              </td>
-                              <td style={{ fontWeight: 550 }}>{l.player.name}</td>
-                              <td style={{ fontSize: 12.5, color: "var(--inchiostro-tenue)" }}>
-                                {teamById.get(l.calledById)?.shortName}
-                              </td>
-                              <td>
-                                {l.wonByTeamId ? (
-                                  <strong>{teamById.get(l.wonByTeamId)?.name}</strong>
-                                ) : (
-                                  <span style={{ color: "var(--inchiostro-tenue)" }}>nessuno</span>
-                                )}
-                              </td>
-                              <td className="num" style={{ fontWeight: 600 }}>
-                                {l.winningAmount ? formatMoney(fromDecimal(l.winningAmount)) : "—"}
-                              </td>
-                              <td style={{ fontSize: 11.5, color: "var(--inchiostro-tenue)" }}>
-                                {l.bids
-                                  .filter((b) => fromDecimal(b.amount) > 0)
-                                  .sort((a, b) => fromDecimal(b.amount) - fromDecimal(a.amount))
-                                  .map((b) => `${b.team.shortName} ${toMillions(fromDecimal(b.amount))}`)
-                                  .join(" · ") || "nessuna"}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </Card>
-            </div>
-
-            <Card title="Ordine di chiamata" subtitle="Estratto all'apertura (art. 8.1)" padded={false}>
-              <table className="griglia">
-                <tbody>
-                  {auction.callOrder.map((id, i) => {
-                    const t = teamById.get(id);
-                    const passed = auction.passedTeams.includes(id);
-                    const isCurrent = id === currentCallerId;
-                    return (
-                      <tr key={id} style={isCurrent ? { background: "var(--accento-tenue)" } : undefined}>
-                        <td className="num" style={{ width: 28, color: "var(--inchiostro-tenue)" }}>
-                          {i + 1}
-                        </td>
-                        <td style={{ fontWeight: isCurrent ? 700 : 500 }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ width: 3, height: 14, borderRadius: 2, background: t?.color }} />
-                            {t?.name}
-                          </span>
-                        </td>
-                        <td className="num">
-                          {passed ? <Tag>chiusa</Tag> : isCurrent ? <Tag tone="accento">chiama</Tag> : null}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </Card>
-          </div>
+          <Piega titolo="Come funziona una chiamata" nota="Art. 8">
+            <ol
+              style={{
+                margin: 0,
+                paddingLeft: 20,
+                fontSize: 14,
+                display: "grid",
+                gap: 9,
+                color: "var(--inchiostro-medio)",
+                lineHeight: 1.45,
+              }}
+            >
+              <li>Chi è di turno chiama un giocatore svincolato. La base è la sua quotazione.</li>
+              <li>
+                Tutti depositano un&apos;offerta a busta chiusa entro {auction.bidWindowSeconds} secondi. Chi non
+                è interessato registra zero.
+              </li>
+              <li>Allo scadere le buste si aprono insieme: vince la più alta, e diventano tutte pubbliche.</li>
+              <li>A parità si ripete la chiamata fra i soli pari merito.</li>
+            </ol>
+          </Piega>
         </>
       )}
-    </div>
+    </>
   );
 }

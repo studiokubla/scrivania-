@@ -53,7 +53,7 @@ console.log(`Squadra sotto esame: ${teamName}, capitale ${capitale()} M\n`);
 // ── 1. Stadio ───────────────────────────────────────────────────────────
 await manager.goto(`${BASE}/squadra/${teamId}`);
 await manager.click('button:has-text("Stadio")');
-await manager.click('tr:has-text("1 — Comunale") button:has-text("Costruisci")');
+await manager.click(':is(tr, .riga):has-text("Comunale") button:has-text("Costruisci")');
 await manager.waitForSelector(".avviso-ok, .avviso-errore", { timeout: 20000 });
 
 check("stadio di livello 1 costruito", sql(`select level from "Stadium" where "teamId"='${teamId}';`) === "1");
@@ -66,7 +66,7 @@ check("movimento di capitale registrato", movimento === "STADIUM_BUILD|-30.00", 
 // Il livello 3 richiede demolizione: si salta più di un livello (art. 15.2)
 await manager.reload();
 await manager.click('button:has-text("Stadio")');
-const liv3 = await manager.locator('tr:has-text("3 — Moderno") button').first();
+const liv3 = await manager.locator(':is(tr, .riga):has-text("Moderno") button').first();
 check("il salto di livello è offerto come ricostruzione", (await liv3.textContent())?.includes("Ricostruisci") ?? false);
 check("non si può ricostruire senza capitale", await liv3.isDisabled());
 
@@ -78,7 +78,7 @@ sql(`insert into "CapitalTransaction" (id, "teamId", "seasonId", amount, kind, d
 
 await manager.reload();
 await manager.click('button:has-text("Settore giovanile")');
-await manager.click('tr:has-text("5 posti") button:has-text("Amplia")');
+await manager.click(':is(tr, .riga):has-text("5 posti") button:has-text("Amplia")');
 await manager.waitForSelector(".avviso-ok, .avviso-errore", { timeout: 20000 });
 
 check("settore giovanile ampliato a 5", sql(`select capacity from "Academy" where "teamId"='${teamId}';`) === "5");

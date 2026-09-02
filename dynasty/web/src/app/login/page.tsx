@@ -16,18 +16,18 @@ export default async function LoginPage() {
         padding: 20,
       }}
     >
-      <div style={{ width: "100%", maxWidth: 380 }}>
-        <div style={{ marginBottom: 22 }}>
-          <Logo size={44} title="Dynasty League" />
-          <div className="occhiello" style={{ marginTop: 14 }}>Fantacalcio gestionale</div>
-          <h1 style={{ fontSize: 34, marginTop: 2 }}>Dynasty League</h1>
-          <p style={{ margin: "6px 0 0", color: "var(--inchiostro-medio)", fontSize: 13.5 }}>
-            Rose, contratti, tetto salariale, mercato e capitale. Le formazioni restano su
-            Leghe Fantacalcio.
+      <div style={{ width: "100%", maxWidth: 400 }}>
+        <div className="carta-menta imbottita" style={{ marginBottom: 12, paddingTop: 26, paddingBottom: 26 }}>
+          <Logo size={46} title="Dynasty League" />
+          <h1 style={{ fontSize: 38, marginTop: 16 }}>Dynasty League</h1>
+          <p className="didascalia" style={{ margin: "10px 0 0", fontSize: 14 }}>
+            Rose, contratti, tetto salariale, mercato e capitale.
+            <br />
+            Le formazioni restano su Leghe Fantacalcio.
           </p>
         </div>
 
-        <div className="carta" style={{ padding: 18 }}>
+        <div className="carta" style={{ padding: 20 }}>
           <LoginForm />
         </div>
       </div>

@@ -75,7 +75,7 @@ export default async function AdminPage() {
       </div>
 
       <Card>
-        <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
+        <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))" }}>
           <Stat label="Stagione" value={season.label} hint={FASI.find((f) => f.value === season.phase)?.label} />
           <Stat label="Giornata importata" value={season.matchday} hint="su 38" />
           <Stat
@@ -119,7 +119,7 @@ export default async function AdminPage() {
       />
 
       {/* ── Fase e finestre ─────────────────────────────────────────────── */}
-      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))" }}>
+      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
         <Card title="Fase della stagione" subtitle="Determina cosa è permesso: lo stadio si costruisce solo in precampionato (art. 15.1)">
           <div style={{ display: "grid", gap: 8 }}>
             {FASI.map((f) => (

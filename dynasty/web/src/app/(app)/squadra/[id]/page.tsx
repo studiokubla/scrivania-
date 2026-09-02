@@ -1,7 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { CapBar, Card, ContractTag, Empty, Issues, Money$, OptionCounter, RoleBadge, Stat } from "@/components/ui";
+import {
+  CapBar,
+  Card,
+  ContractTag,
+  Empty,
+  Issues,
+  Money$,
+  OptionCounter,
+  Piega,
+  Riga,
+  RoleBadge,
+  Tessera,
+  TesseraGrande,
+  Titolo,
+} from "@/components/ui";
 import { SocietyPanel } from "./societa";
 import { buildStadium, expandAcademy, sendScout, societyOptions } from "@/app/actions/societa";
 import { requireSession } from "@/lib/auth";
@@ -12,6 +26,24 @@ import { countByRole, validateRoster } from "@/lib/rules/cap";
 import { salaryInYear } from "@/lib/rules/contracts";
 import { stadiumTier } from "@/lib/rules/capital";
 import type { PlayerRole } from "@/lib/rules/types";
+
+/**
+ * La scrivania di una squadra.
+ *
+ * La domanda che ci si fa aprendola è una sola — **quanto mi resta da spendere?**
+ * — e quella è la cifra grande in cima. Tutto il resto è secondario e sta più in
+ * basso, o dietro una piega.
+ *
+ * La rosa non è più una tabella a cinque colonne: su un telefono era illeggibile.
+ * È un elenco raggruppato per ruolo, con il nome grande e l'ingaggio a destra.
+ */
+
+const NOME_RUOLO: Record<PlayerRole, string> = {
+  P: "Portieri",
+  D: "Difensori",
+  C: "Centrocampisti",
+  A: "Attaccanti",
+};
 
 export default async function TeamPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -54,73 +86,134 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
   const tier = stadium ? stadiumTier(stadium.level, ruleset) : null;
   const society = isMine ? await societyOptions(id) : null;
 
-  const ordered = [...inSeason].sort((a, b) => {
-    const order: Record<PlayerRole, number> = { P: 0, D: 1, C: 2, A: 3 };
-    if (order[a.role] !== order[b.role]) return order[a.role] - order[b.role];
-    return salaryInYear(b.schedule, currentYear) - salaryInYear(a.schedule, currentYear);
-  });
+  const perRuolo = (["P", "D", "C", "A"] as PlayerRole[]).map((ruolo) => ({
+    ruolo,
+    giocatori: inSeason
+      .filter((c) => c.role === ruolo)
+      .sort((a, b) => salaryInYear(b.schedule, currentYear) - salaryInYear(a.schedule, currentYear)),
+  }));
+
+  const inScadenza = inSeason.filter((c) => c.endYear === currentYear).length;
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
-        <div style={{ width: 6, height: 40, borderRadius: 3, background: team.color }} />
-        <div>
+    <>
+      {/* ── Chi siamo ────────────────────────────────────────────────────── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 4px 2px" }}>
+        <span
+          aria-hidden
+          style={{ width: 14, height: 14, borderRadius: 5, background: team.color, flexShrink: 0 }}
+        />
+        <div style={{ minWidth: 0, flex: 1 }}>
           <div className="occhiello">{isMine ? "La mia squadra" : "Squadra"}</div>
-          <h1 style={{ fontSize: 26 }}>{team.name}</h1>
+          <h1>{team.name}</h1>
         </div>
-        {isMine && (
-          <Link href="/mercato" className="bottone bottone-primario" style={{ marginLeft: "auto" }}>
-            Vai al mercato
-          </Link>
-        )}
       </div>
 
       {(rosterCheck.errors.length > 0 || rosterCheck.warnings.length > 0) && (
         <Issues errors={rosterCheck.errors} warnings={rosterCheck.warnings} />
       )}
 
-      {/* ── Colpo d'occhio ─────────────────────────────────────────────── */}
-      <Card>
-        <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
-          <Stat
-            label="Monte ingaggi"
-            value={formatMoney(current.total)}
-            hint={`su ${formatMoney(current.cap)} di tetto`}
-            tone={current.overCap ? "allarme" : "neutro"}
-          />
-          <Stat
-            label="Spazio salariale"
-            value={formatMoney(current.space)}
-            tone={current.space < 0 ? "allarme" : current.space < fromMillions(5) ? "avviso" : "positivo"}
-          />
-          <Stat label="Capitale" value={formatMoney(state.capital)} hint="fondo societario" />
-          <Stat
-            label="Rosa"
-            value={`${inSeason.length}`}
-            hint={`${roles.P}P · ${roles.D}D · ${roles.C}C · ${roles.A}A`}
-            tone={inSeason.length < ruleset.roster.minPlayers ? "avviso" : "neutro"}
-          />
-          <Stat
-            label="Slot pluriennali"
-            value={`${ruleset.roster.maxMultiYearContracts - state.freeSlots}/${ruleset.roster.maxMultiYearContracts}`}
-            hint={`${state.freeSlots} liberi`}
-          />
-        </div>
+      {/* ── La cifra che conta ───────────────────────────────────────────── */}
+      <TesseraGrande
+        label="Spazio salariale"
+        value={formatMoney(current.space)}
+        hint={`${formatMoney(current.total)} di ingaggi su ${formatMoney(current.cap)} di tetto`}
+      >
         <div style={{ marginTop: 14 }}>
           <CapBar committed={current.committed} deadCap={current.deadCap} cap={current.cap} />
-          {current.deadCap > 0 && (
-            <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--allarme)" }}>
-              Di cui <Money$ value={current.deadCap} /> di dead cap da svincoli (art. 12.3).
-            </p>
-          )}
         </div>
-      </Card>
+        {current.deadCap > 0 && (
+          <p className="didascalia" style={{ margin: "8px 0 0", color: "var(--allarme)" }}>
+            Di cui <Money$ value={current.deadCap} /> di dead cap da svincoli (art. 12.3).
+          </p>
+        )}
+        {isMine && (
+          <Link
+            href="/mercato"
+            className="bottone bottone-primario bottone-largo"
+            style={{ marginTop: 16 }}
+          >
+            Vai al mercato
+          </Link>
+        )}
+      </TesseraGrande>
 
-      {/* ── Matrice del tetto salariale ────────────────────────────────── */}
-      <Card
-        title="Proiezione del tetto salariale"
-        subtitle="Quanto pesano oggi le firme di oggi, stagione per stagione. È la tabella che nei fogli Excel si compilava a mano."
-        padded={false}
+      <div className="duetto">
+        <Tessera
+          label="Rosa"
+          value={inSeason.length}
+          hint={`${roles.P}P · ${roles.D}D · ${roles.C}C · ${roles.A}A`}
+          tinta="azzurro"
+        />
+        <Tessera label="Capitale" value={formatMoney(state.capital)} hint="fondo societario" tinta="lilla" />
+      </div>
+
+      <div className="duetto">
+        <Tessera
+          label="Slot pluriennali"
+          value={`${ruleset.roster.maxMultiYearContracts - state.freeSlots}/${ruleset.roster.maxMultiYearContracts}`}
+          hint={state.freeSlots === 0 ? "nessuno libero" : `${state.freeSlots} liberi`}
+          tinta="menta"
+        />
+        <Tessera
+          label="In scadenza"
+          value={inScadenza}
+          hint={inScadenza === 1 ? "contratto a giugno" : "contratti a giugno"}
+          tinta="pesca"
+        />
+      </div>
+
+      {/* ── Rosa ─────────────────────────────────────────────────────────── */}
+      <Titolo>Rosa</Titolo>
+
+      {inSeason.length === 0 ? (
+        <Card padded={false}>
+          <Empty>
+            Nessun giocatore sotto contratto.
+            <br />
+            La rosa si forma all&apos;asta di settembre.
+          </Empty>
+        </Card>
+      ) : (
+        perRuolo
+          .filter((g) => g.giocatori.length > 0)
+          .map(({ ruolo, giocatori }) => (
+            <Card
+              key={ruolo}
+              title={NOME_RUOLO[ruolo]}
+              subtitle={`${giocatori.length} · ${formatMoney(
+                giocatori.reduce((s, c) => s + salaryInYear(c.schedule, currentYear), 0),
+              )}`}
+              padded={false}
+            >
+              <div className="elenco">
+                {giocatori.map((c) => (
+                  <Riga
+                    key={c.id}
+                    icona={<RoleBadge role={c.role} />}
+                    titolo={c.playerName}
+                    nota={<ContractTag type={c.type} years={c.years} />}
+                    valore={formatMoney(salaryInYear(c.schedule, currentYear))}
+                    sottovalore={
+                      c.endYear === currentYear ? (
+                        <span style={{ color: "var(--avviso)" }}>in scadenza</span>
+                      ) : (
+                        `fino al ${c.endYear}`
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            </Card>
+          ))
+      )}
+
+      {/* ── Il dettaglio, che si apre solo se lo si cerca ─────────────────── */}
+      <Titolo>Dettaglio</Titolo>
+
+      <Piega
+        titolo="Proiezione del tetto"
+        nota="Quanto pesano le firme di oggi nelle prossime stagioni"
       >
         <div className="scorre">
           <table className="griglia">
@@ -128,175 +221,115 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
               <tr>
                 <th>Stagione</th>
                 <th className="num">Ingaggi</th>
-                <th className="num">Dead cap</th>
-                <th className="num">Totale</th>
                 <th className="num">Spazio</th>
-                <th className="num">Giocatori</th>
-                <th className="num">Pluriennali</th>
-                <th style={{ width: 140 }}>Occupazione</th>
+                <th className="num">Rosa</th>
               </tr>
             </thead>
             <tbody>
               {state.capMatrix.map((y) => (
                 <tr key={y.year}>
-                  <td style={{ fontWeight: 600 }}>
+                  <td style={{ fontWeight: 650 }}>
                     {y.label}
-                    {y.year === currentYear && (
-                      <span style={{ marginLeft: 6, fontSize: 11, color: "var(--inchiostro-tenue)" }}>in corso</span>
-                    )}
+                    {y.year === currentYear && <span className="riga-nota"> in corso</span>}
                   </td>
-                  <td className="num">{formatMoney(y.committed)}</td>
-                  <td className="num" style={{ color: y.deadCap > 0 ? "var(--allarme)" : "var(--inchiostro-tenue)" }}>
-                    {y.deadCap > 0 ? formatMoney(y.deadCap) : "—"}
-                  </td>
-                  <td className="num" style={{ fontWeight: 650 }}>
-                    {formatMoney(y.total)}
-                  </td>
-                  <td className="num" style={{ color: y.space < 0 ? "var(--allarme)" : "var(--positivo)" }}>
+                  <td className="num">{formatMoney(y.total)}</td>
+                  <td className="num" style={{ color: y.space < 0 ? "var(--allarme)" : "var(--positivo)", fontWeight: 650 }}>
                     {formatMoney(y.space)}
                   </td>
                   <td className="num">{y.playerCount}</td>
-                  <td className="num">{y.multiYearCount}</td>
-                  <td>
-                    <CapBar committed={y.committed} deadCap={y.deadCap} cap={y.cap} />
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p style={{ margin: 0, padding: "10px 14px", fontSize: 12, color: "var(--inchiostro-tenue)", borderTop: "1px solid var(--bordo)" }}>
-          Le stagioni future mostrano solo i contratti già firmati: lo spazio che appare libero è
-          lo spazio con cui costruire le rose successive, non un avanzo.
+        <p className="didascalia" style={{ margin: "12px 0 0" }}>
+          Le stagioni future mostrano solo i contratti già firmati: lo spazio che appare libero è lo
+          spazio con cui costruire le rose successive, non un avanzo.
         </p>
-      </Card>
+      </Piega>
 
-      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "minmax(0, 2fr) minmax(260px, 1fr)" }}>
-        {/* ── Rosa ─────────────────────────────────────────────────────── */}
-        <Card title="Rosa" subtitle={`${inSeason.length} giocatori sotto contratto in ${current.label}`} padded={false}>
-          {ordered.length === 0 ? (
-            <Empty>Nessun giocatore sotto contratto.</Empty>
-          ) : (
-            <div className="scorre">
-              <table className="griglia">
-                <thead>
-                  <tr>
-                    <th style={{ width: 30 }} />
-                    <th>Giocatore</th>
-                    <th>Contratto</th>
-                    <th className="num">Ingaggio</th>
-                    <th className="num">Scadenza</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ordered.map((c) => {
-                    const expiring = c.endYear === currentYear;
-                    return (
-                      <tr key={c.id}>
-                        <td>
-                          <RoleBadge role={c.role} />
-                        </td>
-                        <td style={{ fontWeight: 550 }}>{c.playerName}</td>
-                        <td>
-                          <ContractTag type={c.type} years={c.years} />
-                        </td>
-                        <td className="num" style={{ fontWeight: 600 }}>
-                          {formatMoney(salaryInYear(c.schedule, currentYear))}
-                        </td>
-                        <td className="num" style={{ color: expiring ? "var(--avviso)" : "var(--inchiostro-tenue)" }}>
-                          {expiring ? "in scadenza" : `${c.endYear}/${String((c.endYear + 1) % 100)}`}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
+      <Piega titolo="Opzioni disponibili" nota="Si azzerano il 1° luglio">
+        <OptionCounter label="Team Option" article="art. 6.1" used={state.counters.TEAM_OPTION} total={ruleset.options.teamOption.perSeason} />
+        <OptionCounter label="Franchise Tag" article="art. 6.2" used={state.counters.FRANCHISE_TAG} total={ruleset.options.franchiseTag.perSeason} />
+        <OptionCounter label="Performance buy-out" article="art. 12.4" used={state.counters.PERFORMANCE_BUYOUT} total={ruleset.options.performanceBuyout.perSeason} />
+        <OptionCounter label="Offerte free agency" article="art. 9.1" used={state.counters.FREE_AGENCY_OFFER} total={ruleset.options.freeAgencyOffers.perSeason} />
+        <OptionCounter label="Pre-contract" article="art. 11.2" used={state.counters.PRE_CONTRACT} total={ruleset.options.preContract.perSeason} />
+        <OptionCounter label="Contratti tampone" article="art. 4.4" used={state.counters.TAMPONE} total={ruleset.contracts.TAMPONE.maxPerSeason} />
+      </Piega>
 
-        <div style={{ display: "grid", gap: 16, alignContent: "start" }}>
-          {/* ── Opzioni ─────────────────────────────────────────────────── */}
-          <Card title="Opzioni disponibili" subtitle="Si azzerano il 1° luglio">
-            <OptionCounter label="Team Option" article="art. 6.1" used={state.counters.TEAM_OPTION} total={ruleset.options.teamOption.perSeason} />
-            <OptionCounter label="Franchise Tag" article="art. 6.2" used={state.counters.FRANCHISE_TAG} total={ruleset.options.franchiseTag.perSeason} />
-            <OptionCounter label="Performance buy-out" article="art. 12.4" used={state.counters.PERFORMANCE_BUYOUT} total={ruleset.options.performanceBuyout.perSeason} />
-            <OptionCounter label="Offerte free agency" article="art. 9.1" used={state.counters.FREE_AGENCY_OFFER} total={ruleset.options.freeAgencyOffers.perSeason} />
-            <OptionCounter label="Pre-contract" article="art. 11.2" used={state.counters.PRE_CONTRACT} total={ruleset.options.preContract.perSeason} />
-            <OptionCounter label="Contratti tampone" article="art. 4.4" used={state.counters.TAMPONE} total={ruleset.contracts.TAMPONE.maxPerSeason} />
-          </Card>
-
-          {/* ── Società ─────────────────────────────────────────────────── */}
-          <Card title="Società">
-            <div style={{ display: "grid", gap: 10, fontSize: 13 }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>Stadio</span>
-                <strong>
-                  {tier ? `Livello ${tier.level} — ${tier.name}` : "Nessuno"}
-                </strong>
-              </div>
-              {tier && (
-                <div style={{ display: "flex", justifyContent: "space-between", color: "var(--inchiostro-tenue)", fontSize: 12 }}>
-                  <span>Manutenzione annua</span>
-                  <span className="cifre">{formatMoney(tier.maintenance)}</span>
-                </div>
-              )}
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>Settore giovanile</span>
-                <strong>
-                  {youth.length}/{academy?.capacity ?? ruleset.youth.baseCapacity} posti
-                </strong>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>Osservatori</span>
-                <strong>{scouts.length}</strong>
-              </div>
-              {scouts.length > 0 && (
-                <ul style={{ margin: 0, paddingLeft: 16, color: "var(--inchiostro-tenue)", fontSize: 12 }}>
-                  {scouts.map((s) => (
-                    <li key={s.id}>
-                      {s.club ?? s.league}
-                      {s.club && <span> ({s.league})</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Card>
-
-          {/* ── Capitale ────────────────────────────────────────────────── */}
-          <Card title="Movimenti di capitale" subtitle={`Saldo ${formatMoney(state.capital)}`} padded={false}>
-            {movements.length === 0 ? (
-              <Empty>Nessun movimento.</Empty>
-            ) : (
-              <table className="griglia">
-                <tbody>
-                  {movements.map((m) => {
-                    const amount = fromDecimal(m.amount);
-                    return (
-                      <tr key={m.id}>
-                        <td style={{ fontSize: 12.5 }}>{m.description}</td>
-                        <td
-                          className="num"
-                          style={{ fontWeight: 600, color: amount >= 0 ? "var(--positivo)" : "var(--allarme)" }}
-                        >
-                          {formatMoney(amount, { sign: true })}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </Card>
+      <Piega
+        titolo="Società"
+        nota={`${tier ? tier.name : "Nessuno stadio"} · ${youth.length}/${academy?.capacity ?? ruleset.youth.baseCapacity} giovani · ${scouts.length} osservatori`}
+      >
+        <div className="elenco">
+          <Riga
+            titolo="Stadio"
+            nota={tier ? `Manutenzione ${formatMoney(tier.maintenance)} l'anno` : "Non costruito"}
+            valore={tier ? `Livello ${tier.level}` : "—"}
+          />
+          <Riga
+            titolo="Settore giovanile"
+            valore={`${youth.length}/${academy?.capacity ?? ruleset.youth.baseCapacity}`}
+            sottovalore="posti"
+          />
+          <Riga
+            titolo="Osservatori"
+            nota={scouts.map((s) => s.club ?? s.league).join(" · ") || undefined}
+            valore={scouts.length}
+          />
         </div>
-      </div>
+      </Piega>
+
+      <Piega titolo="Movimenti di capitale" nota={`Saldo ${formatMoney(state.capital)}`}>
+        {movements.length === 0 ? (
+          <Empty>Nessun movimento.</Empty>
+        ) : (
+          <div className="elenco">
+            {movements.map((m) => {
+              const amount = fromDecimal(m.amount);
+              return (
+                <Riga
+                  key={m.id}
+                  titolo={m.description}
+                  valore={
+                    <span style={{ color: amount >= 0 ? "var(--positivo)" : "var(--allarme)" }}>
+                      {formatMoney(amount, { sign: true })}
+                    </span>
+                  }
+                />
+              );
+            })}
+          </div>
+        )}
+      </Piega>
+
+      {youth.length > 0 && (
+        <Piega
+          titolo="Settore giovanile"
+          nota="Non percepiscono ingaggio finché non vengono promossi (art. 16.3)"
+        >
+          <div className="elenco">
+            {youth.map((y) => (
+              <Riga
+                key={y.id}
+                icona={<RoleBadge role={y.player.role} />}
+                titolo={y.player.name}
+                nota={`Chiamata #${y.draftPickNumber}`}
+                valore={formatMoney(
+                  fromMillions(
+                    ruleset.youth.promotionSalaryByPick.find((t) => y.draftPickNumber <= t.maxPick)?.salary ?? 0.25,
+                  ),
+                )}
+                sottovalore="alla promozione"
+              />
+            ))}
+          </div>
+        </Piega>
+      )}
 
       {society && (
-        <div>
-          <div className="occhiello" style={{ marginBottom: 8 }}>
-            Investimenti societari · titolo V
-          </div>
+        <>
+          <Titolo>Investimenti</Titolo>
           <SocietyPanel
             teamId={id}
             capital={society.capital}
@@ -319,41 +352,8 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
               return sendScout(input);
             }}
           />
-        </div>
+        </>
       )}
-
-      {youth.length > 0 && (
-        <Card title="Settore giovanile" subtitle="Non percepiscono ingaggio finché non vengono promossi (art. 16.3)" padded={false}>
-          <table className="griglia">
-            <thead>
-              <tr>
-                <th style={{ width: 30 }} />
-                <th>Giocatore</th>
-                <th className="num">Chiamata</th>
-                <th className="num">Ingaggio alla promozione</th>
-              </tr>
-            </thead>
-            <tbody>
-              {youth.map((y) => (
-                <tr key={y.id}>
-                  <td>
-                    <RoleBadge role={y.player.role} />
-                  </td>
-                  <td style={{ fontWeight: 550 }}>{y.player.name}</td>
-                  <td className="num">#{y.draftPickNumber}</td>
-                  <td className="num">
-                    {formatMoney(
-                      fromMillions(
-                        ruleset.youth.promotionSalaryByPick.find((t) => y.draftPickNumber <= t.maxPick)?.salary ?? 0.25,
-                      ),
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      )}
-    </div>
+    </>
   );
 }

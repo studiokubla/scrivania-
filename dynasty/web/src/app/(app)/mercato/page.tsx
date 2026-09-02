@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Card, ContractTag, Empty, RoleBadge, Stat, Tag } from "@/components/ui";
+import { Card, ContractTag, Empty, Piega, Riga, RoleBadge, Tessera, TesseraGrande, Titolo } from "@/components/ui";
 import { ActionButton, Countdown, OfferForm, type FreeAgent } from "./client";
 import { buyoutContract, exerciseTeamOption, applyFranchiseTag } from "@/app/actions/contracts";
 import { claimWaiver, resolveDueOffers, resolveDueWaivers, submitFreeAgencyOffer } from "@/app/actions/market";
@@ -92,268 +92,252 @@ export default async function MercatoPage() {
     : 0;
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
-        <div>
-          <div className="occhiello">Sala mercato</div>
-          <h1 style={{ fontSize: 26 }}>{openWindow ? openWindow.label : "Mercato chiuso"}</h1>
-        </div>
-        <Link href="/mercato/scambi" className="bottone" style={{ marginLeft: "auto" }}>
-          Scambi
-        </Link>
+    <>
+      <div style={{ padding: "6px 4px 2px" }}>
+        <div className="occhiello">Sala mercato</div>
+        <h1>{openWindow ? openWindow.label : "Mercato chiuso"}</h1>
       </div>
 
       {!openWindow && (
         <div className="avviso avviso-attenzione">
-          Nessuna finestra aperta. Si possono consultare le contese in corso, ma non presentare
+          Nessuna finestra aperta. Si possono guardare le contese in corso, ma non presentare
           offerte né concludere scambi (art. 7).
         </div>
       )}
 
+      {/* ── Cosa posso fare adesso ───────────────────────────────────────── */}
       {myState && (
-        <Card>
-          <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
-            <Stat label="Spazio salariale" value={formatMoney(myState.capMatrix[0].space)} tone={myState.capMatrix[0].space < 0 ? "allarme" : "positivo"} />
-            <Stat label="Capitale" value={formatMoney(myState.capital)} />
-            <Stat label="Offerte rimaste" value={`${offersLeft}/${ruleset.options.freeAgencyOffers.perSeason}`} hint="free agency" />
-            <Stat label="Posti in rosa" value={`${ruleset.roster.maxPlayers - myState.capMatrix[0].playerCount}`} hint={`su ${ruleset.roster.maxPlayers}`} />
-            <Stat label="Slot pluriennali" value={myState.freeSlots} hint="liberi" />
+        <>
+          <TesseraGrande
+            label="Offerte rimaste"
+            value={`${offersLeft}`}
+            hint={`su ${ruleset.options.freeAgencyOffers.perSeason} in questa stagione (art. 9.1). Rilanciare su una contesa aperta da altri non ne consuma.`}
+            tinta={offersLeft === 0 ? "inchiostro" : "menta"}
+          />
+
+          <div className="duetto">
+            <Tessera
+              label="Spazio salariale"
+              value={formatMoney(myState.capMatrix[0].space)}
+              hint="da spendere"
+              tinta="azzurro"
+            />
+            <Tessera label="Capitale" value={formatMoney(myState.capital)} hint="fondo societario" tinta="lilla" />
           </div>
+
+          <div className="duetto">
+            <Tessera
+              label="Posti in rosa"
+              value={ruleset.roster.maxPlayers - myState.capMatrix[0].playerCount}
+              hint={`su ${ruleset.roster.maxPlayers}`}
+              tinta="pesca"
+            />
+            <Tessera label="Slot pluriennali" value={myState.freeSlots} hint="liberi" tinta="rosa" />
+          </div>
+        </>
+      )}
+
+      {/* ── Presenta un'offerta ──────────────────────────────────────────── */}
+      {session.teamId ? (
+        <>
+          <Titolo>Presenta un&apos;offerta</Titolo>
+          <Card>
+            {openWindow ? (
+              <OfferForm
+                players={freeAgents}
+                offersLeft={offersLeft}
+                submit={async (input) => {
+                  "use server";
+                  return submitFreeAgencyOffer(input);
+                }}
+              />
+            ) : (
+              <Empty>Le offerte si presentano a finestra aperta.</Empty>
+            )}
+          </Card>
+        </>
+      ) : (
+        <Card title="Sei il commissioner">
+          <p style={{ margin: 0, fontSize: 14, color: "var(--inchiostro-medio)" }}>
+            Non hai una squadra e non fai offerte (art. 1.2). Dal{" "}
+            <Link href="/admin" style={{ color: "var(--accento)", fontWeight: 700 }}>
+              pannello di gestione
+            </Link>{" "}
+            apri e chiudi le finestre, importi i dati e risolvi le contestazioni.
+          </p>
         </Card>
       )}
 
-      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "minmax(0, 1fr) minmax(300px, 380px)" }}>
-        <div style={{ display: "grid", gap: 16, alignContent: "start" }}>
-          {/* ── Contese aperte ────────────────────────────────────────── */}
-          <Card
-            title="Contese aperte"
-            subtitle="Le offerte restano sigillate fino allo scadere. Si vede chi è conteso, non a quanto."
-            padded={false}
-          >
-            {contestList.length === 0 ? (
-              <Empty>Nessuna contesa in corso.</Empty>
-            ) : (
-              <table className="griglia">
-                <thead>
-                  <tr>
-                    <th style={{ width: 30 }} />
-                    <th>Giocatore</th>
-                    <th className="num">Offerte</th>
-                    <th className="num">Si apre tra</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {contestList.map((c) => (
-                    <tr key={c.playerId}>
-                      <td>
-                        <RoleBadge role={c.player.role} />
-                      </td>
-                      <td style={{ fontWeight: 550 }}>
-                        {c.player.name}
-                        <span style={{ color: "var(--inchiostro-tenue)", fontSize: 12, marginLeft: 6 }}>
-                          {c.player.serieATeam}
-                        </span>
-                      </td>
-                      <td className="num">{c.count}</td>
-                      <td className="num">
-                        <Countdown to={c.closesAt.toISOString()} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </Card>
+      {/* ── Contese ──────────────────────────────────────────────────────── */}
+      <Titolo>
+        Contese aperte
+        {contestList.length > 0 && <span className="tag tag-accento">{contestList.length}</span>}
+      </Titolo>
 
-          {/* ── Waiver ────────────────────────────────────────────────── */}
-          <Card
-            title="Waiver"
-            subtitle={`48 ore prima che un giocatore svincolato diventi free agent. A parità di reclami vince la peggio classificata (art. 10).`}
-            padded={false}
-          >
-            {waivers.length === 0 ? (
-              <Empty>Nessun giocatore in waiver.</Empty>
-            ) : (
-              <table className="griglia">
-                <thead>
-                  <tr>
-                    <th style={{ width: 30 }} />
-                    <th>Giocatore</th>
-                    <th>Reclami</th>
-                    <th className="num">Scade tra</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {waivers.map((w) => (
-                    <tr key={w.id}>
-                      <td>
-                        <RoleBadge role={w.player.role} />
-                      </td>
-                      <td style={{ fontWeight: 550 }}>{w.player.name}</td>
-                      <td style={{ fontSize: 12.5, color: "var(--inchiostro-tenue)" }}>{w.team.name}</td>
-                      <td className="num">
-                        <Countdown to={w.closesAt.toISOString()} />
-                      </td>
-                      <td className="num">
-                        {session.teamId && session.teamId !== w.teamId && (
-                          <ActionButton
-                            label="Reclama"
-                            action={async () => {
-                              "use server";
-                              return claimWaiver(w.playerId);
-                            }}
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </Card>
+      <Card padded={false}>
+        {contestList.length === 0 ? (
+          <Empty>
+            Nessuna contesa in corso.
+            <br />
+            Le offerte restano sigillate: si vede chi è conteso, non a quanto.
+          </Empty>
+        ) : (
+          <div className="elenco">
+            {contestList.map((c) => (
+              <Riga
+                key={c.playerId}
+                icona={<RoleBadge role={c.player.role} />}
+                titolo={c.player.name}
+                nota={`${c.player.serieATeam} · ${c.count} ${c.count === 1 ? "offerta" : "offerte"}`}
+                valore={<Countdown to={c.closesAt.toISOString()} />}
+                sottovalore="si apre tra"
+              />
+            ))}
+          </div>
+        )}
+      </Card>
 
-          {/* ── Contratti in scadenza ─────────────────────────────────── */}
-          {myState && (
-            <Card
-              title="I tuoi contratti in scadenza"
-              subtitle="Qui si decide chi trattenere e come. Ogni scelta consuma un'opzione e si vede nel registro."
-              padded={false}
-            >
-              {expiring.length === 0 ? (
-                <Empty>Nessun contratto in scadenza in questa stagione.</Empty>
-              ) : (
-                <div className="scorre">
-                  <table className="griglia">
-                    <thead>
-                      <tr>
-                        <th style={{ width: 30 }} />
-                        <th>Giocatore</th>
-                        <th>Contratto</th>
-                        <th className="num">Ingaggio</th>
-                        <th className="num">Costo svincolo</th>
-                        <th style={{ width: 260 }}>Azioni</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {expiring.map((c) => {
-                        const quote = quoteBuyout({ contract: c, currentYear, isPerformance: false, ruleset });
-                        const multiYear = ruleset.contracts[c.type].occupiesSlot;
-                        return (
-                          <tr key={c.id}>
-                            <td>
-                              <RoleBadge role={c.role} />
-                            </td>
-                            <td style={{ fontWeight: 550 }}>{c.playerName}</td>
-                            <td>
-                              <ContractTag type={c.type} years={c.years} />
-                            </td>
-                            <td className="num">{formatMoney(salaryInYear(c.schedule, currentYear))}</td>
-                            <td className="num" style={{ color: "var(--allarme)" }}>
-                              {formatMoney(quote.penalty)}
-                            </td>
-                            <td>
-                              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                                {multiYear && (
-                                  <ActionButton
-                                    label="Team Option"
-                                    title="Estende di un anno al +20% (art. 6.1)"
-                                    action={async () => {
-                                      "use server";
-                                      return exerciseTeamOption(c.id);
-                                    }}
-                                  />
-                                )}
-                                <ActionButton
-                                  label="Franchise Tag"
-                                  title="Blinda il giocatore per una stagione al prezzo maggiore tra +20% e la media di ruolo (art. 6.2)"
-                                  action={async () => {
-                                    "use server";
-                                    return applyFranchiseTag(c.id);
-                                  }}
-                                />
-                                <ActionButton
-                                  label="Svincola"
-                                  variant="pericolo"
-                                  confirm={`Svincolare ${c.playerName}? La penale di ${formatMoney(quote.penalty)} esce dal Capitale e resta ${formatMoney(quote.deadCap)} di dead cap fino a fine stagione. L'operazione non si annulla.`}
-                                  action={async () => {
-                                    "use server";
-                                    return buyoutContract({ contractId: c.id, performance: false });
-                                  }}
-                                />
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
-          )}
-        </div>
-
-        {/* ── Colonna offerte ─────────────────────────────────────────── */}
-        <div style={{ display: "grid", gap: 16, alignContent: "start" }}>
-          {session.teamId ? (
-            <Card
-              title="Presenta un'offerta"
-              subtitle={`${offersLeft} offerte rimaste su ${ruleset.options.freeAgencyOffers.perSeason} (art. 9.1)`}
-            >
-              {openWindow ? (
-                <OfferForm
-                  players={freeAgents}
-                  offersLeft={offersLeft}
-                  submit={async (input) => {
-                    "use server";
-                    return submitFreeAgencyOffer(input);
-                  }}
+      {/* ── Waiver ───────────────────────────────────────────────────────── */}
+      {waivers.length > 0 && (
+        <>
+          <Titolo>Waiver</Titolo>
+          <Card padded={false}>
+            <div className="elenco">
+              {waivers.map((w) => (
+                <Riga
+                  key={w.id}
+                  icona={<RoleBadge role={w.player.role} />}
+                  titolo={w.player.name}
+                  nota={`svincolato da ${w.team.name}`}
+                  valore={<Countdown to={w.closesAt.toISOString()} />}
+                  coda={
+                    session.teamId && session.teamId !== w.teamId ? (
+                      <ActionButton
+                        label="Reclama"
+                        action={async () => {
+                          "use server";
+                          return claimWaiver(w.playerId);
+                        }}
+                      />
+                    ) : undefined
+                  }
                 />
-              ) : (
-                <Empty>Le offerte si presentano a finestra aperta.</Empty>
-              )}
-            </Card>
-          ) : (
-            <Card title="Commissioner">
-              <p style={{ margin: 0, fontSize: 13, color: "var(--inchiostro-medio)" }}>
-                Non hai una squadra e non puoi presentare offerte (art. 1.2). Dal{" "}
-                <Link href="/admin" style={{ color: "var(--accento)", fontWeight: 600 }}>
-                  pannello di amministrazione
-                </Link>{" "}
-                apri e chiudi le finestre, importi i dati e risolvi le contestazioni.
-              </p>
-            </Card>
-          )}
-
-          <Card title="Come funziona la free agency" subtitle="Art. 9">
-            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, display: "grid", gap: 7, color: "var(--inchiostro-medio)" }}>
-              <li>Presenti un&apos;offerta: ingaggio, durata, tipo di contratto. Resta sigillata.</li>
-              <li>
-                Il registro annuncia che una contesa è aperta, senza l&apos;importo. Gli altri hanno{" "}
-                {ruleset.market.freeAgencyHours} ore per rilanciare, anch&apos;essi in segreto.
-              </li>
-              <li>Allo scadere tutte le buste si aprono insieme e vince l&apos;offerta più alta.</li>
-              <li>
-                A parità: prima la durata maggiore, poi la <strong>squadra peggio classificata</strong>.
-              </li>
-            </ol>
-            <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--inchiostro-tenue)" }}>
-              Rilanciare su una contesa aperta da altri non consuma una delle tue offerte.
-            </p>
-          </Card>
-
-          <Card title="Svincolati" subtitle={`${freeAgents.length} giocatori senza contratto`}>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {(["P", "D", "C", "A"] as const).map((role) => (
-                <Tag key={role}>
-                  {role} {freeAgents.filter((p) => p.role === role).length}
-                </Tag>
               ))}
             </div>
           </Card>
+        </>
+      )}
+
+      {/* ── Contratti in scadenza ────────────────────────────────────────── */}
+      {myState && (
+        <>
+          <Titolo>I tuoi contratti in scadenza</Titolo>
+          {expiring.length === 0 ? (
+            <Card padded={false}>
+              <Empty>Nessun contratto in scadenza in questa stagione.</Empty>
+            </Card>
+          ) : (
+            expiring.map((c) => {
+              const quote = quoteBuyout({ contract: c, currentYear, isPerformance: false, ruleset });
+              const multiYear = ruleset.contracts[c.type].occupiesSlot;
+              return (
+                <Card key={c.id} padded={false}>
+                  <div className="riga" style={{ borderBottom: "1px solid var(--bordo)" }}>
+                    <RoleBadge role={c.role} />
+                    <div className="riga-corpo">
+                      <div className="riga-titolo">{c.playerName}</div>
+                      <div className="riga-nota">
+                        <ContractTag type={c.type} years={c.years} />
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div className="riga-valore">{formatMoney(salaryInYear(c.schedule, currentYear))}</div>
+                      <div className="riga-nota" style={{ color: "var(--allarme)" }}>
+                        svincolo {formatMoney(quote.penalty)}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: 14 }}>
+                    {multiYear && (
+                      <ActionButton
+                        label="Team Option"
+                        title="Estende di un anno al +20% (art. 6.1)"
+                        action={async () => {
+                          "use server";
+                          return exerciseTeamOption(c.id);
+                        }}
+                      />
+                    )}
+                    <ActionButton
+                      label="Franchise Tag"
+                      title="Blinda il giocatore per una stagione al prezzo maggiore tra +20% e la media di ruolo (art. 6.2)"
+                      action={async () => {
+                        "use server";
+                        return applyFranchiseTag(c.id);
+                      }}
+                    />
+                    <ActionButton
+                      label="Svincola"
+                      variant="pericolo"
+                      confirm={`Svincolare ${c.playerName}? La penale di ${formatMoney(quote.penalty)} esce dal Capitale e resta ${formatMoney(quote.deadCap)} di dead cap fino a fine stagione. L'operazione non si annulla.`}
+                      action={async () => {
+                        "use server";
+                        return buyoutContract({ contractId: c.id, performance: false });
+                      }}
+                    />
+                  </div>
+                </Card>
+              );
+            })
+          )}
+        </>
+      )}
+
+      {/* ── Il resto ─────────────────────────────────────────────────────── */}
+      <Titolo>Altro</Titolo>
+
+      <Card padded={false}>
+        <div className="elenco">
+          <Riga href="/mercato/scambi" titolo="Scambi" nota="Proponi uno scambio a un'altra squadra" valore="›" />
         </div>
-      </div>
-    </div>
+      </Card>
+
+      <Piega titolo="Svincolati" nota={`${freeAgents.length} giocatori senza contratto`}>
+        <div className="elenco">
+          {(["P", "D", "C", "A"] as const).map((role) => (
+            <Riga
+              key={role}
+              icona={<RoleBadge role={role} />}
+              titolo={{ P: "Portieri", D: "Difensori", C: "Centrocampisti", A: "Attaccanti" }[role]}
+              valore={freeAgents.filter((p) => p.role === role).length}
+            />
+          ))}
+        </div>
+      </Piega>
+
+      <Piega titolo="Come funziona la free agency" nota="Art. 9">
+        <ol
+          style={{
+            margin: 0,
+            paddingLeft: 20,
+            fontSize: 14,
+            display: "grid",
+            gap: 9,
+            color: "var(--inchiostro-medio)",
+            lineHeight: 1.45,
+          }}
+        >
+          <li>Presenti un&apos;offerta: ingaggio, durata, tipo di contratto. Resta sigillata.</li>
+          <li>
+            Il registro annuncia che una contesa è aperta, senza l&apos;importo. Gli altri hanno{" "}
+            {ruleset.market.freeAgencyHours} ore per rilanciare, anch&apos;essi in segreto.
+          </li>
+          <li>Allo scadere tutte le buste si aprono insieme e vince l&apos;offerta più alta.</li>
+          <li>
+            A parità: prima la durata maggiore, poi la <strong>squadra peggio classificata</strong>.
+          </li>
+        </ol>
+      </Piega>
+    </>
   );
 }

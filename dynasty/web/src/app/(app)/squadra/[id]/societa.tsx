@@ -97,7 +97,7 @@ export function SocietyPanel({
           display: "flex",
           alignItems: "center",
           gap: 4,
-          padding: "8px 10px",
+          padding: "12px 14px",
           borderBottom: "1px solid var(--bordo)",
           flexWrap: "wrap",
         }}
@@ -105,11 +105,11 @@ export function SocietyPanel({
         {tabs.map((t) => (
           <button
             key={t.id}
-            className="bottone"
+            className="bottone bottone-piccolo"
             style={{
               border: "none",
-              background: tab === t.id ? "var(--accento-tenue)" : "transparent",
-              color: tab === t.id ? "var(--accento)" : "var(--inchiostro-medio)",
+              background: tab === t.id ? "var(--inchiostro)" : "var(--carta-alt)",
+              color: tab === t.id ? "var(--sfondo)" : "var(--inchiostro-medio)",
             }}
             onClick={() => {
               setTab(t.id);
@@ -133,65 +133,58 @@ export function SocietyPanel({
                 non investire.
               </div>
             )}
-            <div className="scorre">
-              <table className="griglia">
-                <thead>
-                  <tr>
-                    <th>Livello</th>
-                    <th className="num">Costo</th>
-                    <th className="num">Manutenzione</th>
-                    <th className="num">Incasso/stagione</th>
-                    <th className="num">Netto</th>
-                    <th className="num">Fantapunti</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {stadium.tiers.map((t) => {
-                    const yearly = t.incomePerHomeMatch * homeMatches;
-                    const net = yearly - t.maintenance;
-                    const current = t.level === stadium.currentLevel;
-                    return (
-                      <tr key={t.level} style={current ? { background: "var(--accento-tenue)" } : undefined}>
-                        <td style={{ fontWeight: 600 }}>
-                          {t.level} — {t.name}
-                          {current && <span style={{ marginLeft: 6, fontSize: 11 }}>attuale</span>}
-                        </td>
-                        <td className="num">{t.level > stadium.currentLevel ? M(t.cost) : "—"}</td>
-                        <td className="num">{M(t.maintenance)}</td>
-                        <td className="num">{M(yearly)}</td>
-                        <td className="num" style={{ color: "var(--positivo)", fontWeight: 600 }}>
-                          +{M(net)}
-                        </td>
-                        <td className="num">+{t.fantaPoints}</td>
-                        <td className="num">
-                          {t.level > stadium.currentLevel && (
-                            <button
-                              className="bottone"
-                              disabled={!t.affordable || !preseason || pending}
-                              title={
-                                t.requiresDemolition
-                                  ? "Salta più di un livello: demolizione e costo pieno (art. 15.2)"
-                                  : undefined
-                              }
-                              onClick={() =>
-                                run(
-                                  () => build(teamId, t.level),
-                                  t.requiresDemolition
-                                    ? `Salire al livello ${t.level} richiede di demolire l'impianto attuale e pagare ${M(t.cost)} pieni. Procedere?`
-                                    : `Investire ${M(t.cost)} per il livello ${t.level}?`,
-                                )
-                              }
-                            >
-                              {t.requiresDemolition ? "Ricostruisci" : "Costruisci"}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            {/* Una riga per livello, non una tabella a sette colonne: su un
+                telefono quella tabella andava letta scorrendo di lato. */}
+            <div className="elenco">
+              {stadium.tiers.map((t) => {
+                const yearly = t.incomePerHomeMatch * homeMatches;
+                const net = yearly - t.maintenance;
+                const current = t.level === stadium.currentLevel;
+                return (
+                  <div
+                    key={t.level}
+                    className="riga"
+                    style={current ? { background: "var(--verde-tenue)" } : undefined}
+                  >
+                    <span className="ruolo" style={{ background: "var(--carta-alt)", color: "var(--inchiostro-medio)" }}>
+                      {t.level}
+                    </span>
+                    <div className="riga-corpo">
+                      <div className="riga-titolo">
+                        {t.name}
+                        {current && <span className="tag tag-accento" style={{ marginLeft: 8 }}>attuale</span>}
+                      </div>
+                      <div className="riga-nota">
+                        {t.level > stadium.currentLevel ? `Costa ${M(t.cost)} · ` : ""}
+                        <span style={{ color: "var(--positivo)", fontWeight: 700 }}>+{M(net)}</span> l&apos;anno
+                        {" · +"}
+                        {t.fantaPoints} fantapunti
+                      </div>
+                    </div>
+                    {t.level > stadium.currentLevel && (
+                      <button
+                        className="bottone bottone-piccolo"
+                        disabled={!t.affordable || !preseason || pending}
+                        title={
+                          t.requiresDemolition
+                            ? "Salta più di un livello: demolizione e costo pieno (art. 15.2)"
+                            : undefined
+                        }
+                        onClick={() =>
+                          run(
+                            () => build(teamId, t.level),
+                            t.requiresDemolition
+                              ? `Salire al livello ${t.level} richiede di demolire l'impianto attuale e pagare ${M(t.cost)} pieni. Procedere?`
+                              : `Investire ${M(t.cost)} per il livello ${t.level}?`,
+                          )
+                        }
+                      >
+                        {t.requiresDemolition ? "Ricostruisci" : "Costruisci"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--inchiostro-tenue)" }}>
               Si sale un livello alla volta pagando la differenza; per saltarne uno si demolisce e si
