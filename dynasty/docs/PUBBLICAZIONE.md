@@ -4,12 +4,15 @@ L'applicazione è pubblicata su Vercel. Serve **una sola variabile d'ambiente**,
 `DATABASE_URL`: tutto il resto — chiave di firma delle sessioni compresa — se
 lo genera e se lo conserva da sé al primo avvio.
 
-Indirizzo:
-**https://dynasty-league-kubla.vercel.app**
+Indirizzo in uso:
+**https://dynasty-league-r2gj1ivcn-kubla.vercel.app**
 
-È l'indirizzo stabile del progetto: resta questo a ogni pubblicazione. Ogni
-singolo deploy ne ha anche uno proprio, con una sigla in mezzo, ma quello
-cambia ogni volta e non va dato a nessuno.
+È l'indirizzo di quel singolo deploy, e cambia a ogni pubblicazione: va bene per
+provare, non per darlo a dieci presidenti. L'indirizzo stabile sarebbe
+`dynasty-league-kubla.vercel.app`, ma va assegnato a mano dal pannello — *Project
+→ Domains → Add* — perché i deploy caricati come pacchetto, senza Git, non se lo
+prendono da soli in modo affidabile. Fatto una volta, resta valido per sempre e
+i manager non devono più cambiare link.
 
 ---
 
