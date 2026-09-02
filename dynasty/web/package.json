@@ -15,6 +15,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "verifica": "node scripts/verifica.mjs",
+    "verifica:online": "node scripts/verifica-online.mjs",
     "build:local": "prisma generate && next build",
     "listone:json": "node scripts/listone-json.mjs",
     "presentazione": "node scripts/presentazione.mjs"

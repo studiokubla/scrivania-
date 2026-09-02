@@ -97,6 +97,22 @@ conosce l'indirizzo può creare la lega al posto tuo. È il prezzo di poter
 pubblicare con una variabile sola. Per chiuderla, imposta `SETUP_TOKEN` **prima**
 del deploy e passa l'intestazione nella chiamata.
 
+### Controllare che sia tutto a posto
+
+```bash
+cd dynasty/web
+BASE=https://<il-tuo-dominio> \
+  COMMISSIONER='info@studiokubla.com:<password>' \
+  MANAGER='manager1@dynasty.it:<password>' \
+  npm run verifica:online
+```
+
+Ventuno controlli sull'ambiente vero: accesso col commissioner e con un
+manager, password sbagliata respinta, pagine protette che rimbalzano al login,
+un manager che non entra in amministrazione, dieci squadre con rose fatte di
+giocatori del listone, e la rotta di inizializzazione chiusa. Non scrive
+niente: si può rilanciare quando si vuole.
+
 ---
 
 ## 4 · Le prime cose da fare dentro l'app
