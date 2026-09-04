@@ -1,3 +1,160 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Il front office della lega: rose, contratti, tetto salariale, mercato e società.">
+<meta name="theme-color" content="#1E5F3F">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E5F3F'/%3E%3Ctext x='32' y='45' font-family='system-ui' font-size='38' font-weight='800' fill='%23F7F7F3' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231E5F3F'/%3E%3Ctext x='32' y='45' font-family='system-ui' font-size='38' font-weight='800' fill='%23F7F7F3' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+<style>
+  :root { color-scheme: light dark; }
+  html, body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .avvio-guasto {
+    max-width: 620px; margin: 0 auto; padding: 40px 20px;
+    font: 15px/1.6 system-ui, sans-serif; color: #14170F;
+  }
+  .avvio-guasto h1 { font-size: 26px; margin: 0 0 12px; }
+  .avvio-guasto code { background: #EBEDE6; padding: 2px 5px; border-radius: 4px; font-size: 13px; }
+  .avvio-guasto ol { padding-left: 20px; }
+  .avvio-guasto li { margin-bottom: 8px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #12140F; }
+    .avvio-guasto { color: #EFF0E9; }
+    .avvio-guasto code { background: #23271E; }
+  }
+</style>
+
+<script>
+/* La promessa del database, creata **prima** di tutto il resto.
+   I moduli si caricano dopo il documento, quindi senza questa promessa
+   l'applicazione partirebbe trovando il posto del database ancora vuoto. */
+window.__risolviDb = null;
+window.DYNASTY_DB_ATTESA = new Promise((risolvi) => { window.__risolviDb = risolvi; });
+setTimeout(() => window.__risolviDb?.(null), 20000);   // se Firebase non risponde, si dice
+</script>
+
+<script src="firebase-config.js"></script>
+
+<script type="module">
+/* ═══════════════════════════════════════════════════════════════
+   IL DATABASE DELLA LEGA, SU FIREBASE
+
+   L'applicazione parla una sola lingua — `doc`, `collection`,
+   `onSnapshot` — e qui la si traduce per Firestore. È la stessa presa
+   a cui si attacca il database finto della demo: l'applicazione non sa
+   e non deve sapere chi c'è dall'altra parte.
+
+   Perché Firebase e non un server nostro: i dieci presidenti devono
+   entrare da un link, senza registrarsi da nessuna parte. L'accesso è
+   anonimo — Firebase dà a ogni visitatore un'identità usa e getta —
+   e serve solo a poter chiudere il database a chi non passa da questa
+   pagina. Chi sei nella lega lo decide il codice della tua squadra,
+   che è un'altra cosa e sta dentro l'applicazione.
+   ═══════════════════════════════════════════════════════════════ */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import {
+  getFirestore, doc, collection, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, limit, where, addDoc,
+} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+function spiegaIlGuasto(titolo, righe) {
+  document.body.innerHTML = `<div class="avvio-guasto">
+    <h1>${titolo}</h1>${righe.map((r) => `<p>${r}</p>`).join("")}</div>`;
+}
+
+try {
+  if (!window.CONFIGURAZIONE_FIREBASE?.projectId) {
+    spiegaIlGuasto("Manca la configurazione", [
+      "Il file <code>firebase-config.js</code> non porta ancora i dati del progetto Firebase.",
+      "Chi amministra la lega li trova nella console Firebase, in <b>Impostazioni progetto → Le tue app</b>, e li incolla in quel file.",
+    ]);
+    window.__risolviDb(null);
+  } else {
+    const app = initializeApp(window.CONFIGURAZIONE_FIREBASE);
+    const fs = getFirestore(app);
+
+    /* L'accesso anonimo non chiede niente a nessuno: serve solo perché le
+       regole del database possano distinguere «arriva dalla pagina» da
+       «arriva da chissà dove». Se fallisce si va avanti lo stesso: con le
+       regole aperte funziona comunque, e con quelle chiuse lo dirà la
+       prima lettura, invece di lasciare una pagina bianca. */
+    try { await signInAnonymously(getAuth(app)); }
+    catch (e) { console.warn("accesso anonimo non riuscito:", e?.code ?? e); }
+
+    /* ── La traduzione ─────────────────────────────────────────── */
+
+    const istantanea = (snap) => ({
+      id: snap.id,
+      exists: snap.exists(),
+      data: () => (snap.exists() ? snap.data() : undefined),
+      metadata: { fromCache: snap.metadata?.fromCache ?? false,
+                  hasPendingWrites: snap.metadata?.hasPendingWrites ?? false },
+    });
+
+    const perQuery = (snap) => ({
+      docs: snap.docs.map(istantanea),
+      size: snap.size,
+      empty: snap.empty,
+      docChanges: () => snap.docChanges().map((c) => ({ type: c.type, doc: istantanea(c.doc), oldIndex: c.oldIndex, newIndex: c.newIndex })),
+      metadata: { fromCache: snap.metadata?.fromCache ?? false, hasPendingWrites: false },
+    });
+
+    function documento(percorso) {
+      const rif = doc(fs, percorso);
+      return {
+        id: rif.id,
+        path: percorso,
+        get: async () => istantanea(await getDoc(rif)),
+        /* `set` scrive il documento intero, come fa l'applicazione ovunque. */
+        set: (corpo) => setDoc(rif, corpo),
+        update: (corpo) => updateDoc(rif, corpo),
+        delete: () => deleteDoc(rif),
+        onSnapshot: (avanti, errore) =>
+          onSnapshot(rif, (snap) => avanti(istantanea(snap)),
+                     (e) => errore?.({ code: e.code ?? "unavailable", message: e.message })),
+        collection: (sotto) => collezione(percorso + "/" + sotto),
+      };
+    }
+
+    function collezione(percorso) {
+      const rif = collection(fs, percorso);
+      const costruisci = (vincoli) => {
+        const q = () => (vincoli.length ? query(rif, ...vincoli) : rif);
+        return {
+          path: percorso,
+          doc: (id) => (id ? documento(percorso + "/" + id) : documento(percorso + "/" + doc(rif).id)),
+          add: async (corpo) => { const r = await addDoc(rif, corpo); return documento(percorso + "/" + r.id); },
+          orderBy: (campo, verso = "asc") => costruisci([...vincoli, orderBy(campo, verso)]),
+          limit: (n) => costruisci([...vincoli, limit(n)]),
+          where: (campo, op, valore) => costruisci([...vincoli, where(campo, op, valore)]),
+          get: async () => perQuery(await getDocs(q())),
+          onSnapshot: (avanti, errore) =>
+            onSnapshot(q(), (snap) => avanti(perQuery(snap)),
+                       (e) => errore?.({ code: e.code ?? "unavailable", message: e.message })),
+        };
+      };
+      return costruisci([]);
+    }
+
+    window.__risolviDb({ doc: documento, collection: collezione });
+  }
+} catch (errore) {
+  console.error(errore);
+  spiegaIlGuasto("La lega non si apre", [
+    "Non sono riuscito a collegarmi al database.",
+    `Il messaggio esatto è: <code>${String(errore?.message ?? errore)}</code>`,
+    "Se hai appena creato il progetto Firebase, controlla che il database Firestore sia stato creato e che le regole consentano l'accesso.",
+  ]);
+  window.__risolviDb?.(null);
+}
+</script>
+</head>
+<body>
 <title>Dynasty League</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2764,3 +2921,6 @@ disegna();
   ascolta();
 })();
 </script>
+
+</body>
+</html>

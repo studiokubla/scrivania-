@@ -138,7 +138,7 @@
   /* Il database della demo si presenta qui, non al posto di `window.claude`:
      dentro un artifact pubblicato quell'oggetto è della piattaforma, e provare
      a rimpiazzarlo lascerebbe la demo senza dati senza dire niente. */
-  window.DYNASTY_DEMO = { doc: documento, collection: collezione };
+  window.DYNASTY_DB = { doc: documento, collection: collezione };
 
   /* Rimettere la lega di esempio: la demo si esplora, si rompe e si rifà. */
   window.rimettiLaDemo = () => {
@@ -2902,14 +2902,18 @@ riprendiIo();
 disegna();
 
 (async () => {
-  /* Tre situazioni, un solo avvio:
-     · la lega vera, dove il database arriva dalla piattaforma;
-     · la demo, che ne mette uno finto su `window.DYNASTY_DEMO` — non
-       sovrascrive `window.claude`, che è della piattaforma e in un artifact
-       pubblicato non si lascia sostituire;
+  /* Quattro situazioni, un solo avvio:
+     · il sito pubblico, dove il database è Firebase e arriva da una promessa
+       (`DYNASTY_DB_ATTESA`) perché la libreria si carica dopo questo script;
+     · la demo, che ne mette uno finto su `window.DYNASTY_DB`;
+     · la lega su claude.ai, dove il database lo dà la piattaforma;
      · la pagina aperta da sola, dove `claude` non esiste affatto e l'unica
-       cosa sensata è dirlo invece di rompersi. */
-  db = window.DYNASTY_DEMO ?? (typeof claude !== "undefined" ? await claude.use("db") : null);
+       cosa sensata è dirlo invece di rompersi.
+     Nessuna di queste tocca `window.claude`, che è della piattaforma e in un
+     artifact pubblicato non si lascia sostituire. */
+  db = (window.DYNASTY_DB_ATTESA ? await window.DYNASTY_DB_ATTESA : null)
+    ?? window.DYNASTY_DB
+    ?? (typeof claude !== "undefined" ? await claude.use("db") : null);
   if (!db) { stato.pronto = true; disegna(); return; }
   ascolta();
 })();
