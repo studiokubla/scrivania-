@@ -194,13 +194,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .segno {
   height: 25px; width: auto; flex: none;
   fill: url(#lastra-marchio);
-  filter: drop-shadow(0 0 7px rgba(210, 247, 106, .40));
+  /* Niente alone. Un bagliore lime attorno a una sagoma lime piena non
+     aggiunge profondità: sfuma il bordo, e un bordo sfumato su un
+     profilo tutto spigoli si legge come una linea che trema. */
 }
 .segno.alto {
   /* Alto quanto le tre righe insieme, come nei marchi da cui viene:
      un segno più basso del logotipo sembra un'icona appiccicata. */
   height: clamp(76px, 21vw, 100px);
-  filter: drop-shadow(0 0 12px rgba(210,247,106,.42)) drop-shadow(0 0 40px rgba(150,220,60,.28));
 }
 
 /* Il marchio intero: segno a sinistra, logotipo a destra, allineati
@@ -780,12 +781,12 @@ const REGOLE = {
  * che stampa la riga da incollare qui sotto: i vertici stanno tutti in
  * una lista, e spostare un picco è cambiare due numeri.
  */
-const SEGNO = `<path d="M14,112 L56,78 L80,218 L114,26 L146,212 L174,124 L197,274 L208,268 L228,8 L248,150 L248,238 C248,300 218,304 121,304 C44,304 14,292 14,238 Z"/>`;
+const SEGNO = `<path d="M16,100 L60,80 L70,204 L98,20 L126,204 L154,92 L182,204 L186,266 L196,262 L222,10 L248,150 L248,248 C248,296 218,300 132,300 C46,300 16,288 16,248 Z"/>`;
 
 /** Il solo segno. Lo stesso disegno a ogni misura: sta in piedi anche a
  *  ventiquattro pixel, ed è il motivo per cui è fatto così. */
 function segno(classe = "") {
-  return `<svg class="segno ${classe}" viewBox="0 0 264 320" aria-hidden="true">${SEGNO}</svg>`;
+  return `<svg class="segno ${classe}" viewBox="0 0 264 316" aria-hidden="true">${SEGNO}</svg>`;
 }
 
 /** Segno e logotipo affiancati: il marchio intero, per le schermate
