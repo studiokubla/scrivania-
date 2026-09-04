@@ -177,47 +177,44 @@ try {
 :root {
   color-scheme: dark;
 
-  /* Il fondo non è nero puro: è un nero con dentro un po' di verde,
-     così l'accento non ci atterra sopra come su una lavagna. */
-  --notte:        #0B0E0B;
-  --notte-alta:   #12160F;
+  /* Il fondo non è nero: è un verde-grigio scuro, come una fotografia
+     tenuta in ombra. Il nero pieno spegne il vetro — non c'è niente da
+     lasciar passare — ed è la ragione per cui la prima versione sembrava
+     un pannello di controllo invece di un'app. */
+  --fondo:        #23271F;
 
-  /* Le superfici sono trasparenze, non tinte piatte: prendono luce da
-     quello che hanno sotto. */
-  --vetro:        rgba(255, 255, 255, .045);
-  --vetro-alto:   rgba(255, 255, 255, .075);
-  --vetro-basso:  rgba(255, 255, 255, .025);
-  --bordo:        rgba(255, 255, 255, .09);
-  --bordo-forte:  rgba(255, 255, 255, .16);
+  /* Le superfici sono vetro vero: molto trasparenti, con un blur forte.
+     Prendono il colore da quello che hanno sotto, che cambia mentre si
+     scorre. */
+  --vetro:        rgba(232, 240, 220, .07);
+  --vetro-alto:   rgba(232, 240, 220, .13);
+  --bordo:        rgba(255, 255, 255, .10);
+  --bordo-forte:  rgba(255, 255, 255, .20);
 
-  --luce:         #F2F5EE;
-  --luce-media:   #A7B0A0;
-  --luce-fioca:   #6E766A;
+  --luce:         #F4F7EE;
+  --luce-media:   #C3CBB8;
+  --luce-fioca:   #8D9683;
 
-  /* Il lime è il colore che comanda. Il verde profondo serve solo agli
-     aloni, dove non deve gridare. */
-  --lime:         #C8F751;
-  --lime-caldo:   #A8E63F;
-  --lime-fioco:   rgba(200, 247, 81, .14);
-  --verde-cupo:   #1E4D2B;
-  --verde-alone:  #2F7A3F;
+  --lime:         #D2F76A;
+  --lime-caldo:   #B9EC45;
+  --lime-fioco:   rgba(210, 247, 106, .16);
 
-  --allarme:      #FF8A72;
-  --allarme-tenue: rgba(255, 138, 114, .13);
-  --avviso:       #F0C766;
-  --avviso-tenue: rgba(240, 199, 102, .12);
+  --allarme:      #FFA48C;
+  --allarme-tenue: rgba(255, 164, 140, .15);
+  --avviso:       #F5D488;
+  --avviso-tenue: rgba(245, 212, 136, .14);
   --ok:           var(--lime);
-  --ok-tenue:     var(--lime-fioco);
 
-  /* Nel buio le ombre non si vedono: la profondità la fanno il bordo
-     chiaro in cima e l'alone colorato. */
-  --ombra:      0 1px 0 rgba(255,255,255,.05) inset, 0 10px 30px rgba(0,0,0,.5);
-  --ombra-alta: 0 1px 0 rgba(255,255,255,.07) inset, 0 24px 60px rgba(0,0,0,.65);
-  --alone-lime: 0 8px 30px rgba(200, 247, 81, .28);
+  --ombra:      0 1px 0 rgba(255,255,255,.06) inset, 0 12px 34px rgba(0,0,0,.35);
+  --ombra-alta: 0 1px 0 rgba(255,255,255,.09) inset, 0 28px 70px rgba(0,0,0,.5);
+  --alone-lime: 0 10px 34px rgba(210, 247, 106, .3);
 
-  --raggio:   22px;
-  --raggio-s: 16px;
-  --raggio-xs: 12px;
+  /* Una superficie opaca, per i pochi punti in cui il vetro non si può
+     usare: sotto una colonna che resta ferma mentre la tabella scorre. */
+  --superficie-piena: #1F2419;
+
+  --raggio:   26px;
+  --raggio-s: 18px;
 
   --display: "Manrope", system-ui, sans-serif;
   --testo:   "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -228,7 +225,7 @@ try {
 
 body {
   margin: 0;
-  background: var(--notte);
+  background: var(--fondo);
   color: var(--luce);
   font-family: var(--testo);
   font-size: 15px;
@@ -239,30 +236,48 @@ body {
 }
 
 /**
- * La luce della pagina.
+ * Lo sfondo.
  *
- * Due aloni sfocati, uno verde acceso in alto a destra e uno più cupo in
- * basso a sinistra, dipinti dietro a tutto. È da lì che viene la
- * profondità: nel buio le ombre non si vedono, la luce sì. Restano fermi
- * mentre il contenuto scorre, così la pagina sembra appoggiata su una
- * superficie invece che stampata.
+ * Non gradienti geometrici — si vedeva che erano gradienti — ma macchie
+ * organiche di verdi diversi, sfocate forte: quello che in fotografia si
+ * chiama bokeh. È un SVG disegnato qui dentro, quindi non c'è niente da
+ * scaricare, resta nitido su qualunque schermo e pesa meno di questo
+ * commento. Sta fermo mentre il contenuto scorre, così le superfici di
+ * vetro cambiano colore man mano che ci passano sopra.
  */
 body::before {
   content: "";
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%201400%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%20%3Cdefs%3E%3Cfilter%20id%3D%22s%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%20%3CfeGaussianBlur%20stdDeviation%3D%2295%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%22800%22%20height%3D%221400%22%20fill%3D%22%2323271F%22%2F%3E%20%3Cg%20filter%3D%22url%28%23s%29%22%3E%20%3Cellipse%20cx%3D%22640%22%20cy%3D%22140%22%20rx%3D%22300%22%20ry%3D%22230%22%20fill%3D%22%2393B060%22%20opacity%3D%22.85%22%2F%3E%20%3Cellipse%20cx%3D%22250%22%20cy%3D%2260%22%20rx%3D%22240%22%20ry%3D%22170%22%20fill%3D%22%233D4636%22%2F%3E%20%3Cellipse%20cx%3D%2290%22%20cy%3D%22430%22%20rx%3D%22260%22%20ry%3D%22220%22%20fill%3D%22%237E9B52%22%20opacity%3D%22.55%22%2F%3E%20%3Cellipse%20cx%3D%22700%22%20cy%3D%22620%22%20rx%3D%22230%22%20ry%3D%22260%22%20fill%3D%22%232C3326%22%2F%3E%20%3Cellipse%20cx%3D%22380%22%20cy%3D%22820%22%20rx%3D%22330%22%20ry%3D%22250%22%20fill%3D%22%238FAE5C%22%20opacity%3D%22.45%22%2F%3E%20%3Cellipse%20cx%3D%22120%22%20cy%3D%221120%22%20rx%3D%22280%22%20ry%3D%22230%22%20fill%3D%22%2339422F%22%2F%3E%20%3Cellipse%20cx%3D%22690%22%20cy%3D%221250%22%20rx%3D%22300%22%20ry%3D%22240%22%20fill%3D%22%237A9750%22%20opacity%3D%22.5%22%2F%3E%20%3Cellipse%20cx%3D%22400%22%20cy%3D%221400%22%20rx%3D%22360%22%20ry%3D%22200%22%20fill%3D%22%231B1F18%22%2F%3E%20%3C%2Fg%3E%3C%2Fsvg%3E") center / cover no-repeat, var(--fondo);
+}
+
+/* Un velo scuro sopra le macchie: senza, il testo chiaro sulle zone più
+   luminose perde il contrasto. Con, il fondo resta vivo e le parole si
+   leggono ovunque.
+
+   È volutamente leggero. Un velo più fitto — la prima misura — rendeva
+   sì il testo comodissimo, ma spegneva le macchie fino a farle sembrare
+   una sfumatura sola: il fondo diventava piatto, che è esattamente il
+   difetto da cui si partiva. Il contrasto del testo lo tengono le
+   superfici di vetro, che sotto le parole ci sono quasi sempre. */
+body::after {
+  content: "";
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(70vw 55vh at 88% -8%,  rgba(200, 247, 81, .22), transparent 62%),
-    radial-gradient(60vw 50vh at 5% 18%,   rgba(47, 122, 63, .30),  transparent 66%),
-    radial-gradient(80vw 60vh at 50% 108%, rgba(47, 122, 63, .18),  transparent 70%),
-    var(--notte);
+    linear-gradient(180deg, rgba(23,26,21,.10) 0%, rgba(23,26,21,.26) 45%, rgba(23,26,21,.46) 100%);
 }
 
 h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
-/* I titoli sono grandi e leggeri: in una pagina scura il peso lo dà la
-   dimensione, e il grassetto su fondo nero impasta. */
-h1 { font-size: clamp(34px, 9vw, 46px); font-weight: 500; line-height: 1.02; letter-spacing: -.035em; }
-h2 { font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
+/* I titoli sono grandi e **sottili**: su un fondo con delle macchie chiare
+   il grassetto diventa una macchia a sua volta, mentre un peso leggero in
+   corpo grande resta arioso e si legge lo stesso. */
+h1 { font-size: clamp(36px, 10vw, 52px); font-weight: 300; line-height: 1.0; letter-spacing: -.04em; }
+h2 { font-size: 22px; font-weight: 500; letter-spacing: -.025em; }
 h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+
+/* Una parola del titolo accesa di lime: è il modo più semplice per dire di
+   cosa parla la pagina senza aggiungere una riga di testo. */
+h1 .acceso { color: var(--lime); font-weight: 400; }
 p { margin: 0; }
 
 .num { font-family: var(--numeri); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
@@ -285,18 +300,20 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 
 .guscio { min-height: 100vh; display: flex; flex-direction: column; }
 
-/* La testata sta ferma mentre il contenuto le scorre sotto, e sotto ci
-   passa anche la carta lime del tetto: con un velo troppo leggero il
-   nome della lega diventava illeggibile per un istante. Il fondo è
-   quindi quasi pieno, e sfuma sotto invece di tagliare netto. */
+/* La testata sta ferma mentre il contenuto le scorre sotto, ed è di
+   vetro come tutto il resto: un rettangolo nero pieno — la prima
+   misura — tagliava il fondo verde con una riga netta a un centimetro
+   dal bordo, e si vedeva solo quella. Qui invece prende il colore di
+   quello che le passa sotto. Il velo è appena più fitto in alto, dove
+   sta il nome, e sfuma verso il basso invece di finire di colpo. */
 .testata {
   position: sticky; top: 0; z-index: 30;
   display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px;
-  background: linear-gradient(180deg, rgba(9, 12, 9, .94) 0%, rgba(9, 12, 9, .88) 70%, rgba(9, 12, 9, .78) 100%);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
-  border-bottom: 1px solid var(--bordo);
+  padding: 13px 16px;
+  background: linear-gradient(180deg, rgba(18, 23, 17, .72) 0%, rgba(18, 23, 17, .58) 65%, rgba(18, 23, 17, .34) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-bottom: 1px solid rgba(255,255,255,.07);
 }
 .marchio {
   display: flex; align-items: center; gap: 9px; min-width: 0;
@@ -314,27 +331,33 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .chi-sono { font-size: 12px; color: var(--luce-fioca); text-align: right; line-height: 1.25; }
 .chi-sono b { display: block; color: var(--luce); font-size: 13px; font-weight: 600; }
 
-.lavoro { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 22px 16px 140px; }
+.lavoro { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 26px 18px 150px; }
 @media (min-width: 860px) { .lavoro { padding-bottom: 48px; } }
 
 /* La navigazione galleggia in basso, dove arriva il pollice. Vetro scuro
    e la voce attiva accesa di lime: si trova senza cercarla. */
 .navigazione {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; z-index: 40;
-  display: flex; gap: 3px; padding: 6px;
-  background: rgba(20, 25, 20, .72);
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  display: flex; gap: 2px; padding: 5px;
+  background: rgba(14, 18, 13, .90);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
   border: 1px solid var(--bordo-forte);
   border-radius: 999px;
   box-shadow: var(--ombra-alta);
   max-width: calc(100vw - 24px); overflow-x: auto; scrollbar-width: none;
+  /* Le voci sono otto e in un telefono non ci stanno: la barra scorre.
+     Perché si capisca — e perché non sembri una parola tagliata a metà —
+     i due bordi sfumano, e la voce attiva viene portata in vista da sé. */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+  scroll-behavior: smooth;
 }
 .navigazione::-webkit-scrollbar { display: none; }
 .navigazione button {
   border: 0; background: transparent; color: var(--luce-media);
-  padding: 10px 16px; border-radius: 999px; white-space: nowrap;
-  font-size: 13.5px; font-weight: 500; transition: color .15s ease, background .15s ease;
+  padding: 10px 15px; border-radius: 999px; white-space: nowrap;
+  font-size: 13px; font-weight: 500; transition: color .15s ease, background .15s ease;
 }
 .navigazione button:hover { color: var(--luce); }
 .navigazione button[aria-current="page"] {
@@ -347,12 +370,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .navigazione {
     position: sticky; top: 68px; transform: none; left: auto; bottom: auto;
     margin: 0 auto 6px; width: fit-content; max-width: none;
+    -webkit-mask-image: none; mask-image: none;
   }
 }
 
 /* ── Blocchi ──────────────────────────────────────────────── */
 
-.sezione { margin-bottom: 30px; }
+.sezione { margin-bottom: 24px; }
+@media (min-width: 860px) { .sezione { margin-bottom: 34px; } }
 .intestazione-sezione { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 13px; }
 .intestazione-sezione .conteggio {
   font-size: 12px; font-weight: 600; color: var(--lime);
@@ -363,11 +388,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
    bordo chiaro in cima, come una superficie inclinata verso la luce. */
 .riquadro {
   background: var(--vetro);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(26px) saturate(130%);
+  -webkit-backdrop-filter: blur(26px) saturate(130%);
   border: 1px solid var(--bordo);
   border-radius: var(--raggio);
-  padding: 18px;
+  padding: 20px;
+  box-shadow: var(--ombra);
 }
 
 /**
@@ -383,16 +409,19 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
     radial-gradient(120% 140% at 88% 0%, rgba(255,255,255,.35), transparent 55%),
     linear-gradient(150deg, var(--lime) 0%, var(--lime-caldo) 45%, #4E9E45 100%);
   color: #09140A;
-  border-radius: var(--raggio); padding: 22px;
-  display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;
+  border-radius: var(--raggio); padding: 17px 18px;
+  display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end;
   box-shadow: 0 18px 44px rgba(120, 190, 50, .22);
 }
 .tetto .occhiello { color: rgba(9, 20, 10, .58); }
+/* La cifra era in `11vw`: su un telefono diventava alta un dito e i due
+   numeri finivano uno sotto l'altro, prendendosi mezzo schermo per dire
+   due cose. Sta stretta, e sta in riga. */
 .tetto .cifra {
   font-family: var(--display); font-weight: 700;
-  font-size: clamp(38px, 11vw, 54px); line-height: .92; letter-spacing: -.045em;
+  font-size: clamp(31px, 8vw, 46px); line-height: .95; letter-spacing: -.045em;
 }
-.tetto .sotto { font-size: 13px; color: rgba(9, 20, 10, .66); margin-top: 5px; font-weight: 500; }
+.tetto .sotto { font-size: 12.5px; color: rgba(9, 20, 10, .66); margin-top: 4px; font-weight: 500; }
 .tetto.sforato {
   background:
     radial-gradient(120% 140% at 88% 0%, rgba(255,255,255,.3), transparent 55%),
@@ -418,9 +447,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .elenco {
   display: flex; flex-direction: column;
   background: var(--vetro);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(26px) saturate(130%); -webkit-backdrop-filter: blur(26px) saturate(130%);
   border: 1px solid var(--bordo);
   border-radius: var(--raggio); overflow: hidden;
+  box-shadow: var(--ombra);
 }
 .voce {
   display: flex; align-items: center; gap: 12px;
@@ -477,16 +507,16 @@ button.voce:hover { background: var(--vetro-alto); }
    metà schermo di filtri è metà schermo tolto ai giocatori. */
 .filtri.scorrevoli {
   flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
-  margin: 0 -16px 13px; padding: 2px 16px;
+  margin: 0 -18px 11px; padding: 2px 18px;
   scroll-snap-type: x proximity;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 26px), transparent);
-          mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 26px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 17px, #000 calc(100% - 30px), transparent);
+          mask-image: linear-gradient(90deg, transparent 0, #000 17px, #000 calc(100% - 30px), transparent);
 }
 .filtri.scorrevoli::-webkit-scrollbar { display: none; }
 .filtri.scorrevoli .pillola { flex: none; scroll-snap-align: start; }
 .pillola {
   border: 1px solid var(--bordo); background: var(--vetro); color: var(--luce-media);
-  padding: 8px 15px; border-radius: 999px; font-size: 13px; font-weight: 500;
+  padding: 7px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 500;
   transition: all .15s ease;
 }
 .pillola:hover { color: var(--luce); border-color: var(--bordo-forte); }
@@ -507,7 +537,7 @@ input[type="text"], input[type="number"], input[type="search"], select, textarea
 }
 input:focus, select:focus, textarea:focus { background: var(--vetro-alto); border-color: var(--bordo-forte); }
 input::placeholder, textarea::placeholder { color: var(--luce-fioca); }
-select option { background: var(--notte-alta); color: var(--luce); }
+select option { background: var(--superficie-piena); color: var(--luce); }
 label.campo { display: block; }
 label.campo > span { display: block; font-size: 12px; font-weight: 600; color: var(--luce-fioca); margin-bottom: 6px; }
 
@@ -542,13 +572,14 @@ label.campo > span { display: block; font-size: 12px; font-weight: 600; color: v
 
 .velo {
   position: fixed; inset: 0; z-index: 60;
-  background: rgba(5, 7, 5, .72);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: rgba(9, 13, 8, .52);
+  backdrop-filter: blur(14px) saturate(120%); -webkit-backdrop-filter: blur(14px) saturate(120%);
   display: flex; align-items: flex-end; justify-content: center;
 }
 @media (min-width: 700px) { .velo { align-items: center; } }
 .foglio {
-  background: linear-gradient(180deg, #171C15 0%, var(--notte-alta) 100%);
+  background: linear-gradient(180deg, rgba(52, 61, 43, .90) 0%, rgba(31, 37, 26, .94) 100%);
+  backdrop-filter: blur(34px) saturate(140%); -webkit-backdrop-filter: blur(34px) saturate(140%);
   border: 1px solid var(--bordo-forte); border-bottom: 0;
   width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
   border-radius: 26px 26px 0 0; padding: 22px 18px calc(26px + env(safe-area-inset-bottom));
@@ -573,15 +604,57 @@ label.campo > span { display: block; font-size: 12px; font-weight: 600; color: v
   border-color: var(--lime); background: var(--lime-fioco);
   box-shadow: 0 0 0 1px var(--lime) inset;
 }
-.scelta[disabled] { opacity: .38; }
+/* Una scelta spenta va spenta, ma non cancellata: sotto il titolo c'è
+   scritto *perché* non si può prendere — «ne ha 27, oltre i 22» — ed è
+   l'unica riga che spiega il rifiuto prima che accada. A .38 non si
+   leggeva. */
+.scelta[disabled] { opacity: .62; filter: saturate(.5); }
 .scelta b { display: block; font-size: 14px; font-weight: 600; }
 .scelta small { color: var(--luce-fioca); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px; }
 
 .tabellina { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.tabellina th { text-align: left; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--luce-fioca); padding: 0 10px 9px; font-weight: 600; }
-.tabellina td { padding: 11px 10px; border-top: 1px solid var(--bordo); }
+.tabellina th { text-align: left; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--luce-fioca); padding: 0 10px 9px; font-weight: 600; white-space: nowrap; }
+.tabellina td { padding: 11px 10px; border-top: 1px solid var(--bordo); white-space: nowrap; }
 .tabellina td.n { text-align: right; font-family: var(--numeri); font-variant-numeric: tabular-nums; }
-.scorre { overflow-x: auto; }
+
+/* Una tabella di sette colonne dentro un telefono: o si accetta che
+   scorra, o si accetta che ogni nome vada a capo su tre righe. Scorre —
+   ma la prima colonna resta ferma, altrimenti a metà scorrimento non si
+   sa più di chi sia la riga che si sta leggendo. */
+.scorre { overflow-x: auto; scrollbar-width: none; }
+.scorre::-webkit-scrollbar { display: none; }
+.riquadro.scorre {
+  background: var(--superficie-piena);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.scorre .tabellina th:first-child,
+.scorre .tabellina td:first-child {
+  position: sticky; left: 0; z-index: 1;
+  background: var(--superficie-piena);
+  box-shadow: 10px 0 14px -10px rgba(0,0,0,.55);
+}
+
+/* Da una certa larghezza in su la tabella ci sta tutta e non scorre: la
+   colonna non ha più bisogno di restare ferma, e il riquadro può tornare
+   di vetro come tutti gli altri. */
+@media (min-width: 860px) {
+  .riquadro.scorre {
+    background: var(--vetro);
+    backdrop-filter: blur(26px) saturate(130%); -webkit-backdrop-filter: blur(26px) saturate(130%);
+  }
+  .scorre .tabellina th:first-child,
+  .scorre .tabellina td:first-child { position: static; background: none; box-shadow: none; }
+  .scorre .tabellina tr.questa td:first-child { background: var(--lime-fioco); }
+}
+
+/* La riga di dove sei adesso. La tinta va messa due volte: sulla riga per
+   le celle che scorrono, e sopra la superficie piena per la colonna
+   ferma, che è opaca e altrimenti resterebbe l'unica cella spenta della
+   riga accesa. */
+.tabellina tr.questa td { background: var(--lime-fioco); }
+.scorre .tabellina tr.questa td:first-child {
+  background: linear-gradient(var(--lime-fioco), var(--lime-fioco)), var(--superficie-piena);
+}
 
 /* ── L'albo d'oro ─────────────────────────────────────────────
    L'unica parte che guarda indietro invece che avanti, e l'unica dove
@@ -1733,7 +1806,7 @@ function vistaSenzaDatabase() {
 function vistaFondazione() {
   return `<div class="lavoro" style="max-width:560px">
     <p class="occhiello">${pulito(STAGIONE)}</p>
-    <h1 style="margin:6px 0 10px">Fondiamo la lega</h1>
+    <h1 style="margin:6px 0 14px">Fondiamo la <span class="acceso">lega</span></h1>
     <p style="color:var(--luce-media); margin-bottom:20px; max-width:52ch">
       Dieci squadre, un commissioner, ${LISTONE.length} giocatori di Serie A da contendersi.
       Serve un nome e un codice per te: sei tu che iscrivi i presidenti.
@@ -1768,7 +1841,7 @@ function vistaIngresso() {
 
   return `<div class="lavoro" style="max-width:560px">
     <p class="occhiello">${pulito(stato.config.nome)} · ${pulito(STAGIONE)}</p>
-    <h1 style="margin:6px 0 16px">Chi sei?</h1>
+    <h1 style="margin:6px 0 20px">Chi <span class="acceso">sei</span>?</h1>
     ${stato.squadre.length === 0
       ? `<div class="avviso neutro" style="margin-bottom:14px">Non c'è ancora nessuna squadra:
          entra da commissioner e iscrivi i dieci presidenti.</div>`
@@ -1958,19 +2031,19 @@ function paginaRosa() {
 
   return `
     <p class="occhiello">${pulito(squadra.nome)}</p>
-    <h1 style="margin:6px 0 16px">Rosa</h1>
+    <h1 style="margin:6px 0 18px">La tua <span class="acceso">rosa</span></h1>
     ${selettore}
 
     <div class="tetto ${conto.sforato ? "sforato" : ""}" style="margin-bottom:14px">
-      <div style="flex:1 1 190px">
+      <div style="flex:1 1 148px;min-width:0">
         <div class="occhiello" style="color:inherit;opacity:.6">Spazio salariale</div>
         <div class="cifra num">${soldi(conto.spazio)}</div>
         <div class="sotto num">${soldi(conto.speso)} spesi su ${REGOLE.tetto} M di tetto${
           conto.pesoMorto > 0 ? `, di cui ${soldi(conto.pesoMorto)} di svincolati` : ""}</div>
       </div>
-      <div style="flex:1 1 130px">
+      <div style="flex:1 1 104px;min-width:0">
         <div class="occhiello" style="color:inherit;opacity:.6">In rosa</div>
-        <div class="cifra num" style="font-size:32px">${conto.numero}<span style="font-size:17px;opacity:.6">/${REGOLE.rosaMin}</span></div>
+        <div class="cifra num" style="font-size:clamp(26px,7vw,34px)">${conto.numero}<span style="font-size:17px;opacity:.6">/${REGOLE.rosaMin}</span></div>
         <div class="sotto">${conto.slotLiberi} slot pluriennali liberi</div>
       </div>
       <div class="barra-tetto"><span class="${conto.sforato ? "sforato" : ""}" style="width:${quota}%"></span></div>
@@ -2059,7 +2132,7 @@ function bloccoListone({ soloLettura = false } = {}) {
   return `
     <input type="search" id="cerca-listone" value="${pulito(filtri.testo)}"
            placeholder="Cerca per cognome o squadra" autocomplete="off" spellcheck="false">
-    <div class="filtri">
+    <div class="filtri scorrevoli">
       <button class="pillola" data-ruolo="" aria-pressed="${!filtri.ruolo && !filtri.mantra}">Tutti</button>
       ${ORDINE_RUOLI.map((r) => `<button class="pillola" data-ruolo="${r}" aria-pressed="${filtri.ruolo === r}">${NOME_RUOLO_PL[r][0].toUpperCase() + NOME_RUOLO_PL[r].slice(1)}</button>`).join("")}
     </div>
@@ -2081,11 +2154,11 @@ function bloccoListone({ soloLettura = false } = {}) {
 
 function paginaListone() {
   return `
-    <h1>Listone</h1>
-    <p style="color:var(--luce-media); margin:6px 0 4px">
-      I ${LISTONE.length} giocatori di Serie A ${pulito(STAGIONE)}, con quotazione ed età.
-      Il filtro <b>Primavera</b> tiene chi può entrare nel settore giovanile:
-      fino a ${REGOLE.primavera.etaMax} anni e non oltre ${REGOLE.primavera.quotazioneMax} M di quotazione.
+    <h1>Il <span class="acceso">listone</span></h1>
+    <p style="color:var(--luce-media); font-size:13.5px; margin:6px 0 2px">
+      ${LISTONE.length} giocatori di Serie A ${pulito(STAGIONE)}.
+      <b>Primavera</b> = fino a ${REGOLE.primavera.etaMax} anni e non oltre
+      ${REGOLE.primavera.quotazioneMax} M.
     </p>
     ${bloccoListone()}`;
 }
@@ -2275,7 +2348,7 @@ function paginaMercato() {
   };
 
   return `
-    <h1>Mercato</h1>
+    <h1>Il <span class="acceso">mercato</span></h1>
     <p style="color:var(--luce-media);margin:6px 0 14px">
       L'asta di settembre si fa al tavolo. Qui passa quello che viene dopo: i giocatori rimasti
       liberi, chi viene tagliato e gli scambi fra squadre.
@@ -2344,7 +2417,7 @@ function paginaSocieta() {
     const attuale = livello.livello === s.stadio;
     const salto = costoSalto(s.stadio, livello.livello);
     const raggiungibile = livello.livello > s.stadio;
-    return `<tr style="${attuale ? "background:var(--lime-fioco)" : ""}">
+    return `<tr class="${attuale ? "questa" : ""}">
       <td><b>${livello.livello} · ${pulito(livello.nome)}</b>${attuale ? ` <span class="targhetta ok">il tuo</span>` : ""}</td>
       <td class="n num">${soldi(aQuarti(livello.costruzione))}</td>
       <td class="n num">${soldi(aQuarti(livello.manutenzione))}</td>
@@ -2386,18 +2459,18 @@ function paginaSocieta() {
 
   return `
     <p class="occhiello">${pulito(squadra.nome)}</p>
-    <h1 style="margin:6px 0 16px">Società</h1>
+    <h1 style="margin:6px 0 18px">La tua <span class="acceso">società</span></h1>
     ${selettore}
 
     <div class="tetto" style="margin-bottom:14px">
-      <div style="flex:1 1 190px">
+      <div style="flex:1 1 130px;min-width:0">
         <div class="occhiello" style="color:inherit;opacity:.6">Capitale</div>
         <div class="cifra num">${soldi(s.capitale)}</div>
         <div class="sotto">${manutenzione > 0 ? `${soldi(manutenzione)} di mantenimento all'anno` : "nessun costo fisso"}</div>
       </div>
-      <div style="flex:1 1 160px">
+      <div style="flex:1 1 132px;min-width:0">
         <div class="occhiello" style="color:inherit;opacity:.6">Stadio</div>
-        <div class="cifra num" style="font-size:28px">${conto ? pulito(conto.nome) : "nessuno"}</div>
+        <div class="cifra num" style="font-size:clamp(22px,6vw,28px)">${conto ? pulito(conto.nome) : "nessuno"}</div>
         <div class="sotto">${conto ? `+${soldi(aQuarti(conto.netto))} l'anno · ${conto.fantapunti} fantapunti in casa` : "si gioca in trasferta da sempre"}</div>
       </div>
     </div>
@@ -2684,7 +2757,7 @@ function paginaAlbo() {
   };
 
   return `
-    <h1>Albo d'oro</h1>
+    <h1>Albo <span class="acceso">d'oro</span></h1>
     <p style="color:var(--luce-media);margin:6px 0 18px">
       Quello che resta quando la stagione è finita. Le classifiche si scrivono qui una volta sola,
       e da qui non si cancellano più.
@@ -2762,7 +2835,7 @@ function foglioVerdetto() {
 
 function paginaRegistro() {
   if (!stato.registro.length) {
-    return `<h1>Registro</h1><div class="vuoto riquadro" style="margin-top:16px">
+    return `<h1>Il <span class="acceso">registro</span></h1><div class="vuoto riquadro" style="margin-top:16px">
       Ancora nessuna operazione. Qui finisce tutto quello che succede nella lega, in ordine di tempo.</div>`;
   }
   const righe = stato.registro.map((v) => {
@@ -2777,7 +2850,7 @@ function paginaRegistro() {
       <span class="coda"><span style="font-size:12px;color:var(--luce-fioca)">${data}<br>${ora}</span></span>
     </div>`;
   }).join("");
-  return `<h1>Registro</h1>
+  return `<h1>Il <span class="acceso">registro</span></h1>
     <p style="color:var(--luce-media);margin:6px 0 14px">
       Le ultime ${stato.registro.length} operazioni della lega, dalla più recente.</p>
     <div class="elenco">${righe}</div>`;
@@ -2803,7 +2876,7 @@ function paginaGestione() {
   const mancano = 10 - stato.squadre.length;
 
   return `
-    <h1>Gestione</h1>
+    <h1>La <span class="acceso">gestione</span></h1>
     <p style="color:var(--luce-media);margin:6px 0 18px">
       Le squadre della lega e chi le guida.
     </p>
@@ -3023,6 +3096,15 @@ const su = (selettore, evento, azione) => {
 function dopoIlDisegno() {
   /* Navigazione, uscita, identità */
   su("[data-vista]", "click", (e) => { stato.vista = e.currentTarget.dataset.vista; disegna(); });
+
+  /* La barra in basso non ci sta in un telefono: scorre. Se però la voce
+     attiva finisce fuori — e succede appena si va in Registro o in
+     Gestione — la barra sembra ferma su un'altra pagina. Qui la si porta
+     in vista dopo ogni disegno, che è l'unico momento in cui può essere
+     cambiata. `block: "nearest"` perché scorra in orizzontale e basta:
+     senza, trascina anche la pagina. */
+  const attiva = radice.querySelector('.navigazione [aria-current="page"]');
+  if (attiva) attiva.scrollIntoView({ block: "nearest", inline: "center" });
   su("#esci", "click", () => { dimenticaIo(); stato.vista = "lega"; disegna(); });
   su("[data-entra]", "click", (e) => {
     const chi = e.currentTarget.dataset.entra;
