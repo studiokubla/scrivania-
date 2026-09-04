@@ -662,8 +662,14 @@ function soldi(quarti, conUnita = true) {
 const pesoAnnuale = (contratto) => contratto.ingaggio;
 
 /** Il conto della rosa: speso, spazio, slot, composizione per ruolo. */
-function contoRosa(contratti) {
-  const speso = contratti.reduce((somma, c) => somma + pesoAnnuale(c), 0);
+function contoRosa(contratti, pesiMorti = []) {
+  const ingaggi = contratti.reduce((somma, c) => somma + pesoAnnuale(c), 0);
+  /* Chi svincola non libera niente: l'ingaggio resta sul tetto fino a fine
+     stagione. È la regola che rende il mercato una cosa seria — un contratto
+     firmato è una decisione che si porta fino in fondo, non una casella da
+     svuotare quando il giocatore delude. */
+  const pesoMorto = pesiMorti.reduce((somma, x) => somma + x.ingaggio, 0);
+  const speso = ingaggi + pesoMorto;
   const tetto = aQuarti(REGOLE.tetto);
   const perRuolo = { P: 0, D: 0, C: 0, A: 0 };
   for (const c of contratti) perRuolo[c.ruolo] = (perRuolo[c.ruolo] || 0) + 1;
@@ -674,6 +680,8 @@ function contoRosa(contratti) {
 
   return {
     numero: contratti.length,
+    ingaggi,
+    pesoMorto,
     speso,
     tetto,
     spazio: tetto - speso,
@@ -787,11 +795,11 @@ function perchéNoScambio({ daId, aId, cedeDa, cedeA, capitaleDa, capitaleA }) {
   const pacchettoDa = contrattiDa.filter((c) => cedeDa.includes(c.giocatoreId));
   const pacchettoA = contrattiA.filter((c) => cedeA.includes(c.giocatoreId));
 
-  for (const [nome, rosaNuova] of [
-    [nomeDa, rosaDopoScambio(daId, cedeDa, pacchettoA)],
-    [nomeA, rosaDopoScambio(aId, cedeA, pacchettoDa)],
+  for (const [nome, rosaNuova, pesi] of [
+    [nomeDa, rosaDopoScambio(daId, cedeDa, pacchettoA), pesiMortiDi(daId)],
+    [nomeA, rosaDopoScambio(aId, cedeA, pacchettoDa), pesiMortiDi(aId)],
   ]) {
-    const conto = contoRosa(rosaNuova);
+    const conto = contoRosa(rosaNuova, pesi);
     if (conto.sforato) no.push(`${nome} sforerebbe il tetto di ${soldi(conto.speso - conto.tetto)}.`);
     if (conto.numero > REGOLE.rosaMax) no.push(`${nome} arriverebbe a ${conto.numero} giocatori, oltre i ${REGOLE.rosaMax}.`);
     if (conto.slotLiberi < 0) no.push(`${nome} avrebbe ${conto.slotUsati} contratti pluriennali, oltre i ${REGOLE.slotPluriennali}.`);
@@ -929,6 +937,12 @@ function riprendiIo() {
 /** La rosa di una squadra, sempre un array (anche se il documento non c'è). */
 const rosaDi = (squadraId) => stato.rose.get(squadraId)?.contratti ?? [];
 
+/** Gli ingaggi di chi è stato svincolato: pesano sul tetto fino a fine stagione. */
+const pesiMortiDi = (squadraId) => stato.rose.get(squadraId)?.pesiMorti ?? [];
+
+/** Il conto di una squadra, ingaggi e pesi morti insieme. */
+const contoDi = (squadraId) => contoRosa(rosaDi(squadraId), pesiMortiDi(squadraId));
+
 const squadraDi = (id) => stato.squadre.find((s) => s.id === id) ?? null;
 
 /** Il conto societario di una squadra. Una squadra appena iscritta ha la
@@ -1050,7 +1064,7 @@ async function chiudiTrattativa(trattativa) {
   const valide = (trattativa.offerte ?? []).filter((o) => {
     /* Un'offerta fatta ieri può essere diventata impossibile: la squadra ha
        riempito la rosa o speso lo spazio. Si scarta, non si forza. */
-    const conto = contoRosa(rosaDi(o.squadraId));
+    const conto = contoDi(o.squadraId);
     const g = PER_ID.get(trattativa.giocatoreId);
     if (!g) return false;
     return perchéNo({
@@ -1124,9 +1138,13 @@ async function annota(cosa, dettaglio, squadraId) {
 
 /** Sostituisce la rosa di una squadra. Il documento è uno per squadra:
  *  chi tocca la propria non disturba quella degli altri. */
-async function scriviRosa(squadraId, contratti) {
+async function scriviRosa(squadraId, contratti, pesiMorti) {
   if (!db) throw new Error("Il database non è disponibile.");
-  await db.collection("rose").doc(squadraId).set({ contratti, aggiornata: new Date().toISOString() });
+  await db.collection("rose").doc(squadraId).set({
+    contratti,
+    pesiMorti: pesiMorti ?? pesiMortiDi(squadraId),
+    aggiornata: new Date().toISOString(),
+  });
 }
 
 /**
@@ -1302,7 +1320,7 @@ function vistaFondazione() {
 
 function vistaIngresso() {
   const squadre = stato.squadre.map((s) => {
-    const conto = contoRosa(rosaDi(s.id));
+    const conto = contoDi(s.id);
     return `<button class="voce" data-entra="${pulito(s.id)}">
       <span class="ruolo" style="background:${pulito(s.colore || "#DADDD2")};color:#12140F">${pulito(s.sigla)}</span>
       <span class="corpo">
@@ -1383,7 +1401,7 @@ function paginaLega() {
   }
 
   const righe = stato.squadre.map((s) => {
-    const conto = contoRosa(rosaDi(s.id));
+    const conto = contoDi(s.id);
     const quota = Math.min(100, Math.round((conto.speso / conto.tetto) * 100));
     const stato_ =
       conto.sforato ? `<span class="targhetta no">sfora di ${soldi(conto.speso - conto.tetto)}</span>`
@@ -1392,7 +1410,8 @@ function paginaLega() {
     return `<tr>
       <td><b>${pulito(s.nome)}</b><br><span style="font-size:12px;color:var(--inchiostro-med)">${pulito(s.presidente || "—")}</span></td>
       <td class="n num">${conto.numero}</td>
-      <td class="n num">${soldi(conto.speso)}</td>
+      <td class="n num">${soldi(conto.ingaggi)}</td>
+      <td class="n num" style="color:${conto.pesoMorto > 0 ? "var(--allarme)" : "var(--inchiostro-lieve)"}">${conto.pesoMorto > 0 ? soldi(conto.pesoMorto) : "—"}</td>
       <td class="n num" style="color:${conto.sforato ? "var(--allarme)" : "inherit"}">${soldi(conto.spazio)}</td>
       <td class="n num">${conto.slotUsati}/${REGOLE.slotPluriennali}</td>
       <td>${stato_}<div class="barra-tetto" style="margin-top:6px;height:5px"><span class="${conto.sforato ? "sforato" : ""}" style="width:${quota}%"></span></div></td>
@@ -1411,6 +1430,7 @@ function paginaLega() {
       <table class="tabellina">
         <thead><tr>
           <th>Squadra</th><th style="text-align:right">Rosa</th><th style="text-align:right">Ingaggi</th>
+          <th style="text-align:right">Svincolati</th>
           <th style="text-align:right">Spazio</th><th style="text-align:right">Slot</th><th>Tetto</th>
         </tr></thead>
         <tbody>${righe}</tbody>
@@ -1432,7 +1452,8 @@ function paginaRosa() {
   }
 
   const contratti = rosaDi(squadra.id);
-  const conto = contoRosa(contratti);
+  const pesiMorti = pesiMortiDi(squadra.id);
+  const conto = contoRosa(contratti, pesiMorti);
   const posso = possoToccare(squadra.id);
   const quota = Math.min(100, Math.round((conto.speso / conto.tetto) * 100));
 
@@ -1495,7 +1516,8 @@ function paginaRosa() {
       <div style="flex:1 1 190px">
         <div class="occhiello" style="color:inherit;opacity:.6">Spazio salariale</div>
         <div class="cifra num">${soldi(conto.spazio)}</div>
-        <div class="sotto num">${soldi(conto.speso)} spesi su ${REGOLE.tetto} M di tetto</div>
+        <div class="sotto num">${soldi(conto.speso)} spesi su ${REGOLE.tetto} M di tetto${
+          conto.pesoMorto > 0 ? `, di cui ${soldi(conto.pesoMorto)} di svincolati` : ""}</div>
       </div>
       <div style="flex:1 1 130px">
         <div class="occhiello" style="color:inherit;opacity:.6">In rosa</div>
@@ -1515,6 +1537,23 @@ function paginaRosa() {
       <div id="risultati-rosa"></div>
     </div>` : `<div class="avviso neutro" style="margin-bottom:16px">
       Stai guardando la rosa di un'altra squadra: puoi leggerla, non cambiarla.</div>`}
+
+    ${pesiMorti.length ? `<div class="sezione">
+      <div class="intestazione-sezione"><h2>Pesano ancora</h2>
+        <span class="conteggio">${soldi(conto.pesoMorto)}</span></div>
+      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+        Giocatori che hai svincolato. Non sono più in rosa, ma il loro ingaggio resta sul tetto
+        fino a fine stagione: il posto si libera, lo spazio no.
+      </p>
+      <div class="elenco">${pesiMorti.map((x) => `<div class="voce">
+        <span class="ruolo ${pulito(x.ruolo)}" style="opacity:.55">${pulito(x.ruolo)}</span>
+        <span class="corpo">
+          <span class="nome" style="color:var(--inchiostro-med)">${pulito(x.nome)}</span>
+          <span class="dettaglio">svincolato il ${new Date(x.svincolato).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}</span>
+        </span>
+        <span class="coda"><span class="prezzo num" style="color:var(--allarme)">${soldi(x.ingaggio)}</span></span>
+      </div>`).join("")}</div>
+    </div>` : ""}
 
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Sotto contratto</h2>
@@ -1616,7 +1655,7 @@ function foglioFirma(giocatoreId) {
   if (!g || !squadra) return "";
 
   const contratti = rosaDi(squadra.id);
-  const conto = contoRosa(contratti);
+  const conto = contoDi(squadra.id);
   const quantiTampone = contratti.filter((c) => c.tipo === "TAMPONE").length;
   const p = primavera(g);
 
@@ -2000,7 +2039,7 @@ function foglioBusta(trattativaId, giocatoreId) {
   if (!m || !squadra) return "";
   const g = PER_ID.get(m.giocatoreId);
   const contratti = rosaDi(squadra.id);
-  const conto = contoRosa(contratti);
+  const conto = contoDi(squadra.id);
   const mia = (m.offerte ?? []).find((o) => o.squadraId === squadra.id);
 
   const tipi = Object.entries(REGOLE.contratti).map(([id, regola]) => {
@@ -2170,7 +2209,7 @@ function paginaRegistro() {
 
 function paginaGestione() {
   const righe = stato.squadre.map((s) => {
-    const conto = contoRosa(rosaDi(s.id));
+    const conto = contoDi(s.id);
     return `<div class="voce">
       <span class="ruolo" style="background:${pulito(s.colore || "#DADDD2")};color:#12140F">${pulito(s.sigla)}</span>
       <span class="corpo">
@@ -2279,6 +2318,28 @@ function paginaGestione() {
         <label class="campo"><span>Nome della lega</span>
           <input type="text" id="rinomina-lega" value="${pulito(stato.config.nome)}" maxlength="40"></label>
         <button class="bottone" id="salva-lega">Salva il nome</button>
+      </div>
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Fine stagione</h2>
+        <span class="conteggio">${soldi(stato.squadre.reduce((s, x) => s + contoDi(x.id).pesoMorto, 0))} da liberare</span></div>
+      <div class="riquadro">
+        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+          Gli ingaggi degli svincolati pesano sul tetto <b>fino a fine stagione</b>. Quando la
+          stagione è finita davvero, questo comando li cancella e restituisce lo spazio a tutti.
+          Rose, contratti e Capitale non si toccano.
+        </p>
+        ${stato.squadre.some((s) => contoDi(s.id).pesoMorto > 0)
+          ? `<div class="elenco" style="margin-bottom:12px">
+              ${stato.squadre.filter((s) => contoDi(s.id).pesoMorto > 0).map((s) => `<div class="voce">
+                <span class="corpo"><span class="nome">${pulito(s.nome)}</span>
+                  <span class="dettaglio">${pesiMortiDi(s.id).map((x) => pulito(x.nome)).join(", ")}</span></span>
+                <span class="coda"><span class="prezzo num" style="color:var(--allarme)">${soldi(contoDi(s.id).pesoMorto)}</span></span>
+              </div>`).join("")}
+            </div>
+            <button class="bottone" id="libera-pesi">Libera gli ingaggi degli svincolati</button>`
+          : `<p style="font-size:13.5px;color:var(--inchiostro-med)">Nessuno ha svincolato: non c'è niente da liberare.</p>`}
       </div>
     </div>
 
@@ -2496,9 +2557,22 @@ function dopoIlDisegno() {
     const squadra = squadraCorrente();
     const contratto = rosaDi(squadra.id).find((c) => c.giocatoreId === id);
     if (!contratto) return;
-    if (!confirm(`Togliere ${contratto.nome} dalla rosa? Va in waiver per ${REGOLE.mercato.oreWaiver} ore: in quel tempo le altre squadre possono reclamarlo.`)) return;
+    if (!confirm(
+      `Svincolare ${contratto.nome}?\n\n` +
+      `I suoi ${soldi(contratto.ingaggio)} restano sul tuo tetto fino a fine stagione: ` +
+      `svincolarlo libera il posto in rosa, non lo spazio salariale.\n\n` +
+      `Va in waiver per ${REGOLE.mercato.oreWaiver} ore, e in quel tempo le altre squadre possono reclamarlo.`
+    )) return;
+
     const restanti = rosaDi(squadra.id).filter((c) => c.giocatoreId !== id);
-    await scriviRosa(squadra.id, restanti);
+    /* L'ingaggio non sparisce con il giocatore: resta a pesare sul tetto fino a
+       fine stagione. Un contratto firmato è una decisione che si porta fino in
+       fondo, non una casella da svuotare quando il giocatore delude. */
+    const pesi = [...pesiMortiDi(squadra.id), {
+      giocatoreId: id, nome: contratto.nome, ruolo: contratto.ruolo,
+      ingaggio: contratto.ingaggio, svincolato: new Date().toISOString(),
+    }];
+    await scriviRosa(squadra.id, restanti, pesi);
 
     /* Art. 10 — chi viene tagliato non torna subito libero: resta 48 ore in
        waiver. Serve a impedire la corsa al click sul giocatore appena tagliato. */
@@ -2508,7 +2582,9 @@ function dopoIlDisegno() {
       scadeIl: new Date(Date.now() + REGOLE.mercato.oreWaiver * 3600000).toISOString(),
       offerte: [], stato: "APERTA", tagliatoDa: squadra.id,
     });
-    await annota("mercato", `${contratto.nome} tagliato da ${squadra.nome}: in waiver per ${REGOLE.mercato.oreWaiver} ore`, squadra.id);
+    await annota("mercato",
+      `${contratto.nome} svincolato da ${squadra.nome}: ${soldi(contratto.ingaggio)} restano sul tetto fino a fine stagione`,
+      squadra.id);
   });
 
   agganciaMercato();
@@ -2761,7 +2837,7 @@ async function firma() {
   const g = PER_ID.get(foglioAperto.giocatoreId);
   const squadra = squadraCorrente();
   const contratti = rosaDi(squadra.id);
-  const conto = contoRosa(contratti);
+  const conto = contoDi(squadra.id);
   const ingaggio = aQuarti(bozza.ingaggio);
 
   const motivi = perchéNo({
@@ -2908,6 +2984,17 @@ function agganciaGestione() {
     if (!squadra) return;
     const posizione = valore === "" ? null : Number(valore);
     await scriviSquadra({ ...squadra, posizione });
+  });
+
+  su("#libera-pesi", "click", async (e) => {
+    const totale = stato.squadre.reduce((s, x) => s + contoDi(x.id).pesoMorto, 0);
+    if (!confirm(`Fine stagione: cancello gli ingaggi degli svincolati e restituisco ${soldi(totale)} di spazio alle squadre. Procedo?`)) return;
+    e.currentTarget.disabled = true;
+    for (const s of stato.squadre) {
+      if (!pesiMortiDi(s.id).length) continue;
+      await scriviRosa(s.id, rosaDi(s.id), []);
+    }
+    await annota("lega", `Fine stagione: liberati ${soldi(totale)} di ingaggi svincolati`, null);
   });
 
   su("#salva-lega", "click", async () => {

@@ -59,6 +59,12 @@ porta, non a difendere segreti, perché chi ha il link legge tutto comunque.
 
 ## Cosa c'è e cosa manca
 
+**Svincolare libera il posto, non lo spazio.** L'ingaggio di chi viene svincolato
+resta sul tetto fino a fine stagione: la rosa torna a ventiquattro, lo spazio
+salariale no. È la regola che rende il mercato una cosa seria — un contratto
+firmato è una decisione che si porta fino in fondo. A stagione conclusa il
+commissioner li libera tutti insieme da *Gestione → Fine stagione*.
+
 **Non ci sono minimi per ruolo**: si può stare con un portiere solo, purché la
 rosa resti fra 25 e 30 giocatori. È una scelta di questa lega rispetto all'art.
 3.1, e il conteggio per ruolo nella pagina Rosa resta un'informazione — racconta
