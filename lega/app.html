@@ -188,12 +188,26 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.marchio .sigla {
-  width: 28px; height: 28px; border-radius: 9px; flex: none;
-  background: linear-gradient(145deg, var(--lime), var(--lime-caldo));
-  color: #0B0E0B;
-  display: grid; place-items: center; font-size: 14px; font-weight: 800; line-height: 1;
-  box-shadow: var(--alone-lime);
+/* La coppa. Il bagliore è un `drop-shadow` sulla forma e non un'ombra
+   sul riquadro: segue il profilo delle lame invece di disegnare un
+   rettangolo sfocato dietro. */
+.coppa {
+  height: 27px; width: auto; flex: none;
+  fill: url(#lastra-marchio); fill-rule: evenodd;
+  filter: drop-shadow(0 0 7px rgba(210, 247, 106, .42));
+}
+.coppa.alta { height: 132px; filter: drop-shadow(0 0 12px rgba(210,247,106,.45)) drop-shadow(0 0 38px rgba(150,220,60,.3)); }
+
+.marchio-grande { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.nome-marchio {
+  font-family: var(--display); font-size: 15px; font-weight: 600;
+  letter-spacing: .42em; text-indent: .42em; color: var(--luce); margin-top: 4px;
+}
+.nome-marchio-forte {
+  font-family: var(--display); font-size: 34px; font-weight: 800;
+  letter-spacing: -.02em; line-height: 1;
+  background: linear-gradient(180deg, #FFFFFF, var(--lime));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .testata .spinta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .chi-sono { font-size: 12px; color: var(--luce-fioca); text-align: right; line-height: 1.25; }
@@ -605,6 +619,19 @@ label.campo > span { display: block; font-size: 12px; font-weight: 600; color: v
 .scorre { overflow-x: auto; }
 </style>
 
+<!-- La sfumatura del marchio sta qui, fuori dalla radice, perché la
+     radice viene riscritta a ogni disegno e un `<defs>` dentro sarebbe
+     dichiarato dieci volte con lo stesso identificativo. -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <linearGradient id="lastra-marchio" x1="0" y1="0" x2=".22" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset=".52" stop-color="#F1FBDA"/>
+      <stop offset="1" stop-color="#CBEE63"/>
+    </linearGradient>
+  </defs>
+</svg>
+
 <div id="radice">
   <div class="lavoro"><p class="occhiello">Dynasty League</p><h1 style="margin-top:6px">Apro la lega…</h1></div>
 </div>
@@ -720,6 +747,43 @@ const REGOLE = {
     ],
   },
 };
+
+/**
+ * IL MARCHIO
+ *
+ * Una coppa fatta di lame che si aprono a ventaglio dal fusto. È un SVG
+ * disegnato qui dentro: non c'è niente da scaricare, resta nitido su
+ * qualunque schermo e pesa quattro kilobyte — meno di una figurina.
+ *
+ * I percorsi non sono scritti a mano. Ogni lama è una spina e una legge
+ * di spessore, e il contorno esce campionando l'una lungo l'altra: sta
+ * in `lega/marchio.py`, che è il posto da cui rigenerarlo se un giorno
+ * la coppa va cambiata. Ritoccare questi numeri a mano non si può.
+ */
+const LAME = `<path d="M163,315 L162,306 L162,296 L161,286 L161,277 L161,267 L160,257 L160,248 L160,239 L160,229 L160,220 L160,211 L160,202 L161,193 L161,184 L161,175 L162,166 L162,157 L162,148 L163,139 L164,131 L164,122 L165,114 L165,105 L166,97 L167,88 L168,80 L168,72 L169,64 L170,55 L171,47 L171,39 L172,31 L172,23 L170,14 L170,14 L165,21 L162,29 L160,37 L157,45 L155,53 L154,61 L152,69 L151,78 L149,86 L148,95 L147,103 L146,112 L145,121 L144,129 L144,138 L143,147 L143,156 L142,165 L142,174 L142,183 L142,192 L141,202 L142,211 L142,220 L142,230 L142,239 L142,249 L143,258 L143,268 L144,277 L145,287 L145,297 L146,307 L147,317 Z"/><path d="M177.0,315 L178.0,306 L178.0,296 L179.0,286 L179.0,277 L179.0,267 L180.0,257 L180.0,248 L180.0,239 L180.0,229 L180.0,220 L180.0,211 L180.0,202 L179.0,193 L179.0,184 L179.0,175 L178.0,166 L178.0,157 L178.0,148 L177.0,139 L176.0,131 L176.0,122 L175.0,114 L175.0,105 L174.0,97 L173.0,88 L172.0,80 L172.0,72 L171.0,64 L170.0,55 L169.0,47 L169.0,39 L168.0,31 L168.0,23 L170.0,14 L170.0,14 L175.0,21 L178.0,29 L180.0,37 L183.0,45 L185.0,53 L186.0,61 L188.0,69 L189.0,78 L191.0,86 L192.0,95 L193.0,103 L194.0,112 L195.0,121 L196.0,129 L196.0,138 L197.0,147 L197.0,156 L198.0,165 L198.0,174 L198.0,183 L198.0,192 L199.0,202 L198.0,211 L198.0,220 L198.0,230 L198.0,239 L198.0,249 L197.0,258 L197.0,268 L196.0,277 L195.0,287 L195.0,297 L194.0,307 L193.0,317 Z"/><path d="M157,270 L158,260 L157,252 L155,244 L152,236 L150,228 L148,220 L145,212 L143,205 L140,197 L138,190 L136,183 L133,175 L131,168 L129,161 L127,154 L124,147 L122,140 L120,133 L118,126 L116,119 L114,112 L112,106 L110,99 L108,92 L106,86 L104,79 L102,73 L100,67 L98,60 L96,54 L93,48 L91,42 L88,36 L82,30 L82,30 L78,37 L77,44 L77,51 L77,58 L78,64 L78,71 L79,78 L80,85 L81,92 L83,99 L84,106 L86,113 L87,120 L89,127 L91,134 L93,141 L95,148 L98,155 L100,163 L103,170 L105,177 L108,184 L111,192 L114,199 L117,206 L120,214 L124,221 L127,228 L131,236 L135,243 L139,250 L144,257 L149,264 L157,270 Z"/><path d="M183.0,270 L182.0,260 L183.0,252 L185.0,244 L188.0,236 L190.0,228 L192.0,220 L195.0,212 L197.0,205 L200.0,197 L202.0,190 L204.0,183 L207.0,175 L209.0,168 L211.0,161 L213.0,154 L216.0,147 L218.0,140 L220.0,133 L222.0,126 L224.0,119 L226.0,112 L228.0,106 L230.0,99 L232.0,92 L234.0,86 L236.0,79 L238.0,73 L240.0,67 L242.0,60 L244.0,54 L247.0,48 L249.0,42 L252.0,36 L258.0,30 L258.0,30 L262.0,37 L263.0,44 L263.0,51 L263.0,58 L262.0,64 L262.0,71 L261.0,78 L260.0,85 L259.0,92 L257.0,99 L256.0,106 L254.0,113 L253.0,120 L251.0,127 L249.0,134 L247.0,141 L245.0,148 L242.0,155 L240.0,163 L237.0,170 L235.0,177 L232.0,184 L229.0,192 L226.0,199 L223.0,206 L220.0,214 L216.0,221 L213.0,228 L209.0,236 L205.0,243 L201.0,250 L196.0,257 L191.0,264 L183.0,270 Z"/><path d="M157,252 L153,245 L147,241 L142,238 L137,234 L132,231 L127,228 L122,224 L117,221 L113,217 L108,214 L104,210 L99,206 L95,202 L91,198 L86,194 L82,190 L78,185 L75,181 L71,176 L67,172 L63,167 L60,162 L56,157 L52,151 L49,146 L46,140 L42,135 L39,129 L35,123 L32,117 L29,110 L25,104 L21,98 L14,92 L14,92 L12,101 L12,108 L14,116 L16,123 L18,130 L20,137 L23,144 L26,151 L29,157 L32,163 L35,170 L39,175 L42,181 L46,187 L50,192 L55,198 L59,203 L64,208 L68,212 L73,217 L78,221 L83,225 L89,229 L94,233 L100,236 L105,240 L111,243 L117,245 L123,248 L129,250 L136,252 L142,254 L149,254 L157,252 Z"/><path d="M183.0,252 L187.0,245 L193.0,241 L198.0,238 L203.0,234 L208.0,231 L213.0,228 L218.0,224 L223.0,221 L227.0,217 L232.0,214 L236.0,210 L241.0,206 L245.0,202 L249.0,198 L254.0,194 L258.0,190 L262.0,185 L265.0,181 L269.0,176 L273.0,172 L277.0,167 L280.0,162 L284.0,157 L288.0,151 L291.0,146 L294.0,140 L298.0,135 L301.0,129 L305.0,123 L308.0,117 L311.0,110 L315.0,104 L319.0,98 L326.0,92 L326.0,92 L328.0,101 L328.0,108 L326.0,116 L324.0,123 L322.0,130 L320.0,137 L317.0,144 L314.0,151 L311.0,157 L308.0,163 L305.0,170 L301.0,175 L298.0,181 L294.0,187 L290.0,192 L285.0,198 L281.0,203 L276.0,208 L272.0,212 L267.0,217 L262.0,221 L257.0,225 L251.0,229 L246.0,233 L240.0,236 L235.0,240 L229.0,243 L223.0,245 L217.0,248 L211.0,250 L204.0,252 L198.0,254 L191.0,254 L183.0,252 Z"/>`;
+const PIEDE = `<path d="M139,306 L201,306 L209,322 L131,322 Z"/><path d="M62,328 L278,328 L296,372 L44,372 Z M80,340 L260,340 L276,360 L64,360 Z"/>`;
+
+/**
+ * La coppa.
+ *
+ * In piccolo — nella testata — il piedistallo si perde: a trenta pixel di
+ * altezza è una riga chiara che ruba spazio alle lame, che sono la parte
+ * riconoscibile. Lì quindi si disegnano le sole lame, e il ritaglio più
+ * stretto le fa un quarto più grandi a parità di ingombro.
+ */
+function coppa({ intera = true, classe = "" } = {}) {
+  const vista = intera ? "0 0 340 380" : "6 8 328 316";
+  return `<svg class="coppa ${classe}" viewBox="${vista}" aria-hidden="true">${LAME}${intera ? PIEDE : ""}</svg>`;
+}
+
+/** Coppa e nome: il marchio intero, per le schermate d'ingresso. */
+function marchio() {
+  return `<div class="marchio-grande">
+    ${coppa({ classe: "alta" })}
+    <span class="nome-marchio">Dynasty</span>
+    <span class="nome-marchio-forte">League</span>
+  </div>`;
+}
 
 /* Per cominciare tutti entrano con lo stesso codice: alla prima riunione di
    lega si sta insieme e nessuno deve rincorrere dieci numeri diversi. Il
@@ -1636,8 +1700,9 @@ function disegna() {
   const dentro = [];
 
   if (!stato.pronto) {
-    dentro.push(`<div class="lavoro"><p class="occhiello">Dynasty League</p>
-      <h1 style="margin-top:6px">Apro la lega…</h1></div>`);
+    dentro.push(`<div class="lavoro" style="display:grid;place-items:center;min-height:70vh">
+      ${marchio()}
+      <p class="occhiello" style="margin-top:-10px">Apro la lega…</p></div>`);
   } else if (!db) {
     dentro.push(vistaSenzaDatabase());
   } else if (!stato.config) {
@@ -1676,7 +1741,8 @@ function vistaSenzaDatabase() {
 
 function vistaFondazione() {
   return `<div class="lavoro" style="max-width:560px">
-    <p class="occhiello">${pulito(STAGIONE)}</p>
+    ${marchio()}
+    <p class="occhiello" style="margin-top:26px">${pulito(STAGIONE)}</p>
     <h1 style="margin:6px 0 14px">Fondiamo la <span class="acceso">lega</span></h1>
     <p style="color:var(--luce-media); margin-bottom:20px; max-width:52ch">
       Dieci squadre, un commissioner, ${LISTONE.length} giocatori di Serie A da contendersi.
@@ -1711,8 +1777,9 @@ function vistaIngresso() {
   }).join("");
 
   return `<div class="lavoro" style="max-width:560px">
-    <p class="occhiello">${pulito(stato.config.nome)} · ${pulito(STAGIONE)}</p>
-    <h1 style="margin:6px 0 20px">Chi <span class="acceso">sei</span>?</h1>
+    ${marchio()}
+    <p class="occhiello" style="margin-top:24px">${pulito(stato.config.nome)} · ${pulito(STAGIONE)}</p>
+    <h1 style="margin:6px 0 18px">Chi <span class="acceso">sei</span>?</h1>
     ${stato.squadre.length === 0
       ? `<div class="avviso neutro" style="margin-bottom:14px">Non c'è ancora nessuna squadra:
          entra da commissioner e iscrivi i dieci presidenti.</div>`
@@ -1755,7 +1822,7 @@ function vistaApplicazione() {
   return `
     <div class="guscio">
       <header class="testata">
-        <span class="marchio"><span class="sigla">D</span>${pulito(stato.config.nome)}</span>
+        <span class="marchio">${coppa({ intera: false })}${pulito(stato.config.nome)}</span>
         <span class="spinta">
           <span class="chi-sono">
             <b>${sonoCommissioner() ? "Commissioner" : pulito(mia?.nome ?? "—")}</b>
