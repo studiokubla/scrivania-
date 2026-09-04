@@ -82,8 +82,13 @@ Apri il link tu per primo: la pagina chiede di **fondare la lega** — nome e il
 tuo codice da commissioner. Poi *Gestione* → incolli l'elenco delle dieci
 squadre, una riga per ciascuna: `Nome squadra, Presidente`.
 
-Da quel momento mandi il link a tutti. Ognuno sceglie la propria squadra e
-digita `1234`.
+Da quel momento mandi il link a tutti. **Ognuno tocca la propria squadra ed è
+dentro**: nessun codice, nessuna registrazione.
+
+Se preferisci un codice per ciascuno — per evitare che qualcuno entri per sbaglio
+nella squadra di un altro — si accende da *Gestione* → *Come si entra*. In
+nessuno dei due casi il codice difende dei segreti: chi ha il link legge tutta la
+lega comunque. Serve solo a non sbagliare porta.
 
 ---
 

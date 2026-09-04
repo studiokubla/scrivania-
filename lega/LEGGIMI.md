@@ -52,9 +52,10 @@ del settore giovanile (fino a 20 anni, quotazione non oltre 3 M). Cambiare il
 regolamento è una modifica a quell'oggetto, non una caccia dentro le funzioni:
 il testo che l'app mostra ai presidenti legge da lì, quindi non può contraddirlo.
 
-Per cominciare tutti i presidenti entrano con lo stesso codice, `1234`
-(`CODICE_PREDEFINITO`); il commissioner può darne uno diverso a ognuno quando la
-lega parte davvero.
+Si entra **toccando la propria squadra, senza codice**: chi ha il link è della
+lega. Il commissioner può chiedere un codice per ciascuno da *Gestione* → *Come
+si entra* (`chiediCodice` nella configurazione della lega); serve a non sbagliare
+porta, non a difendere segreti, perché chi ha il link legge tutto comunque.
 
 ## Cosa c'è e cosa manca
 
