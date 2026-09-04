@@ -370,8 +370,13 @@ const REGOLE = {
     TAMPONE:  { nome: "Tampone",  anni: [1],          slot: false, ingaggioMax: 1, maxStagione: 3, nota: "Quattro giornate, max 1 M. Tre a stagione." },
   },
 
-  primavera: { etaMax: 20, quotazioneMax: 7, presenzeMax: 5 },  // art. 16.1
+  primavera: { etaMax: 20, quotazioneMax: 3, presenzeMax: 5 },  // art. 16.1
 };
+
+/* Per cominciare tutti entrano con lo stesso codice: alla prima riunione di
+   lega si sta insieme e nessuno deve rincorrere dieci numeri diversi. Il
+   commissioner può cambiarli uno per uno quando la lega parte davvero. */
+const CODICE_PREDEFINITO = "1234";
 
 const ORDINE_RUOLI = ["P", "D", "C", "A"];
 const NOME_RUOLO = { P: "Portiere", D: "Difensore", C: "Centrocampista", A: "Attaccante" };
@@ -771,7 +776,7 @@ function vistaFondazione() {
         <input type="text" id="nome-lega" value="Dynasty League" maxlength="40" required></label>
       <label class="campo"><span>Il tuo codice da commissioner — quattro cifre</span>
         <input type="text" id="pin-commissioner" inputmode="numeric" pattern="[0-9]{4}"
-               maxlength="4" placeholder="1234" required></label>
+               maxlength="4" value="${CODICE_PREDEFINITO}" required></label>
       <p style="font-size:12.5px; color:var(--inchiostro-med)">
         I codici servono a non entrare per sbaglio nella squadra di un altro, non a
         difendere segreti: chiunque abbia il link della lega può leggerla tutta.
@@ -803,7 +808,10 @@ function vistaIngresso() {
     ${stato.squadre.length === 0
       ? `<div class="avviso neutro" style="margin-bottom:14px">Non c'è ancora nessuna squadra:
          entra da commissioner e iscrivi i dieci presidenti.</div>`
-      : `<div class="elenco" style="margin-bottom:14px">${squadre}</div>`}
+      : `<div class="elenco" style="margin-bottom:14px">${squadre}</div>
+         ${stato.squadre.every((s) => s.pin === CODICE_PREDEFINITO)
+           ? `<p style="font-size:12.5px;color:var(--inchiostro-med);margin:-4px 0 14px">
+                Il codice per tutti, per ora, è <b>${CODICE_PREDEFINITO}</b>.</p>` : ""}`}
     <button class="bottone largo" data-entra="commissioner">Entro da commissioner</button>
   </div>`;
 }
@@ -1220,8 +1228,10 @@ function paginaGestione() {
   return `
     <h1>Gestione</h1>
     <p style="color:var(--inchiostro-med);margin:6px 0 18px">
-      Le squadre della lega e i codici dei presidenti. I codici sono in chiaro: servono a
-      non entrare per sbaglio nella squadra di un altro, non a difendere segreti.
+      Le squadre della lega e i codici dei presidenti. Per cominciare entrano tutti con
+      <b>${CODICE_PREDEFINITO}</b>: quando la lega parte davvero puoi darne uno diverso a
+      ognuno. I codici restano in chiaro — servono a non entrare per sbaglio nella squadra
+      di un altro, non a difendere segreti.
     </p>
 
     <div class="sezione">
@@ -1232,6 +1242,8 @@ function paginaGestione() {
         <button class="bottone" id="aggiungi-squadra">Aggiungi una squadra</button>
         ${mancano > 0 && stato.squadre.length === 0
           ? `<button class="bottone primario" id="crea-dieci">Crea dieci squadre segnaposto</button>` : ""}
+        ${stato.squadre.some((s) => s.pin !== CODICE_PREDEFINITO)
+          ? `<button class="bottone" id="codice-uguale">Rimetti ${CODICE_PREDEFINITO} a tutti</button>` : ""}
       </div>
     </div>
 
@@ -1275,7 +1287,7 @@ function foglioSquadra(squadraId) {
       <label class="campo"><span>Presidente</span>
         <input type="text" id="sq-presidente" value="${pulito(s?.presidente ?? "")}" maxlength="30"></label>
       <label class="campo"><span>Codice d'ingresso — quattro cifre</span>
-        <input type="text" id="sq-pin" value="${pulito(s?.pin ?? "")}" inputmode="numeric"
+        <input type="text" id="sq-pin" value="${pulito(s?.pin ?? CODICE_PREDEFINITO)}" inputmode="numeric"
                pattern="[0-9]{4}" maxlength="4" required></label>
       <label class="campo"><span>Colore</span>
         <input type="color" id="sq-colore" value="${pulito(s?.colore ?? "#2C7A52")}"
@@ -1532,12 +1544,19 @@ function agganciaGestione() {
         nome: "Squadra " + numero,
         sigla: "S" + numero,
         presidente: "",
-        pin: String(1000 + Math.floor(Math.random() * 9000)),
+        pin: CODICE_PREDEFINITO,
         colore: colori[i],
         ordine: numero,
       });
     }
     await annota("lega", "Dieci squadre segnaposto iscritte", null);
+  });
+
+  su("#codice-uguale", "click", async (e) => {
+    e.currentTarget.disabled = true;
+    const daCambiare = stato.squadre.filter((s) => s.pin !== CODICE_PREDEFINITO);
+    for (const s of daCambiare) await scriviSquadra({ ...s, pin: CODICE_PREDEFINITO });
+    await annota("lega", `Codice ${CODICE_PREDEFINITO} per tutte le squadre`, null);
   });
 
   const moduloSquadra = radice.querySelector("#modulo-squadra");

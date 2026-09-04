@@ -41,8 +41,14 @@ poi si ricompone `lega/listone.json` in forma compatta
 
 Tutte le regole stanno nell'oggetto `REGOLE` in cima allo script, e da nessuna
 altra parte: tetto 85 M, rosa 25-30, minimi 3P 8D 8C 6A, nove slot pluriennali,
-i cinque tipi di contratto con i loro vincoli d'età e i massimali. Cambiare il
-regolamento è una modifica a quell'oggetto, non una caccia dentro le funzioni.
+i cinque tipi di contratto con i loro vincoli d'età e i massimali, e i requisiti
+del settore giovanile (fino a 20 anni, quotazione non oltre 3 M). Cambiare il
+regolamento è una modifica a quell'oggetto, non una caccia dentro le funzioni:
+il testo che l'app mostra ai presidenti legge da lì, quindi non può contraddirlo.
+
+Per cominciare tutti i presidenti entrano con lo stesso codice, `1234`
+(`CODICE_PREDEFINITO`); il commissioner può darne uno diverso a ognuno quando la
+lega parte davvero.
 
 ## Cosa c'è e cosa manca
 
