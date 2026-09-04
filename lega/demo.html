@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20360%20360%22%3E%3Crect%20width%3D%22360%22%20height%3D%22360%22%20rx%3D%2284%22%20fill%3D%22%23171C13%22%2F%3E%3Cg%20transform%3D%22translate%2848%2C30%29%22%3E%3Cpath%20d%3D%22M16%2C100%20L60%2C80%20L70%2C204%20L98%2C20%20L126%2C204%20L154%2C92%20L182%2C204%20L186%2C266%20L196%2C262%20L222%2C10%20L248%2C150%20L248%2C248%20C248%2C296%20218%2C300%20132%2C300%20C46%2C300%2016%2C288%2016%2C248%20Z%22%20fill%3D%22%23CBEE63%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20320%20320%22%3E%3Crect%20width%3D%22320%22%20height%3D%22320%22%20rx%3D%2276%22%20fill%3D%22%23171C13%22%2F%3E%3Cpath%20d%3D%22M160.0%2C12.0%20L194.8%2C112.1%20L300.8%2C114.3%20L216.3%2C178.3%20L247.0%2C279.7%20L160.0%2C219.2%20L73.0%2C279.7%20L103.7%2C178.3%20L19.2%2C114.3%20L125.2%2C112.1%20Z%22%20fill%3D%22%23CBEE63%22%2F%3E%3C%2Fsvg%3E">
 <meta name="description" content="Dynasty League — demo autonoma del gestionale: dieci squadre, rose vere, listone di Serie A filtrabile per età.">
 <style>
   :root { color-scheme: light dark; }
@@ -350,22 +350,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
      aggiunge profondità: sfuma il bordo, e un bordo sfumato su un
      profilo tutto spigoli si legge come una linea che trema. */
 }
-.segno.alto {
-  /* Alto quanto le tre righe insieme, come nei marchi da cui viene:
-     un segno più basso del logotipo sembra un'icona appiccicata. */
-  height: clamp(76px, 21vw, 100px);
-}
+.segno.alto { height: clamp(88px, 25vw, 116px); }
 
-/* Il marchio intero: segno a sinistra, logotipo a destra, allineati
-   sull'altezza delle due righe grandi — non sul centro del segno, che
-   con una sagoma dai picchi irregolari finirebbe sempre storto. */
-.marchio-grande { display: flex; align-items: center; gap: clamp(12px, 3.4vw, 18px); }
+/* Il marchio intero: emblema sopra, logotipo sotto, tutto centrato — è
+   l'impaginazione degli stemmi delle coppe, e con un segno circolare è
+   l'unica che sta in equilibrio. */
+.marchio-grande {
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(10px, 2.6vw, 14px); text-align: center;
+}
 .logotipo { display: block; text-transform: uppercase; color: var(--luce); }
 .riga-occhio {
   display: block; font-family: var(--numeri); font-weight: 700;
-  font-variation-settings: "wdth" 78;
-  font-size: clamp(10px, 2.7vw, 13px); letter-spacing: .06em;
-  color: var(--lime); margin-bottom: 2px;
+  font-variation-settings: "wdth" 82;
+  font-size: clamp(10px, 2.6vw, 12px); letter-spacing: .22em; text-indent: .22em;
+  color: var(--lime); margin-bottom: 5px;
 }
 /* Il logotipo vero. Archivo è un carattere a larghezza variabile: a 66
    è un condensato pesante, che è esattamente quel che serve qui, e non
@@ -373,7 +372,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .riga-forte {
   display: block; font-family: var(--numeri); font-weight: 800;
   font-variation-settings: "wdth" 66;
-  font-size: clamp(30px, 8.4vw, 42px); line-height: .87; letter-spacing: -.005em;
+  font-size: clamp(28px, 7.6vw, 38px); line-height: .9; letter-spacing: -.005em;
 }
 .testata .spinta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .chi-sono { font-size: 12px; color: var(--luce-fioca); text-align: right; line-height: 1.25; }
@@ -917,28 +916,29 @@ const REGOLE = {
 /**
  * IL MARCHIO
  *
- * Una corona di picchi dentro una coppa, in sagoma piena: una macchia
- * sola, spigoli netti, niente contorni e niente sfumature dentro la
- * forma. Il bordo di sopra è una spezzata di picchi di altezze diverse;
- * quello di sotto è la curva della coppa. Fra il picco medio e quello
- * più alto la cresta non fa una valle a V ma scende, gira di dieci pixel
- * e risale: è la fenditura che fa leggere la sagoma come costruita.
+ * Un pallone di stelle: una grande in mezzo e otto su un anello.
  *
- * Accanto, il logotipo: una riga piccola e due grandi in un grottesco
+ * L'effetto sfera non viene dal disegnare stelle più piccole verso il
+ * bordo. Viene dalla prospettiva: le stelle stanno tutte sulla stessa
+ * sfera e sono tutte della stessa misura, e quella che sta sul fianco la
+ * guardiamo di sbieco, quindi si accorcia lungo la direzione che va
+ * verso il centro. È l'unica cosa che le distingue, e basta.
+ *
+ * Sotto, il logotipo: una riga piccola e due grandi in un grottesco
  * condensato pesante. Archivo ha un asse di larghezza — `wdth` — e a 66
  * diventa il carattere giusto senza caricarne un altro.
  *
  * Un SVG scritto qui dentro: niente da scaricare, nitido a qualunque
- * ingrandimento, e pesa mezzo kilobyte. Si rigenera da `lega/marchio.py`,
- * che stampa la riga da incollare qui sotto: i vertici stanno tutti in
- * una lista, e spostare un picco è cambiare due numeri.
+ * ingrandimento. Si rigenera da `lega/marchio.py`, che stampa la riga da
+ * incollare qui sotto: i numeri che contano sono quattro — inclinazione
+ * dell'anello, quante stelle, quanto sono grandi.
  */
-const SEGNO = `<path d="M16,100 L60,80 L70,204 L98,20 L126,204 L154,92 L182,204 L186,266 L196,262 L222,10 L248,150 L248,248 C248,296 218,300 132,300 C46,300 16,288 16,248 Z"/>`;
+const SEGNO = `<path d="M160.0,97.0 L174.8,139.6 L219.9,140.5 L184.0,167.8 L197.0,211.0 L160.0,185.2 L123.0,211.0 L136.0,167.8 L100.1,140.5 L145.2,139.6 Z"/><path d="M160.0,35.3 L171.5,59.9 L206.6,60.4 L178.6,76.2 L188.8,101.1 L160.0,86.2 L131.2,101.1 L141.4,76.2 L113.4,60.4 L148.5,59.9 Z"/><path d="M248.2,71.8 L238.9,97.4 L263.4,122.5 L232.5,113.9 L222.0,138.7 L212.2,107.8 L181.3,98.0 L206.1,87.5 L197.5,56.6 L222.6,81.1 Z"/><path d="M284.7,160.0 L260.1,171.5 L259.6,206.6 L243.8,178.6 L218.9,188.8 L233.8,160.0 L218.9,131.2 L243.8,141.4 L259.6,113.4 L260.1,148.5 Z"/><path d="M248.2,248.2 L222.6,238.9 L197.5,263.4 L206.1,232.5 L181.3,222.0 L212.2,212.2 L222.0,181.3 L232.5,206.1 L263.4,197.5 L238.9,222.6 Z"/><path d="M160.0,284.7 L148.5,260.1 L113.4,259.6 L141.4,243.8 L131.2,218.9 L160.0,233.8 L188.8,218.9 L178.6,243.8 L206.6,259.6 L171.5,260.1 Z"/><path d="M71.8,248.2 L81.1,222.6 L56.6,197.5 L87.5,206.1 L98.0,181.3 L107.8,212.2 L138.7,222.0 L113.9,232.5 L122.5,263.4 L97.4,238.9 Z"/><path d="M35.3,160.0 L59.9,148.5 L60.4,113.4 L76.2,141.4 L101.1,131.2 L86.2,160.0 L101.1,188.8 L76.2,178.6 L60.4,206.6 L59.9,171.5 Z"/><path d="M71.8,71.8 L97.4,81.1 L122.5,56.6 L113.9,87.5 L138.7,98.0 L107.8,107.8 L98.0,138.7 L87.5,113.9 L56.6,122.5 L81.1,97.4 Z"/>`;
 
 /** Il solo segno. Lo stesso disegno a ogni misura: sta in piedi anche a
  *  ventiquattro pixel, ed è il motivo per cui è fatto così. */
 function segno(classe = "") {
-  return `<svg class="segno ${classe}" viewBox="0 0 264 316" aria-hidden="true">${SEGNO}</svg>`;
+  return `<svg class="segno ${classe}" viewBox="0 0 320 320" aria-hidden="true">${SEGNO}</svg>`;
 }
 
 /** Segno e logotipo affiancati: il marchio intero, per le schermate
@@ -948,7 +948,7 @@ function marchio() {
     ${segno("alto")}
     <span class="logotipo">
       <span class="riga-occhio">Fantacalcio Mantra</span>
-      <span class="riga-forte">Dynasty<br>League</span>
+      <span class="riga-forte">Dynasty League</span>
     </span>
   </div>`;
 }
