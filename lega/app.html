@@ -1,0 +1,1608 @@
+<title>Dynasty League</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Dynasty League — il front office di una lega da dieci squadre.
+   Tavolo verde e inchiostro: i colori del campo, non quelli di un
+   foglio di calcolo. I numeri sono sempre tabulari perché nelle
+   colonne del tetto salariale le cifre devono incolonnarsi.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Carta fredda, inchiostro con bias verde: il verde è il colore
+     strutturale della lega, non un accento acceso buttato sopra. */
+  --carta:          #F7F7F3;
+  --carta-alta:     #FFFFFF;
+  --carta-bassa:    #EBEDE6;
+  --bordo:          #DADDD2;
+  --bordo-forte:    #C3C7B9;
+  --inchiostro:     #14170F;
+  --inchiostro-med: #5B6154;
+  --inchiostro-lieve:#868C7E;
+
+  --campo:          #1E5F3F;
+  --campo-chiaro:   #E4EFE7;
+  --campo-vivo:     #2C7A52;
+
+  --allarme:        #96271A;
+  --allarme-tenue:  #F7E4E1;
+  --avviso:         #8A6110;
+  --avviso-tenue:   #F7EEDC;
+  --ok:             #1E5F3F;
+  --ok-tenue:       #E4EFE7;
+
+  --ombra: 0 1px 2px rgba(20,23,15,.06), 0 4px 14px rgba(20,23,15,.05);
+  --ombra-alta: 0 2px 6px rgba(20,23,15,.10), 0 18px 40px rgba(20,23,15,.12);
+
+  --raggio: 12px;
+  --raggio-s: 8px;
+  --display: "Bricolage Grotesque", "Archivo", system-ui, sans-serif;
+  --testo: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --carta:          #12140F;
+    --carta-alta:     #1B1E17;
+    --carta-bassa:    #23271E;
+    --bordo:          #2E3328;
+    --bordo-forte:    #434839;
+    --inchiostro:     #EFF0E9;
+    --inchiostro-med: #A2A899;
+    --inchiostro-lieve:#7C8375;
+
+    --campo:          #63BE8B;
+    --campo-chiaro:   #1C2C22;
+    --campo-vivo:     #7ED3A3;
+
+    --allarme:        #E98B7C;
+    --allarme-tenue:  #2E1D19;
+    --avviso:         #DDB25A;
+    --avviso-tenue:   #2B2416;
+    --ok:             #63BE8B;
+    --ok-tenue:       #1C2C22;
+
+    --ombra: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+    --ombra-alta: 0 2px 6px rgba(0,0,0,.5), 0 18px 40px rgba(0,0,0,.45);
+  }
+}
+
+:root[data-theme="dark"] {
+  --carta:          #12140F;
+  --carta-alta:     #1B1E17;
+  --carta-bassa:    #23271E;
+  --bordo:          #2E3328;
+  --bordo-forte:    #434839;
+  --inchiostro:     #EFF0E9;
+  --inchiostro-med: #A2A899;
+  --inchiostro-lieve:#7C8375;
+
+  --campo:          #63BE8B;
+  --campo-chiaro:   #1C2C22;
+  --campo-vivo:     #7ED3A3;
+
+  --allarme:        #E98B7C;
+  --allarme-tenue:  #2E1D19;
+  --avviso:         #DDB25A;
+  --avviso-tenue:   #2B2416;
+  --ok:             #63BE8B;
+  --ok-tenue:       #1C2C22;
+
+  --ombra: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+  --ombra-alta: 0 2px 6px rgba(0,0,0,.5), 0 18px 40px rgba(0,0,0,.45);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--carta);
+  color: var(--inchiostro);
+  font-family: var(--testo);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -.015em; }
+h1 { font-size: clamp(26px, 5vw, 38px); font-weight: 800; line-height: 1.05; }
+h2 { font-size: 20px; font-weight: 600; }
+h3 { font-size: 16px; font-weight: 600; }
+p { margin: 0; }
+
+.num { font-variant-numeric: tabular-nums; }
+
+.occhiello {
+  font-size: 11px; font-weight: 600; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--inchiostro-lieve);
+}
+
+button { font-family: inherit; font-size: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+  outline: 2px solid var(--campo); outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ── Impalcatura ──────────────────────────────────────────── */
+
+.guscio { min-height: 100vh; display: flex; flex-direction: column; }
+
+.testata {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--carta) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--bordo);
+}
+.marchio {
+  display: flex; align-items: center; gap: 9px; min-width: 0;
+  font-family: var(--display); font-weight: 800; letter-spacing: -.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.marchio .sigla {
+  width: 26px; height: 26px; border-radius: 7px; flex: none;
+  background: var(--campo); color: var(--carta-alta);
+  display: grid; place-items: center; font-size: 14px; line-height: 1;
+  color: #F7F7F3;
+}
+.testata .spinta { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.chi-sono { font-size: 12px; color: var(--inchiostro-med); text-align: right; line-height: 1.25; }
+.chi-sono b { display: block; color: var(--inchiostro); font-size: 13px; }
+
+.lavoro { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 20px 16px 110px; }
+@media (min-width: 860px) { .lavoro { padding-bottom: 40px; } }
+
+/* Navigazione: in basso sul telefono (all'asta si sta seduti col
+   telefono in mano), in linea sotto la testata sullo schermo grande. */
+.navigazione {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 14px; z-index: 40;
+  display: flex; gap: 2px; padding: 5px;
+  background: var(--inchiostro); border-radius: 999px;
+  box-shadow: var(--ombra-alta);
+  max-width: calc(100vw - 24px); overflow-x: auto; scrollbar-width: none;
+}
+.navigazione::-webkit-scrollbar { display: none; }
+.navigazione button {
+  border: 0; background: transparent; color: #CFD3C6;
+  padding: 9px 14px; border-radius: 999px; white-space: nowrap;
+  font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px;
+}
+.navigazione button[aria-current="page"] { background: var(--campo-vivo); color: #0B1A12; font-weight: 600; }
+:root[data-theme="dark"] .navigazione { background: #262B20; }
+
+@media (min-width: 860px) {
+  .navigazione {
+    position: sticky; top: 57px; transform: none; left: auto; bottom: auto;
+    margin: 0 auto 4px; width: fit-content; max-width: none;
+  }
+}
+
+/* ── Blocchi ──────────────────────────────────────────────── */
+
+.sezione { margin-bottom: 28px; }
+.intestazione-sezione { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.intestazione-sezione .conteggio {
+  font-size: 12px; font-weight: 600; color: var(--campo);
+  background: var(--campo-chiaro); padding: 2px 8px; border-radius: 999px;
+}
+
+.riquadro {
+  background: var(--carta-alta); border: 1px solid var(--bordo);
+  border-radius: var(--raggio); padding: 16px;
+}
+
+/* Il pannello del tetto salariale: è il numero che comanda tutto,
+   quindi è l'unico elemento che si prende il fondo pieno. */
+.tetto {
+  background: var(--inchiostro); color: var(--carta);
+  border-radius: var(--raggio); padding: 18px 20px;
+  display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end;
+}
+:root[data-theme="dark"] .tetto { background: var(--carta-bassa); color: var(--inchiostro); border: 1px solid var(--bordo); }
+.tetto .cifra { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 8vw, 46px); line-height: .95; letter-spacing: -.03em; }
+.tetto .sotto { font-size: 13px; opacity: .72; margin-top: 4px; }
+.tetto.sforato .cifra { color: #F0A79A; }
+
+.barra-tetto { width: 100%; height: 7px; border-radius: 999px; background: rgba(255,255,255,.16); overflow: hidden; }
+:root[data-theme="dark"] .barra-tetto { background: var(--bordo); }
+.barra-tetto span { display: block; height: 100%; background: var(--campo-vivo); border-radius: 999px; transition: width .35s ease; }
+.barra-tetto span.sforato { background: #E9836F; }
+
+.griglia-dati { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.dato { background: var(--carta-bassa); border-radius: var(--raggio-s); padding: 11px 13px; }
+.dato .etichetta { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--inchiostro-lieve); }
+.dato .valore { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.2; margin-top: 2px; }
+.dato .nota { font-size: 12px; color: var(--inchiostro-med); }
+.dato.manca .valore { color: var(--allarme); }
+
+/* ── Giocatori ────────────────────────────────────────────── */
+
+.elenco { display: flex; flex-direction: column; background: var(--carta-alta); border: 1px solid var(--bordo); border-radius: var(--raggio); overflow: hidden; }
+.voce {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 13px; border-bottom: 1px solid var(--bordo);
+  background: none; border-left: 0; border-right: 0; border-top: 0;
+  width: 100%; text-align: left; color: inherit;
+}
+.voce:last-child { border-bottom: 0; }
+button.voce:hover { background: var(--carta-bassa); }
+.voce .nome { font-weight: 600; }
+.voce .dettaglio { font-size: 12.5px; color: var(--inchiostro-med); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.voce .corpo { min-width: 0; flex: 1; }
+.voce .coda { margin-left: auto; text-align: right; flex: none; display: flex; align-items: center; gap: 10px; }
+.voce .prezzo { font-family: var(--display); font-weight: 600; font-size: 15px; }
+
+.ruolo {
+  width: 26px; height: 26px; flex: none; border-radius: 7px;
+  display: grid; place-items: center; font-size: 12px; font-weight: 700;
+}
+.ruolo.P { background: #F6E2C3; color: #6A4708; }
+.ruolo.D { background: #D3E3F5; color: #1B4A76; }
+.ruolo.C { background: #D8EEDC; color: #1C5732; }
+.ruolo.A { background: #F7D8D8; color: #7C2620; }
+:root[data-theme="dark"] .ruolo.P { background: #3A2E15; color: #EEC77E; }
+:root[data-theme="dark"] .ruolo.D { background: #17293A; color: #94C2EA; }
+:root[data-theme="dark"] .ruolo.C { background: #16301F; color: #85CF9F; }
+:root[data-theme="dark"] .ruolo.A { background: #38201D; color: #E9A099; }
+
+.targhetta {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px;
+  border: 1px solid transparent; white-space: nowrap;
+}
+.targhetta.ok { background: var(--ok-tenue); color: var(--ok); }
+.targhetta.forse { background: var(--avviso-tenue); color: var(--avviso); }
+.targhetta.no { background: var(--allarme-tenue); color: var(--allarme); }
+.targhetta.neutra { background: var(--carta-bassa); color: var(--inchiostro-med); }
+.targhetta.contratto { background: var(--carta-bassa); color: var(--inchiostro-med); border-color: var(--bordo); }
+
+/* ── Comandi ──────────────────────────────────────────────── */
+
+.filtri { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+.pillola {
+  border: 1px solid var(--bordo-forte); background: var(--carta-alta); color: var(--inchiostro-med);
+  padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 500;
+}
+.pillola[aria-pressed="true"] { background: var(--inchiostro); color: var(--carta); border-color: var(--inchiostro); font-weight: 600; }
+.pillola.primavera[aria-pressed="true"] { background: var(--campo); border-color: var(--campo); color: #F7F7F3; }
+
+input[type="text"], input[type="number"], input[type="search"], select {
+  width: 100%; padding: 11px 13px; font-size: 15px; font-family: inherit;
+  color: var(--inchiostro); background: var(--carta-alta);
+  border: 1px solid var(--bordo-forte); border-radius: var(--raggio-s);
+}
+input::placeholder { color: var(--inchiostro-lieve); }
+label.campo { display: block; }
+label.campo > span { display: block; font-size: 12px; font-weight: 600; color: var(--inchiostro-med); margin-bottom: 5px; }
+
+.bottone {
+  border: 1px solid var(--bordo-forte); background: var(--carta-alta); color: var(--inchiostro);
+  padding: 11px 16px; border-radius: var(--raggio-s); font-weight: 600; font-size: 14px;
+}
+.bottone:hover { background: var(--carta-bassa); }
+.bottone.primario { background: var(--campo); border-color: var(--campo); color: #F7F7F3; }
+.bottone.primario:hover { background: var(--campo-vivo); }
+.bottone.pericolo { color: var(--allarme); border-color: var(--allarme); background: transparent; }
+.bottone[disabled] { opacity: .45; cursor: not-allowed; }
+.bottone.largo { width: 100%; }
+.bottone.piccolo { padding: 6px 11px; font-size: 13px; }
+
+.avviso { padding: 12px 14px; border-radius: var(--raggio-s); font-size: 13.5px; line-height: 1.45; }
+.avviso.errore { background: var(--allarme-tenue); color: var(--allarme); }
+.avviso.attenzione { background: var(--avviso-tenue); color: var(--avviso); }
+.avviso.bene { background: var(--ok-tenue); color: var(--ok); }
+.avviso.neutro { background: var(--carta-bassa); color: var(--inchiostro-med); }
+
+.vuoto { text-align: center; padding: 34px 18px; color: var(--inchiostro-med); font-size: 14px; }
+
+/* ── Foglio che sale ──────────────────────────────────────── */
+
+.velo {
+  position: fixed; inset: 0; z-index: 60; background: rgba(12,14,10,.5);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+@media (min-width: 700px) { .velo { align-items: center; } }
+.foglio {
+  background: var(--carta); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+  border-radius: 18px 18px 0 0; padding: 20px 18px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: var(--ombra-alta);
+}
+@media (min-width: 700px) { .foglio { border-radius: 16px; padding-bottom: 22px; } }
+.foglio-testa { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.foglio-testa .chiudi { margin-left: auto; border: 0; background: var(--carta-bassa); color: var(--inchiostro-med); width: 30px; height: 30px; border-radius: 999px; font-size: 17px; line-height: 1; flex: none; }
+
+.moduli { display: flex; flex-direction: column; gap: 13px; }
+.scelte { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.scelta {
+  text-align: left; border: 1px solid var(--bordo-forte); background: var(--carta-alta);
+  border-radius: var(--raggio-s); padding: 10px 12px; color: inherit;
+}
+.scelta[aria-pressed="true"] { border-color: var(--campo); background: var(--campo-chiaro); box-shadow: inset 0 0 0 1px var(--campo); }
+.scelta[disabled] { opacity: .5; }
+.scelta b { display: block; font-size: 14px; }
+.scelta small { color: var(--inchiostro-med); font-size: 11.5px; line-height: 1.35; display: block; }
+
+.tabellina { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tabellina th { text-align: left; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--inchiostro-lieve); padding: 0 10px 7px; font-weight: 600; }
+.tabellina td { padding: 9px 10px; border-top: 1px solid var(--bordo); }
+.tabellina td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.scorre { overflow-x: auto; }
+</style>
+
+<div id="radice">
+  <div class="lavoro"><p class="occhiello">Dynasty League</p><h1 style="margin-top:6px">Apro la lega…</h1></div>
+</div>
+
+<script>
+"use strict";
+
+/* ═══════════════════════════════════════════════════════════════
+   IL REGOLAMENTO, IN NUMERI
+
+   Tutte le regole della lega stanno qui e da nessun'altra parte: il
+   resto del codice le legge, non le contiene. Cambiare il tetto o la
+   durata di un contratto è una riga in questo oggetto, non una caccia
+   dentro le funzioni.
+   ═══════════════════════════════════════════════════════════════ */
+
+const REGOLE = {
+  tetto: 85,                                  // milioni, art. 3.2
+  rosaMin: 25, rosaMax: 30,
+  minimiRuolo: { P: 3, D: 8, C: 8, A: 6 },    // art. 3.1
+  slotPluriennali: 9,                         // art. 3.3
+  passo: 0.25,                                // gli importi si muovono di 0,25 M
+  riservaPerSlotMancante: 0.5,                // art. 8.6
+  etaAl: "1° settembre",                      // art. 4.2
+
+  contratti: {
+    ANNUALE:  { nome: "Annuale",  anni: [1],          slot: false, nota: "Un anno. Nessun requisito." },
+    STANDARD: { nome: "Standard", anni: [2, 3],       slot: true,  tasso: 1.1, nota: "Due o tre anni, +10% ogni anno." },
+    ROOKIE:   { nome: "Rookie",   anni: [2, 3, 4],    slot: true,  tasso: 1.0, etaMax: 22, ingaggioMax: 6,  nota: "Under 23 alla firma. Ingaggio invariato, max 6 M." },
+    VETERAN:  { nome: "Veteran",  anni: [2],          slot: true,  tasso: 0.8, etaMin: 30, ingaggioMax: 10, nota: "Over 30 alla firma. −20% ogni anno, max 10 M." },
+    TAMPONE:  { nome: "Tampone",  anni: [1],          slot: false, ingaggioMax: 1, maxStagione: 3, nota: "Quattro giornate, max 1 M. Tre a stagione." },
+  },
+
+  primavera: { etaMax: 20, quotazioneMax: 7, presenzeMax: 5 },  // art. 16.1
+};
+
+const ORDINE_RUOLI = ["P", "D", "C", "A"];
+const NOME_RUOLO = { P: "Portiere", D: "Difensore", C: "Centrocampista", A: "Attaccante" };
+const NOME_RUOLO_PL = { P: "portieri", D: "difensori", C: "centrocampisti", A: "attaccanti" };
+
+/* ═══════════════════════════════════════════════════════════════
+   IL LISTONE
+
+   I 531 giocatori della Serie A 2026/27 con quotazione, valore di
+   mercato e età, dal listone ufficiale. Viaggia dentro la pagina —
+   non nel database — perché è un dato di riferimento della stagione
+   che non cambia mai da solo: metterlo nel database vorrebbe dire
+   scriverlo una volta e poi mantenerlo per sempre a mano.
+
+   Formato compatto: [nome, ruolo, indice squadra, quotazione, valore, età].
+   Un'età a −1 vuol dire che il listone non la stampa: sono cinque.
+   ═══════════════════════════════════════════════════════════════ */
+
+const LISTONE_GREZZO = {"stagione":"2026/27","annoInizio":2026,"etaAllAnno":2026,"squadre":["Atalanta","Bologna","Cagliari","Como","Fiorentina","Frosinone","Genoa","Inter","Juventus","Lazio","Lecce","Milan","Monza","Napoli","Parma","Roma","Sassuolo","Torino","Udinese","Venezia"],"righe":[["Malen","A",15,38,450,27],["Martinez L.","A",7,33,361,28],["Dimarco","D",7,31,240,29],["Paz N.","C",3,29,245,22],["Calhanoglu","C",7,28,243,32],["Hojlund","A",13,28,260,23],["Thuram","A",7,28,249,29],["McTominay","C",13,27,220,30],["Ramos G.","A",11,27,237,25],["Kolo Muani","A",8,25,165,28],["Orsolini","C",1,25,177,29],["Kean","A",3,24,183,26],["Pulisic","C",11,24,150,28],["Rabiot","C",11,23,145,31],["Woltemade","A",8,23,160,24],["Douvikas","A",3,22,185,27],["Yildiz","A",8,22,100,21],["Baturina","C",3,20,105,23],["Mora","C",15,20,100,19],["Berardi","A",16,19,106,32],["Davis K.","A",18,19,108,28],["Scamacca","A",0,19,110,27],["Svilar","P",15,19,85,27],["Barella","C",7,18,81,29],["Da Cunha","C",3,18,87,25],["Krstovic","A",0,18,98,26],["Molina N.","D",15,18,78,28],["Wesley","D",15,18,87,23],["Zaniolo","C",18,18,80,27],["Carnesecchi","P",0,17,55,26],["De Bruyne","C",13,17,108,35],["De Ketelaere","A",0,17,95,25],["Esposito F.P.","A",7,17,105,21],["Martinez Jo.","P",7,17,68,28],["McKennie","C",8,17,70,28],["Vicario","P",8,17,70,30],["Bremer","D",8,16,60,29],["Dybala","A",15,16,100,33],["Mancini","D",15,16,50,30],["Zaccagni","C",9,16,87,31],["Akanji","D",7,15,47,31],["Atta","C",4,15,78,23],["Butez","P",3,15,50,31],["Dovbyk","A",1,15,51,29],["Laurientè","A",16,15,83,28],["Maignan","P",11,15,52,31],["Rrahmani","D",13,15,51,32],["Bastoni","D",7,14,43,27],["Beto","A",4,14,50,28],["Castro S.","A",15,14,70,22],["Kalulu","D",8,14,47,26],["Pavlovic","D",11,14,49,25],["Pellegrino M.","A",4,14,40,25],["Raspadori","A",0,14,73,26],["Santos A.","A",13,14,61,24],["Simeone","A",17,14,80,31],["Conceicao","C",8,13,68,24],["Gila","D",11,13,31,26],["N'Dicka","D",15,13,42,27],["Samardzic","C",0,13,44,24],["Solet","D",18,13,46,26],["Soulè","A",15,13,48,23],["Taylor K.","C",9,13,53,24],["Vlasic","C",17,13,73,29],["Bisseck","D",7,12,36,26],["Di Lorenzo","D",13,12,39,33],["Diao","A",3,12,50,21],["Ederson D.S.","C",0,12,46,27],["Ekkelenkamp","C",18,12,57,26],["Esposito Se.","A",16,12,40,24],["Goncalves P.","C",4,12,50,28],["Gonzalez N.","C",8,12,45,28],["Gudmundsson A.","C",9,12,40,29],["Jones C.","C",7,12,47,25],["Kessiè","C",0,12,47,30],["Kevin Carlos","A",2,12,36,25],["Modric","C",11,12,45,41],["Pinamonti","A",9,12,53,27],["Stones","D",7,12,25,32],["Zielinski","C",7,12,45,32],["Adams A.","A",19,11,35,26],["Alajbegovic","C",8,11,42,19],["Baldanzi","C",6,11,28,23],["Colombo","A",6,11,52,24],["De Gea","P",4,11,30,36],["Hermoso","D",15,11,26,31],["Mastantuono","C",4,11,50,19],["Meret","P",13,11,48,29],["Moreira","C",11,11,45,22],["Ostigard","D",6,11,41,27],["Rodriguez Je.","C",3,11,31,21],["Saelemaekers","C",11,11,35,27],["Spence","D",7,11,37,26],["Adams C.","A",17,10,33,30],["Bernardeschi","C",1,10,27,32],["Caprile","P",2,10,25,25],["Chalobah T.","D",3,10,32,27],["Frattesi","C",9,10,75,27],["Konè M.","C",15,10,42,25],["Mandas","P",9,10,36,25],["Perrone","C",3,10,34,23],["Ramon","D",3,10,31,21],["Romero D.","A",14,10,37,23],["Rowe","C",0,10,40,23],["Scalvini","D",0,10,28,23],["Skorupski","P",1,10,32,35],["Thorstvedt","C",16,10,39,27],["Tourè E.","A",14,10,37,25],["Vergara","C",13,10,35,23],["Zambo Anguissa","C",13,10,41,31],["Bobcek","A",5,9,31,25],["Bowie","A",16,9,32,24],["Cancellieri","C",9,9,25,24],["Casadei","C",17,9,27,23],["Colpani","C",12,9,15,27],["Cristante","C",15,9,29,31],["Cutrone","A",12,9,23,28],["Diouf","C",7,9,43,23],["Dodò","D",4,9,20,28],["Isaksen","C",9,9,22,25],["Kamara H.","D",18,9,12,32],["Locatelli","C",8,9,33,28],["Okoye","P",18,9,28,27],["Pellegrini Lo.","C",15,9,20,30],["Perri","P",17,9,26,29],["Politano","C",13,9,37,33],["Raimondo","A",5,9,27,22],["Sucic P.","C",7,9,21,23],["Thuram K.","C",8,9,25,25],["Vasquez","D",6,9,30,28],["Vojvoda","D",18,9,19,31],["Volpato","C",16,9,25,23],["Yeboah J.","A",19,9,27,26],["Bartesaghi","D",11,8,22,21],["Bijlow","P",6,8,15,28],["Calò","C",5,8,27,29],["Cambiaghi","C",1,8,25,26],["Cambiaso","D",8,8,18,26],["Celik","D",8,8,16,29],["Chukwueze","C",11,8,22,27],["Comuzzo","D",17,8,13,21],["Couto","D",3,8,25,24],["Delprato","D",14,8,21,-1],["Diego Carlos","D",14,8,26,33],["Doekhi","D",9,8,16,28],["Falcone","P",10,8,26,31],["Geubbels","A",10,8,23,25],["Ghedjemis","A",5,8,23,24],["Hutchinson","C",11,8,25,23],["Konè I.","C",16,8,20,24],["Koulierakis","D",15,8,15,23],["Lobotka","C",13,8,23,32],["Mandragora","C",17,8,23,29],["Mbangula","C",1,8,28,22],["Miranda J.","D",1,8,23,26],["Odgaard","C",1,8,17,27],["Osmajic","A",6,8,28,27],["Pasalic","C",0,8,22,31],["Piccoli","A",1,8,29,25],["Sanchez Ro.","P",3,8,25,29],["Schmid","C",5,8,25,26],["Spinazzola","D",13,8,25,33],["Theate","D",1,8,20,26],["Tiago Gabriel","D",10,8,20,22],["Valeri","D",14,8,22,28],["Vitinha O.","A",6,8,13,26],["Zappacosta","D",0,8,19,34],["Adopo","C",2,7,13,26],["Akinsanmiro","C",12,7,11,22],["Badiashile","D",13,7,18,25],["Belghali","D",17,7,20,24],["Bernabè","C",14,7,34,25],["Boga","A",8,7,27,29],["Bonny","A",7,7,15,23],["Bracaglia","D",5,7,15,23],["Coco","D",17,7,14,27],["Coulibaly L.","C",10,7,17,30],["Dragusin","D",4,7,20,24],["Elmas","C",0,7,22,27],["Fagioli","C",4,7,20,25],["Ferguson","C",1,7,23,27],["Frendrup","C",6,7,19,25],["Gabbia","D",11,7,15,27],["Gaetano","C",0,7,30,26],["Gnonto","A",4,7,25,23],["Hien","D",0,7,11,27],["Idzes","D",16,7,19,26],["Ismajli","D",17,7,13,30],["Jimenez A.","D",4,7,18,21],["Karlstrom","C",18,7,20,31],["Koopmeiners","C",8,7,15,28],["Lucumì","D",8,7,17,28],["Mangas","D",12,7,15,28],["Mina","D",2,7,20,32],["Monteiro J.","C",10,7,23,27],["Muric","P",16,7,15,28],["Ndour","C",4,7,22,22],["Obert","D",2,7,15,24],["Pisilli","C",15,7,19,22],["Romano","C",2,7,21,20],["Rovella","C",9,7,16,25],["Rrahmani Al.","A",19,7,13,26],["Sarr P.","C",8,7,25,24],["Sow","C",6,7,15,29],["Sutalo J.","D",9,7,19,26],["Tavares N.","D",9,7,25,26],["Unai Gomez","C",18,7,16,23],["Varela G.","A",12,7,40,21],["Zalewski","C",0,7,18,24],["Zortea","D",1,7,19,27],["Adzic","C",16,6,16,20],["Bakola","C",16,6,14,19],["Balerdi","D",15,6,11,27],["Basic","C",19,6,19,30],["Bellanova","D",0,6,17,26],["Bernasconi","D",0,6,18,23],["Beukema","D",13,6,12,28],["Braganca","C",17,6,20,27],["Buongiorno","D",13,6,15,27],["Cacciamani","C",17,6,24,19],["Caleta-Car","D",16,6,15,30],["Caqueret","C",3,6,17,26],["Carlos Augusto","D",7,6,20,27],["Daffara","P",14,6,7,22],["Ellertsson","C",6,6,16,24],["Fazzini","C",2,6,23,23],["Fortini","D",17,6,12,20],["Gallo","D",10,6,12,26],["Heggem","D",1,6,15,27],["Holm","D",1,6,13,26],["Kaiki","D",3,6,13,23],["Kolasinac","D",0,6,8,33],["Kristensen T.","D",0,6,20,24],["Kvernadze","A",5,6,24,23],["Leysen F.","D",16,6,12,23],["Liberali","C",3,6,21,19],["Marcandalli","D",6,6,14,24],["Marusic","D",9,6,20,34],["Matic","C",16,6,15,38],["Milla","C",3,6,30,32],["Monterisi","D",5,6,13,25],["Neres","A",13,6,20,29],["Nicolussi Caviglia","C",14,6,16,26],["Noslin","A",9,6,8,27],["Obrador","D",16,6,13,22],["Oristanio","C",17,6,12,24],["Oulai","C",4,6,18,20],["Oyono A.","D",5,6,10,25],["Pavard","D",7,6,14,30],["Pedraza","D",9,6,14,30],["Pessina","C",12,6,15,29],["Pierotti","C",10,6,19,25],["Piotrowski","C",18,6,15,29],["Pobega","C",1,6,12,27],["Romagnoli","D",9,6,20,31],["Stankovic F.","P",19,6,11,24],["Stulic","A",10,6,11,25],["Sugawara","D",2,6,15,26],["Sulemana K.","A",0,6,8,24],["Tomori","D",11,6,8,29],["Tourè I.","C",12,6,14,28],["Valle","D",3,6,21,22],["Veiga D.","D",10,6,12,24],["Viery","D",4,6,12,21],["Winks","C",2,6,15,30],["Zapata D.","A",17,6,12,35],["Zeballos","A",12,6,18,24],["Zerbin","C",5,6,12,27],["Zhegrova","C",8,6,17,27],["Amondarain","C",1,5,10,21],["Bella-Kotchap","D",19,5,13,25],["Birligea","A",5,5,11,26],["Busio","C",19,5,14,24],["Calvani","D",5,5,13,22],["Cissè A.","C",11,5,24,20],["Correia T.","D",19,5,12,27],["De Winter","D",11,5,20,24],["Dele-Bashiru","C",9,5,13,25],["Doig","D",16,5,10,24],["Felici","C",2,5,7,25],["Fitz-Jim","C",17,5,18,23],["Gaspar K.","D",10,5,12,29],["Ghilardi","D",15,5,10,23],["Gineitis","C",17,5,12,22],["Haps","D",19,5,10,33],["Jashari","C",11,5,13,24],["Keita M.","C",14,5,15,24],["Kelly L.","D",8,5,12,28],["Kempf","D",3,5,13,31],["Kofler","D",2,5,8,21],["Luis Henrique","C",7,5,12,25],["Maldini","A",2,5,21,25],["Meichtry","C",6,5,11,21],["Milinkovic-Savic V.","P",13,5,5,29],["Ngonge","A",12,5,13,26],["Olivera","D",13,5,13,29],["Palmisani","P",5,5,12,22],["Patterson","D",17,5,12,25],["Perez K.","C",19,5,15,29],["Sohm","C",19,5,11,25],["Valdepenas","D",4,5,16,20],["Zè Pedro","D",2,5,13,29],["Addai","C",3,4,10,21],["Adorante","A",19,4,8,26],["Almqvist","C",14,4,11,27],["Amorim","C",6,4,11,21],["Arizala","D",18,4,8,21],["Berisha M.","C",10,4,12,23],["Bertola","D",18,4,10,23],["Birindelli","D",12,4,12,27],["Borrelli","A",2,4,9,26],["Camarda","A",11,4,20,18],["Cataldi","C",9,4,12,32],["Cichella","C",5,4,12,21],["Cittadini","D",5,4,8,24],["Comert","D",17,4,12,28],["De Roon","C",15,4,10,35],["Dominguez B.","C",16,4,12,23],["Douglas Luiz","C",8,4,15,28],["Fabbian","C",14,4,8,23],["Fatah","A",10,4,14,22],["Favasuli","D",13,4,11,22],["Fini","C",5,4,13,20],["Floriani Mussolini","D",9,4,10,23],["Folorunsho","C",12,4,17,28],["Frigan","A",14,4,6,23],["Gandelman","C",10,4,10,26],["Gatti","D",8,4,10,28],["Giovane","A",13,4,7,23],["Grillitsch","C",5,4,10,31],["Gueye","A",18,4,7,20],["Hainaut","D",19,4,12,24],["Havel","A",6,4,5,23],["Ilkhan","C",17,4,8,22],["Juan Jesus","D",19,4,10,35],["Kabasele","D",18,4,12,35],["Kossounou","D",0,4,12,25],["Koutsoupias","C",5,4,11,25],["Kulenovic","A",17,4,9,27],["Lang","A",13,4,14,27],["Loftus-Cheek","C",11,4,16,30],["Lucca","A",13,4,12,26],["Massolin","C",2,4,12,24],["Mendy P.","A",2,4,12,19],["Messias","C",6,4,8,35],["Milik","A",8,4,10,32],["Miller L.","C",18,4,12,20],["Mitaj","D",6,4,10,23],["Mkhitaryan","C",7,4,9,37],["Moreno M.","D",19,4,6,23],["Moro N.","C",1,4,14,28],["Mota","A",12,4,8,28],["N'Dri","A",10,4,12,26],["Ngom","C",10,4,12,22],["Njie","C",4,4,28,21],["Nzola","A",2,4,10,30],["Parisi","D",4,4,10,26],["Pongracic","D",4,4,8,29],["Provstgaard","D",9,4,13,23],["Rensch","D",15,4,14,23],["Ricci S.","C",3,4,12,25],["Robinson J.","A",12,4,5,19],["Rodriguez Ju.","D",2,4,14,21],["Siebert","D",10,4,12,24],["Smolcic I.","D",3,4,10,26],["Terzic","D",5,4,8,27],["Thiam","P",12,4,5,28],["Traorè Hj.","C",6,4,11,26],["Valenti","D",14,4,10,27],["Vitik","D",1,4,10,23],["Walukiewicz","D",16,4,10,26],["Zanoli","D",18,4,10,26],["Aboukhlal","C",17,3,5,26],["Akpoguma","D",5,3,6,31],["Brescianini","C",4,3,11,26],["Britschgi","D",14,3,10,20],["Candè","D",16,3,7,28],["Carboni A.","D",12,3,9,25],["Casale","D",1,3,5,28],["Colombo L.","C",12,3,4,21],["Deiola","C",2,3,8,31],["Diallo O.","C",14,3,12,19],["Drameh","D",6,3,10,25],["Ebosse","D",18,3,5,27],["Ekhator","A",8,3,10,20],["Elphege","A",14,3,11,25],["Estupinan","D",11,3,13,28],["Fernandez T.","C",19,3,8,18],["Franjic","D",19,3,7,-1],["Gagliardini","C",2,3,8,32],["Gelli F.","C",5,3,6,30],["Gilmour","C",13,3,10,25],["Gorter","C",10,3,12,21],["Halhal","D",19,3,10,23],["Helgason","C",19,3,3,26],["Helland","D",1,3,12,21],["Idrissi R.","D",2,3,3,21],["Joao Mario","D",4,3,12,26],["Kambwala","D",3,3,8,22],["Kouadio","D",12,3,14,20],["Lontani","A",14,3,11,18],["Lucchesi","D",12,3,11,23],["Maleh","C",10,3,7,28],["Masini","C",5,3,8,25],["Musah","C",11,3,15,24],["Odenthal","D",16,3,8,26],["Ordonez C.","C",14,3,10,22],["Palma","D",18,3,11,18],["Ranieri L.","D",4,3,10,27],["Schingtienne","D",19,3,10,24],["Stankovic A.","C",7,3,7,21],["Sulemana I.","C",16,3,7,23],["Sverko","D",19,3,7,28],["Tchato","D",5,3,8,24],["Troilo","D",14,3,14,23],["Abankwah","D",18,2,10,22],["Alhassane","D",1,2,6,24],["Aurelio","D",2,2,5,26],["Bakoune","D",12,2,4,20],["Belahyane","C",9,2,3,22],["Biraghi","D",17,2,5,34],["Boloca","C",16,2,5,28],["Chakvetadze","C",18,2,6,27],["Cinquegrano","D",16,2,4,22],["Ciurria","C",12,2,6,31],["Corvi","P",14,2,10,25],["Cremaschi","C",14,2,3,21],["Desplanches","P",5,2,1,23],["Diawara S.","D",11,2,4,20],["Drobnic","D",14,2,1,19],["Duncan","C",19,2,4,33],["El Azzouzi O.","C",1,2,10,25],["Fadera","C",2,2,12,25],["Foe Ondoa","C",12,2,2,21],["Forson O.","C",12,2,1,22],["Goglichidze","D",12,2,5,22],["Hasa","C",5,2,5,22],["Jean","D",10,2,4,26],["Jovanovic","C",18,2,5,-1],["Lazzari","D",9,2,5,33],["Lipani","C",16,2,5,21],["Lulli","D",15,2,10,19],["Marin R.","D",13,2,8,24],["Ndaba","D",10,2,5,27],["Ndiaye","D",14,2,8,24],["Otoa","D",6,2,5,22],["Pellegrini Lu.","D",9,2,7,27],["Provedel","P",7,2,5,32],["Puczka","D",6,2,3,21],["Sabelli","D",6,2,5,33],["Sagrado","D",19,2,4,22],["Terracciano F.","D",11,2,4,36],["Van Der Brempt","D",16,2,11,24],["Venturino","C",6,2,4,20],["Zarraga","C",18,2,4,27],["Amey","D",5,1,1,21],["Anjorin","C",17,1,4,25],["Antov","D",12,1,2,26],["Bayo V.","A",18,1,3,29],["Bleve","P",10,1,1,31],["Cabal","D",8,1,4,25],["Carboni F.","D",14,1,3,23],["Christensen O.","P",4,1,1,27],["Ciervo","C",2,1,1,24],["Comotto","C",11,1,1,18],["Contini","P",13,1,1,30],["Dagasso","C",19,1,1,22],["De Martis","A",14,1,1,18],["De Marzi","P",15,1,1,19],["De Silvestri","D",1,1,4,38],["Dembelè A.","D",10,1,2,22],["Di Gennaro","P",7,1,1,33],["El Azzouzi A.","C",5,1,1,25],["Fofana Sa.","C",10,1,1,23],["Ghidotti","P",14,1,1,26],["Goldaniga","D",3,1,1,33],["Gollini","P",15,1,1,31],["Gomes","D",19,1,1,18],["Grabara","P",8,1,1,27],["Grandi","P",19,1,1,34],["Happonen","P",1,1,1,19],["Ilic","C",10,1,10,25],["Kaba","C",10,1,2,25],["Kone B.","C",5,1,3,26],["Laerke","C",10,1,1,19],["Lahdo","C",3,1,1,19],["Lauberbach","A",19,1,1,28],["Lezzerini","P",4,1,1,31],["Lisman","A",19,1,1,20],["Liteta","C",2,1,1,20],["Lolic","P",5,1,1,22],["Marianucci","D",13,1,3,22],["Mascardi","P",17,1,5,20],["Maye","D",12,1,1,20],["Mazzocchi","D",19,1,10,31],["Montipò","P",19,1,1,30],["Motta","P",9,1,1,21],["Mout","C",12,1,12,19],["Mrozek","P",18,1,1,26],["Omar Fayed","D",5,1,1,23],["Padelli","P",18,1,1,41],["Paleari","P",17,1,1,34],["Patric","D",9,1,1,33],["Penev","P",10,1,1,18],["Pessina Mas.","P",1,1,1,19],["Piana","P",18,1,1,23],["Pieragnolo","D",16,1,1,23],["Pinsoglio","P",8,1,1,36],["Pisseri","P",5,1,1,35],["Pompei","P",0,1,1,-1],["Pozzi","P",19,1,1,26],["Przyborek","C",9,1,5,19],["Radunovic","P",2,1,1,30],["Renzetti","P",9,1,1,20],["Robinho Junior","A",6,1,3,-1],["Rugani","D",8,1,3,32],["Russo A.","P",16,1,1,25],["Satalino","P",16,1,1,27],["Sherri","P",2,1,1,29],["Siviero","P",17,1,1,20],["Sommariva","P",6,1,1,29],["Sportiello","P",0,1,1,34],["Stolz","P",6,1,1,25],["Strajnar","P",12,1,1,19],["Terracciano","P",11,1,1,36],["Tornqvist","P",12,1,10,24],["Torriani","P",11,1,1,21],["Trepy","A",2,1,2,20],["Turati","P",16,1,1,25],["Vigorito","P",3,1,1,36],["Ziolkowski","D",12,1,8,21]]};
+
+const SQUADRE_SERIE_A = LISTONE_GREZZO.squadre;
+const STAGIONE = LISTONE_GREZZO.stagione;
+
+/** Il listone in forma comoda, con un identificatore stabile per ogni
+ *  giocatore: serve a legarlo ai contratti nel database. */
+const LISTONE = LISTONE_GREZZO.righe.map((r, i) => ({
+  id: "g" + i,
+  nome: r[0],
+  ruolo: r[1],
+  squadra: SQUADRE_SERIE_A[r[2]],
+  quotazione: r[3],
+  valore: r[4],
+  eta: r[5] === -1 ? null : r[5],
+}));
+
+const PER_ID = new Map(LISTONE.map((g) => [g.id, g]));
+
+/* ═══════════════════════════════════════════════════════════════
+   ARITMETICA DEGLI INGAGGI
+
+   Gli importi si contano in quarti di milione, in numeri interi. In
+   virgola mobile 0.1 + 0.2 non fa 0.3, e un tetto salariale sbagliato
+   di un centesimo è un tetto salariale sbagliato. Si torna ai milioni
+   solo per scriverli a schermo.
+   ═══════════════════════════════════════════════════════════════ */
+
+const QUARTI = 4;
+const aQuarti = (milioni) => Math.round(Number(milioni) * QUARTI);
+const aMilioni = (quarti) => quarti / QUARTI;
+
+/** «7,5 M» — con la virgola, come si scrive in italiano. */
+function soldi(quarti, conUnita = true) {
+  const m = aMilioni(quarti);
+  const testo = Number.isInteger(m) ? String(m) : m.toFixed(2).replace(/0$/, "");
+  return testo.replace(".", ",") + (conUnita ? " M" : "");
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LE REGOLE, COME FUNZIONI
+
+   Funzioni pure: prendono una rosa e restituiscono un giudizio. Non
+   toccano il database e non disegnano niente, così si possono leggere
+   una per una e verificare che dicano quello che dice il regolamento.
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Quanto pesa un contratto sul tetto di quest'anno: il primo anno. */
+const pesoAnnuale = (contratto) => contratto.ingaggio;
+
+/** Il conto della rosa: speso, spazio, slot, minimi di ruolo. */
+function contoRosa(contratti) {
+  const speso = contratti.reduce((somma, c) => somma + pesoAnnuale(c), 0);
+  const tetto = aQuarti(REGOLE.tetto);
+  const perRuolo = { P: 0, D: 0, C: 0, A: 0 };
+  for (const c of contratti) perRuolo[c.ruolo] = (perRuolo[c.ruolo] || 0) + 1;
+
+  const slotUsati = contratti.filter((c) => REGOLE.contratti[c.tipo]?.slot).length;
+
+  const mancanti = ORDINE_RUOLI
+    .map((r) => ({ ruolo: r, quanti: Math.max(0, REGOLE.minimiRuolo[r] - perRuolo[r]) }))
+    .filter((m) => m.quanti > 0);
+
+  const postiDaRiempire = Math.max(0, REGOLE.rosaMin - contratti.length);
+
+  return {
+    numero: contratti.length,
+    speso,
+    tetto,
+    spazio: tetto - speso,
+    sforato: speso > tetto,
+    perRuolo,
+    mancanti,
+    postiDaRiempire,
+    slotUsati,
+    slotLiberi: REGOLE.slotPluriennali - slotUsati,
+    /* Art. 8.6 — quanto va tenuto da parte per poter completare la rosa
+       minima. Senza questa riserva una squadra spende tutto su tre nomi
+       e poi non può più tesserare un portiere. */
+    riserva: aQuarti(postiDaRiempire * REGOLE.riservaPerSlotMancante),
+  };
+}
+
+/** L'età del giocatore vale al 1° settembre: il listone la dà già così. */
+const etaAllaFirma = (giocatore) => giocatore.eta;
+
+/**
+ * Si può firmare questo contratto? Restituisce l'elenco dei motivi per
+ * cui no — vuoto se sì.
+ *
+ * Ogni motivo cita il numero che lo rende tale: «ne ha 27», «restano
+ * 3,5 M». Un rifiuto che non dice il numero costringe a indovinare.
+ */
+function perchéNo({ giocatore, tipo, ingaggio, ingaggioScritto, anni, conto, contrattiTampone }) {
+  const regola = REGOLE.contratti[tipo];
+  const no = [];
+  if (!regola) return ["Questo tipo di contratto non esiste."];
+
+  if (!Number.isFinite(ingaggio) || ingaggio <= 0) no.push("Manca l'ingaggio.");
+  /* Il passo va controllato sull'importo come è stato scritto: `aQuarti`
+     arrotonda, e dopo l'arrotondamento 3,30 M è indistinguibile da 3,25 M. */
+  if (ingaggioScritto != null && Math.abs(ingaggioScritto * 4 - Math.round(ingaggioScritto * 4)) > 1e-9) {
+    no.push(`Gli ingaggi si muovono a passi di 0,25 M: ${soldi(ingaggio)} è il più vicino.`);
+  }
+  if (!regola.anni.includes(anni)) {
+    no.push(`Un ${regola.nome} dura ${regola.anni.join(" o ")} ${regola.anni.length === 1 && regola.anni[0] === 1 ? "anno" : "anni"}.`);
+  }
+
+  const eta = etaAllaFirma(giocatore);
+  if (regola.etaMax != null) {
+    if (eta == null) no.push(`Il ${regola.nome} dipende dall'età, e del giocatore non la conosciamo.`);
+    else if (eta > regola.etaMax) no.push(`Il ${regola.nome} è per gli Under ${regola.etaMax + 1}: ne ha ${eta} al ${REGOLE.etaAl}.`);
+  }
+  if (regola.etaMin != null) {
+    if (eta == null) no.push(`Il ${regola.nome} dipende dall'età, e del giocatore non la conosciamo.`);
+    else if (eta < regola.etaMin) no.push(`Il ${regola.nome} è per gli Over ${regola.etaMin}: ne ha ${eta} al ${REGOLE.etaAl}.`);
+  }
+  if (regola.ingaggioMax != null && ingaggio > aQuarti(regola.ingaggioMax)) {
+    no.push(`Un ${regola.nome} non supera ${regola.ingaggioMax} M.`);
+  }
+  if (regola.slot && conto.slotLiberi < 1) {
+    no.push(`Gli slot pluriennali sono finiti: ne sono ammessi ${REGOLE.slotPluriennali}.`);
+  }
+  if (tipo === "TAMPONE" && contrattiTampone >= regola.maxStagione) {
+    no.push(`I contratti Tampone sono ${regola.maxStagione} a stagione, e sono già stati usati.`);
+  }
+  if (conto.numero >= REGOLE.rosaMax) {
+    no.push(`La rosa è al massimo: ${REGOLE.rosaMax} giocatori.`);
+  }
+
+  /* Il tetto, e la riserva per completare la rosa. Il posto che si sta
+     riempiendo adesso non conta più fra quelli da riempire. */
+  const postiDopo = Math.max(0, REGOLE.rosaMin - (conto.numero + 1));
+  const riservaDopo = aQuarti(postiDopo * REGOLE.riservaPerSlotMancante);
+  const spazioDopo = conto.spazio - ingaggio;
+  if (spazioDopo < 0) {
+    no.push(`Sfora il tetto di ${soldi(-spazioDopo)}: lo spazio è ${soldi(conto.spazio)}.`);
+  } else if (spazioDopo < riservaDopo) {
+    no.push(
+      `Restano ${soldi(spazioDopo)}, ma servono almeno ${soldi(riservaDopo)} ` +
+      `per completare la rosa (${postiDopo} posti × ${String(REGOLE.riservaPerSlotMancante).replace(".", ",")} M).`,
+    );
+  }
+  return no;
+}
+
+/**
+ * Idoneità al settore giovanile (art. 16.1).
+ *
+ * Tre requisiti — età, presenze in Serie A, quotazione — che la lega
+ * possiede in momenti diversi. Età e quotazione arrivano col listone il
+ * primo giorno; le presenze della stagione precedente, alla prima
+ * stagione, non esistono e nessuno può darle a posteriori.
+ *
+ * Perciò la risposta non è sì o no: è sì, no, oppure «non ancora». Dire
+ * «non idoneo» a un ragazzo di diciotto anni perché manca un dato
+ * sarebbe una bugia comoda; dire «idoneo» sarebbe una bugia pericolosa.
+ */
+function primavera(giocatore) {
+  const motivi = [];
+  if (giocatore.quotazione > REGOLE.primavera.quotazioneMax) {
+    motivi.push(`quotato ${giocatore.quotazione} M, oltre i ${REGOLE.primavera.quotazioneMax} M`);
+  }
+  if (giocatore.eta != null && giocatore.eta > REGOLE.primavera.etaMax) {
+    motivi.push(`ha ${giocatore.eta} anni, oltre i ${REGOLE.primavera.etaMax}`);
+  }
+  if (motivi.length) return { stato: "no", motivo: motivi.join("; ") };
+  if (giocatore.eta == null) return { stato: "forse", motivo: "manca la sua età" };
+  return { stato: "forse", motivo: "mancano le presenze della stagione precedente" };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LO STATO CONDIVISO
+
+   Quello che cambia — squadre, rose, registro — vive nel database
+   dell'artifact: dieci persone lo leggono e lo scrivono insieme, e
+   ognuno vede le mosse degli altri mentre accadono. Non c'è un server
+   da tenere acceso e non c'è niente da configurare.
+
+   Struttura:
+     lega/config          nome della lega, stagione, fase
+     squadre/<id>         nome, sigla, colore, presidente, PIN
+     rose/<id>            i contratti di quella squadra
+     registro/<id>        una riga per operazione
+   ═══════════════════════════════════════════════════════════════ */
+
+let db = null;
+
+const stato = {
+  pronto: false,
+  config: null,
+  squadre: [],
+  rose: new Map(),
+  registro: [],
+  io: null,                // { ruolo: "commissioner" | "presidente", squadraId }
+  vista: "lega",
+  errore: null,
+};
+
+const CHIAVE_IO = "dynasty-league-io";
+
+function ricordaIo(io) {
+  stato.io = io;
+  try { localStorage.setItem(CHIAVE_IO, JSON.stringify(io)); } catch { /* finestra privata: pazienza */ }
+}
+function dimenticaIo() {
+  stato.io = null;
+  try { localStorage.removeItem(CHIAVE_IO); } catch { /* niente */ }
+}
+function riprendiIo() {
+  try {
+    const salvato = localStorage.getItem(CHIAVE_IO);
+    if (salvato) stato.io = JSON.parse(salvato);
+  } catch { stato.io = null; }
+}
+
+/** La rosa di una squadra, sempre un array (anche se il documento non c'è). */
+const rosaDi = (squadraId) => stato.rose.get(squadraId)?.contratti ?? [];
+
+const squadraDi = (id) => stato.squadre.find((s) => s.id === id) ?? null;
+
+/** La squadra su cui sto lavorando: la mia, o quella che il commissioner ha scelto. */
+function squadraCorrente() {
+  if (!stato.io) return null;
+  if (stato.io.ruolo === "presidente") return squadraDi(stato.io.squadraId);
+  return squadraDi(stato.squadraScelta ?? stato.squadre[0]?.id) ?? null;
+}
+
+const sonoCommissioner = () => stato.io?.ruolo === "commissioner";
+
+/** Posso muovere questa rosa? Il presidente la propria, il commissioner tutte. */
+const possoToccare = (squadraId) =>
+  sonoCommissioner() || (stato.io?.ruolo === "presidente" && stato.io.squadraId === squadraId);
+
+/** Tutti i giocatori sotto contratto, con la squadra che li ha. */
+function tesserati() {
+  const mappa = new Map();
+  for (const [squadraId, rosa] of stato.rose) {
+    for (const c of rosa.contratti ?? []) mappa.set(c.giocatoreId, squadraId);
+  }
+  return mappa;
+}
+
+/* ── Scritture ────────────────────────────────────────────── */
+
+/** Scrive nel registro. Una riga per operazione, con chi e quando. */
+async function annota(cosa, dettaglio, squadraId) {
+  if (!db) return;
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  try {
+    await db.collection("registro").doc(id).set({
+      quando: new Date().toISOString(),
+      cosa,
+      dettaglio,
+      squadraId: squadraId ?? null,
+      chi: sonoCommissioner() ? "Commissioner" : squadraDi(stato.io?.squadraId)?.nome ?? "—",
+    });
+  } catch (e) {
+    console.warn("registro non scritto", e);
+  }
+}
+
+/** Sostituisce la rosa di una squadra. Il documento è uno per squadra:
+ *  chi tocca la propria non disturba quella degli altri. */
+async function scriviRosa(squadraId, contratti) {
+  if (!db) throw new Error("Il database non è disponibile.");
+  await db.collection("rose").doc(squadraId).set({ contratti, aggiornata: new Date().toISOString() });
+}
+
+async function scriviSquadra(squadra) {
+  if (!db) throw new Error("Il database non è disponibile.");
+  const { id, ...corpo } = squadra;
+  await db.collection("squadre").doc(id).set(corpo);
+}
+
+/* ── Ascolto ──────────────────────────────────────────────── */
+
+function ascolta() {
+  db.doc("lega/config").onSnapshot(
+    (istantanea) => {
+      stato.config = istantanea.exists ? istantanea.data() : null;
+      stato.pronto = true;
+      disegna();
+    },
+    (e) => { stato.errore = e; stato.pronto = true; disegna(); },
+  );
+
+  db.collection("squadre").onSnapshot((istantanea) => {
+    stato.squadre = istantanea.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.ordine ?? 0) - (b.ordine ?? 0) || a.nome.localeCompare(b.nome, "it"));
+    disegna();
+  });
+
+  db.collection("rose").onSnapshot((istantanea) => {
+    stato.rose = new Map(istantanea.docs.map((d) => [d.id, d.data()]));
+    disegna();
+  });
+
+  db.collection("registro").orderBy("quando", "desc").limit(120).onSnapshot((istantanea) => {
+    stato.registro = istantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
+    disegna();
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DISEGNO
+
+   Un solo punto che ridisegna, chiamato ogni volta che il database
+   manda qualcosa di nuovo. Le pagine sono funzioni che restituiscono
+   HTML; gli effetti si riattaccano dopo, in `dopoIlDisegno`.
+   ═══════════════════════════════════════════════════════════════ */
+
+const radice = document.getElementById("radice");
+
+/** Testo dell'utente dentro l'HTML: sempre passato di qui. */
+function pulito(testo) {
+  return String(testo ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+let foglioAperto = null;   // { tipo, ...dati }
+
+function apriFoglio(foglio) { foglioAperto = foglio; disegna(); }
+function chiudiFoglio() { foglioAperto = null; disegna(); }
+
+function disegna() {
+  const dentro = [];
+
+  if (!stato.pronto) {
+    dentro.push(`<div class="lavoro"><p class="occhiello">Dynasty League</p>
+      <h1 style="margin-top:6px">Apro la lega…</h1></div>`);
+  } else if (!db) {
+    dentro.push(vistaSenzaDatabase());
+  } else if (!stato.config) {
+    dentro.push(vistaFondazione());
+  } else if (!stato.io || !identitàValida()) {
+    dentro.push(vistaIngresso());
+  } else {
+    dentro.push(vistaApplicazione());
+  }
+
+  if (foglioAperto) dentro.push(disegnaFoglio());
+  radice.innerHTML = dentro.join("");
+  dopoIlDisegno();
+}
+
+/** Chi dice di essere esiste ancora? Una squadra cancellata non deve
+ *  lasciare il suo presidente dentro una pagina che non ha più senso. */
+function identitàValida() {
+  if (stato.io.ruolo === "commissioner") return true;
+  return Boolean(squadraDi(stato.io.squadraId));
+}
+
+/* ── Prima di tutto: la lega non esiste ancora ────────────── */
+
+function vistaSenzaDatabase() {
+  return `<div class="lavoro">
+    <p class="occhiello">Dynasty League</p>
+    <h1 style="margin:6px 0 14px">Il listone, e nient'altro</h1>
+    <div class="avviso attenzione" style="margin-bottom:18px">
+      Questa copia della pagina non raggiunge il database della lega, quindi rose e
+      contratti non si vedono. Apri il link dell'app pubblicata per lavorare sulla lega.
+    </div>
+    ${bloccoListone({ soloLettura: true })}
+  </div>`;
+}
+
+function vistaFondazione() {
+  return `<div class="lavoro" style="max-width:560px">
+    <p class="occhiello">${pulito(STAGIONE)}</p>
+    <h1 style="margin:6px 0 10px">Fondiamo la lega</h1>
+    <p style="color:var(--inchiostro-med); margin-bottom:20px; max-width:52ch">
+      Dieci squadre, un commissioner, ${LISTONE.length} giocatori di Serie A da contendersi.
+      Serve un nome e un codice per te: sei tu che iscrivi i presidenti.
+    </p>
+    <form id="modulo-fondazione" class="moduli riquadro">
+      <label class="campo"><span>Come si chiama la lega</span>
+        <input type="text" id="nome-lega" value="Dynasty League" maxlength="40" required></label>
+      <label class="campo"><span>Il tuo codice da commissioner — quattro cifre</span>
+        <input type="text" id="pin-commissioner" inputmode="numeric" pattern="[0-9]{4}"
+               maxlength="4" placeholder="1234" required></label>
+      <p style="font-size:12.5px; color:var(--inchiostro-med)">
+        I codici servono a non entrare per sbaglio nella squadra di un altro, non a
+        difendere segreti: chiunque abbia il link della lega può leggerla tutta.
+      </p>
+      <button class="bottone primario largo" type="submit">Apri la lega</button>
+      <div id="esito-fondazione"></div>
+    </form>
+  </div>`;
+}
+
+/* ── Chi sei ──────────────────────────────────────────────── */
+
+function vistaIngresso() {
+  const squadre = stato.squadre.map((s) => {
+    const conto = contoRosa(rosaDi(s.id));
+    return `<button class="voce" data-entra="${pulito(s.id)}">
+      <span class="ruolo" style="background:${pulito(s.colore || "#DADDD2")};color:#12140F">${pulito(s.sigla)}</span>
+      <span class="corpo">
+        <span class="nome">${pulito(s.nome)}</span>
+        <span class="dettaglio">${s.presidente ? pulito(s.presidente) + " · " : ""}${conto.numero} in rosa</span>
+      </span>
+      <span class="coda"><span class="prezzo num">${soldi(conto.speso)}</span></span>
+    </button>`;
+  }).join("");
+
+  return `<div class="lavoro" style="max-width:560px">
+    <p class="occhiello">${pulito(stato.config.nome)} · ${pulito(STAGIONE)}</p>
+    <h1 style="margin:6px 0 16px">Chi sei?</h1>
+    ${stato.squadre.length === 0
+      ? `<div class="avviso neutro" style="margin-bottom:14px">Non c'è ancora nessuna squadra:
+         entra da commissioner e iscrivi i dieci presidenti.</div>`
+      : `<div class="elenco" style="margin-bottom:14px">${squadre}</div>`}
+    <button class="bottone largo" data-entra="commissioner">Entro da commissioner</button>
+  </div>`;
+}
+
+/* ── L'applicazione ───────────────────────────────────────── */
+
+function vistaApplicazione() {
+  const pagine = [
+    { id: "lega", nome: "Lega" },
+    { id: "rosa", nome: "Rosa" },
+    { id: "listone", nome: "Listone" },
+    { id: "registro", nome: "Registro" },
+  ];
+  if (sonoCommissioner()) pagine.push({ id: "gestione", nome: "Gestione" });
+
+  const mia = squadraCorrente();
+  const corpo =
+    stato.vista === "lega" ? paginaLega()
+    : stato.vista === "rosa" ? paginaRosa()
+    : stato.vista === "listone" ? paginaListone()
+    : stato.vista === "registro" ? paginaRegistro()
+    : paginaGestione();
+
+  return `
+    <div class="guscio">
+      <header class="testata">
+        <span class="marchio"><span class="sigla">D</span>${pulito(stato.config.nome)}</span>
+        <span class="spinta">
+          <span class="chi-sono">
+            <b>${sonoCommissioner() ? "Commissioner" : pulito(mia?.nome ?? "—")}</b>
+            ${pulito(STAGIONE)}
+          </span>
+          <button class="bottone piccolo" id="esci">Esci</button>
+        </span>
+      </header>
+      <nav class="navigazione">
+        ${pagine.map((p) => `<button data-vista="${p.id}" ${stato.vista === p.id ? 'aria-current="page"' : ""}>${p.nome}</button>`).join("")}
+      </nav>
+      <main class="lavoro">${corpo}</main>
+    </div>`;
+}
+
+/* ── Pagina: la lega ──────────────────────────────────────── */
+
+function paginaLega() {
+  if (stato.squadre.length === 0) {
+    return `<h1>${pulito(stato.config.nome)}</h1>
+      <div class="vuoto riquadro" style="margin-top:16px">
+        Nessuna squadra iscritta.${sonoCommissioner() ? " Vai in Gestione e iscrivi i presidenti." : " Il commissioner deve ancora iscriverle."}
+      </div>`;
+  }
+
+  const righe = stato.squadre.map((s) => {
+    const conto = contoRosa(rosaDi(s.id));
+    const quota = Math.min(100, Math.round((conto.speso / conto.tetto) * 100));
+    const stato_ =
+      conto.sforato ? `<span class="targhetta no">sfora di ${soldi(conto.speso - conto.tetto)}</span>`
+      : conto.numero >= REGOLE.rosaMin ? `<span class="targhetta ok">rosa completa</span>`
+      : `<span class="targhetta forse">${conto.postiDaRiempire} da prendere</span>`;
+    return `<tr>
+      <td><b>${pulito(s.nome)}</b><br><span style="font-size:12px;color:var(--inchiostro-med)">${pulito(s.presidente || "—")}</span></td>
+      <td class="n num">${conto.numero}</td>
+      <td class="n num">${soldi(conto.speso)}</td>
+      <td class="n num" style="color:${conto.sforato ? "var(--allarme)" : "inherit"}">${soldi(conto.spazio)}</td>
+      <td class="n num">${conto.slotUsati}/${REGOLE.slotPluriennali}</td>
+      <td>${stato_}<div class="barra-tetto" style="margin-top:6px;height:5px"><span class="${conto.sforato ? "sforato" : ""}" style="width:${quota}%"></span></div></td>
+    </tr>`;
+  }).join("");
+
+  const tesserati_ = tesserati().size;
+
+  return `
+    <h1>${pulito(stato.config.nome)}</h1>
+    <p style="color:var(--inchiostro-med); margin:6px 0 18px">
+      ${stato.squadre.length} squadre · ${tesserati_} giocatori sotto contratto ·
+      ${LISTONE.length - tesserati_} ancora liberi
+    </p>
+    <div class="riquadro scorre">
+      <table class="tabellina">
+        <thead><tr>
+          <th>Squadra</th><th style="text-align:right">Rosa</th><th style="text-align:right">Ingaggi</th>
+          <th style="text-align:right">Spazio</th><th style="text-align:right">Slot</th><th>Tetto</th>
+        </tr></thead>
+        <tbody>${righe}</tbody>
+      </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--inchiostro-med);margin-top:12px">
+      Tetto salariale ${REGOLE.tetto} M · rosa da ${REGOLE.rosaMin} a ${REGOLE.rosaMax} ·
+      ${REGOLE.slotPluriennali} slot pluriennali · minimi ${ORDINE_RUOLI.map((r) => REGOLE.minimiRuolo[r] + r).join(" ")}
+    </p>`;
+}
+
+/* ── Pagina: la rosa ──────────────────────────────────────── */
+
+function paginaRosa() {
+  const squadra = squadraCorrente();
+  if (!squadra) {
+    return `<h1>Rosa</h1><div class="vuoto riquadro" style="margin-top:16px">
+      Nessuna squadra da mostrare.</div>`;
+  }
+
+  const contratti = rosaDi(squadra.id);
+  const conto = contoRosa(contratti);
+  const posso = possoToccare(squadra.id);
+  const quota = Math.min(100, Math.round((conto.speso / conto.tetto) * 100));
+
+  /* Il commissioner lavora su qualunque rosa: gli serve un selettore. */
+  const selettore = sonoCommissioner()
+    ? `<label class="campo" style="margin-bottom:14px"><span>Squadra su cui lavori</span>
+        <select id="scegli-squadra">
+          ${stato.squadre.map((s) => `<option value="${pulito(s.id)}" ${s.id === squadra.id ? "selected" : ""}>${pulito(s.nome)}</option>`).join("")}
+        </select></label>`
+    : "";
+
+  const perRuolo = ORDINE_RUOLI.map((r) => {
+    const quanti = conto.perRuolo[r] ?? 0;
+    const minimo = REGOLE.minimiRuolo[r];
+    return `<div class="dato ${quanti < minimo ? "manca" : ""}">
+      <div class="etichetta">${NOME_RUOLO_PL[r]}</div>
+      <div class="valore num">${quanti}<span style="font-size:13px;color:var(--inchiostro-lieve)">/${minimo}</span></div>
+    </div>`;
+  }).join("");
+
+  const inRosa = [...contratti]
+    .sort((a, b) => ORDINE_RUOLI.indexOf(a.ruolo) - ORDINE_RUOLI.indexOf(b.ruolo) || b.ingaggio - a.ingaggio)
+    .map((c) => {
+      const g = PER_ID.get(c.giocatoreId);
+      const regola = REGOLE.contratti[c.tipo];
+      return `<div class="voce">
+        <span class="ruolo ${c.ruolo}">${c.ruolo}</span>
+        <span class="corpo">
+          <span class="nome">${pulito(c.nome)}</span>
+          <span class="dettaglio">
+            ${pulito(g?.squadra ?? "")}
+            <span class="targhetta contratto">${pulito(regola?.nome ?? c.tipo)}${c.anni > 1 ? " · " + c.anni + " anni" : ""}</span>
+          </span>
+        </span>
+        <span class="coda">
+          <span class="prezzo num">${soldi(c.ingaggio)}</span>
+          ${posso ? `<button class="bottone piccolo" data-togli="${pulito(c.giocatoreId)}">Togli</button>` : ""}
+        </span>
+      </div>`;
+    }).join("");
+
+  const avvisi = [];
+  if (conto.sforato) {
+    avvisi.push(`<div class="avviso errore">La rosa sfora il tetto di ${soldi(conto.speso - conto.tetto)}.</div>`);
+  }
+  if (conto.mancanti.length) {
+    avvisi.push(`<div class="avviso attenzione">Mancano al minimo di ruolo:
+      ${conto.mancanti.map((m) => `${m.quanti} ${NOME_RUOLO_PL[m.ruolo]}`).join(", ")}.</div>`);
+  }
+  if (!conto.mancanti.length && conto.numero >= REGOLE.rosaMin && !conto.sforato) {
+    avvisi.push(`<div class="avviso bene">Rosa a posto: ${conto.numero} giocatori, minimi di ruolo rispettati, tetto rispettato.</div>`);
+  }
+
+  return `
+    <p class="occhiello">${pulito(squadra.nome)}</p>
+    <h1 style="margin:6px 0 16px">Rosa</h1>
+    ${selettore}
+
+    <div class="tetto ${conto.sforato ? "sforato" : ""}" style="margin-bottom:14px">
+      <div style="flex:1 1 190px">
+        <div class="occhiello" style="color:inherit;opacity:.6">Spazio salariale</div>
+        <div class="cifra num">${soldi(conto.spazio)}</div>
+        <div class="sotto num">${soldi(conto.speso)} spesi su ${REGOLE.tetto} M di tetto</div>
+      </div>
+      <div style="flex:1 1 130px">
+        <div class="occhiello" style="color:inherit;opacity:.6">In rosa</div>
+        <div class="cifra num" style="font-size:32px">${conto.numero}<span style="font-size:17px;opacity:.6">/${REGOLE.rosaMin}</span></div>
+        <div class="sotto">${conto.slotLiberi} slot pluriennali liberi</div>
+      </div>
+      <div class="barra-tetto"><span class="${conto.sforato ? "sforato" : ""}" style="width:${quota}%"></span></div>
+    </div>
+
+    <div class="griglia-dati" style="margin-bottom:14px">${perRuolo}</div>
+    ${avvisi.length ? `<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">${avvisi.join("")}</div>` : ""}
+
+    ${posso ? `<div class="sezione">
+      <div class="intestazione-sezione"><h2>Aggiungi dal listone</h2></div>
+      <input type="search" id="cerca-per-rosa" placeholder="Cerca il giocatore che hai preso"
+             autocomplete="off" spellcheck="false">
+      <div id="risultati-rosa"></div>
+    </div>` : `<div class="avviso neutro" style="margin-bottom:16px">
+      Stai guardando la rosa di un'altra squadra: puoi leggerla, non cambiarla.</div>`}
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Sotto contratto</h2>
+        <span class="conteggio">${conto.numero}</span></div>
+      ${contratti.length ? `<div class="elenco">${inRosa}</div>`
+        : `<div class="vuoto riquadro">Ancora nessuno. Cerca qui sopra il primo giocatore.</div>`}
+    </div>`;
+}
+
+/* ── Pagina: il listone ───────────────────────────────────── */
+
+const filtri = { testo: "", ruolo: null, soloPrimavera: false, soloLiberi: true, etaMax: null };
+
+function listoneFiltrato() {
+  const presi = tesserati();
+  const testo = filtri.testo.trim().toLowerCase();
+  return LISTONE.filter((g) => {
+    if (filtri.soloLiberi && presi.has(g.id)) return false;
+    if (filtri.ruolo && g.ruolo !== filtri.ruolo) return false;
+    if (filtri.etaMax != null && (g.eta == null || g.eta > filtri.etaMax)) return false;
+    if (filtri.soloPrimavera && primavera(g).stato === "no") return false;
+    if (testo && !g.nome.toLowerCase().includes(testo) && !g.squadra.toLowerCase().includes(testo)) return false;
+    return true;
+  });
+}
+
+function bloccoListone({ soloLettura = false } = {}) {
+  const trovati = listoneFiltrato();
+  const presi = tesserati();
+  const mostrati = trovati.slice(0, 120);
+
+  const righe = mostrati.map((g) => {
+    const p = primavera(g);
+    const squadraId = presi.get(g.id);
+    const suaSquadra = squadraId ? squadraDi(squadraId) : null;
+    const etichettaPrimavera =
+      p.stato === "forse" ? `<span class="targhetta forse" title="${pulito(p.motivo)}">primavera?</span>` : "";
+    return `<button class="voce" ${soloLettura ? "disabled" : `data-giocatore="${pulito(g.id)}"`}>
+      <span class="ruolo ${g.ruolo}">${g.ruolo}</span>
+      <span class="corpo">
+        <span class="nome">${pulito(g.nome)}</span>
+        <span class="dettaglio">
+          ${pulito(g.squadra)}${g.eta != null ? ` · ${g.eta} anni` : ` · <span style="color:var(--avviso)">età ignota</span>`}
+          ${etichettaPrimavera}
+          ${suaSquadra ? `<span class="targhetta neutra">${pulito(suaSquadra.nome)}</span>` : ""}
+        </span>
+      </span>
+      <span class="coda"><span class="prezzo num">${g.quotazione} M</span></span>
+    </button>`;
+  }).join("");
+
+  return `
+    <input type="search" id="cerca-listone" value="${pulito(filtri.testo)}"
+           placeholder="Cerca per cognome o squadra" autocomplete="off" spellcheck="false">
+    <div class="filtri">
+      <button class="pillola" data-ruolo="" aria-pressed="${!filtri.ruolo}">Tutti</button>
+      ${ORDINE_RUOLI.map((r) => `<button class="pillola" data-ruolo="${r}" aria-pressed="${filtri.ruolo === r}">${NOME_RUOLO_PL[r][0].toUpperCase() + NOME_RUOLO_PL[r].slice(1)}</button>`).join("")}
+    </div>
+    <div class="filtri" style="margin-top:-4px">
+      <button class="pillola primavera" id="filtro-primavera" aria-pressed="${filtri.soloPrimavera}">Primavera</button>
+      ${[21, 23, 26].map((e) => `<button class="pillola" data-eta="${e}" aria-pressed="${filtri.etaMax === e}">Under ${e + 1}</button>`).join("")}
+      <button class="pillola" id="filtro-liberi" aria-pressed="${filtri.soloLiberi}">Solo liberi</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--inchiostro-med);margin:0 0 10px">
+      ${trovati.length} giocatori${trovati.length > mostrati.length ? ` · ne vedi i primi ${mostrati.length}, restringi la ricerca` : ""}
+    </p>
+    ${trovati.length ? `<div class="elenco">${righe}</div>`
+      : `<div class="vuoto riquadro">Nessun giocatore con questi filtri.</div>`}`;
+}
+
+function paginaListone() {
+  return `
+    <h1>Listone</h1>
+    <p style="color:var(--inchiostro-med); margin:6px 0 4px">
+      I ${LISTONE.length} giocatori di Serie A ${pulito(STAGIONE)}, con quotazione ed età.
+      Il filtro <b>Primavera</b> tiene chi può entrare nel settore giovanile:
+      fino a ${REGOLE.primavera.etaMax} anni e non oltre ${REGOLE.primavera.quotazioneMax} M di quotazione.
+    </p>
+    ${bloccoListone()}`;
+}
+
+/* ── Il foglio della firma ────────────────────────────────── */
+
+/* Quello che si sta componendo nel foglio, finché non si firma. */
+let bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
+
+function disegnaFoglio() {
+  if (foglioAperto?.tipo === "firma") return foglioFirma(foglioAperto.giocatoreId);
+  if (foglioAperto?.tipo === "squadra") return foglioSquadra(foglioAperto.squadraId);
+  if (foglioAperto?.tipo === "codice") return foglioCodice(foglioAperto.chi);
+  return "";
+}
+
+function foglioFirma(giocatoreId) {
+  const g = PER_ID.get(giocatoreId);
+  const squadra = squadraCorrente();
+  if (!g || !squadra) return "";
+
+  const contratti = rosaDi(squadra.id);
+  const conto = contoRosa(contratti);
+  const quantiTampone = contratti.filter((c) => c.tipo === "TAMPONE").length;
+  const p = primavera(g);
+
+  const tipi = Object.entries(REGOLE.contratti).map(([id, regola]) => {
+    /* Un tipo che dipende dall'età si spegne da solo quando l'età non si
+       conosce, e dice perché: meglio del rifiuto scoperto dopo. */
+    const serveEtà = regola.etaMax != null || regola.etaMin != null;
+    const impossibile =
+      (serveEtà && g.eta == null) ? "serve l'età del giocatore"
+      : (regola.etaMax != null && g.eta > regola.etaMax) ? `ne ha ${g.eta}, oltre i ${regola.etaMax}`
+      : (regola.etaMin != null && g.eta < regola.etaMin) ? `ne ha ${g.eta}, sotto i ${regola.etaMin}`
+      : (regola.slot && conto.slotLiberi < 1) ? "slot pluriennali finiti"
+      : (id === "TAMPONE" && quantiTampone >= regola.maxStagione) ? "già usati tutti e tre"
+      : null;
+    return `<button type="button" class="scelta" data-tipo="${id}"
+              aria-pressed="${bozza.tipo === id}" ${impossibile ? "disabled" : ""}>
+        <b>${regola.nome}${impossibile ? ` — ${impossibile}` : ""}</b>
+        <small>${regola.nota}</small>
+      </button>`;
+  }).join("");
+
+  const regolaScelta = REGOLE.contratti[bozza.tipo];
+  const sceltaAnni = regolaScelta.anni.length > 1
+    ? `<label class="campo"><span>Per quanti anni</span>
+        <div class="filtri" style="margin:0">
+          ${regolaScelta.anni.map((a) => `<button type="button" class="pillola" data-anni="${a}" aria-pressed="${bozza.anni === a}">${a} anni</button>`).join("")}
+        </div></label>`
+    : "";
+
+  /* Il preventivo: cosa costa negli anni, con la progressione del tipo. */
+  const ingaggioQuarti = bozza.ingaggio === "" ? NaN : aQuarti(bozza.ingaggio);
+  let preventivo = "";
+  if (Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0 && bozza.anni > 1 && regolaScelta.tasso) {
+    const anni = [];
+    let corrente = ingaggioQuarti;
+    for (let i = 0; i < bozza.anni; i++) {
+      anni.push(`${LISTONE_GREZZO.annoInizio + i}/${String(LISTONE_GREZZO.annoInizio + 1 + i).slice(2)} · ${soldi(Math.round(corrente))}`);
+      corrente = corrente * regolaScelta.tasso;
+    }
+    preventivo = `<div class="avviso neutro"><b>Quanto pesa negli anni</b><br>${anni.join(" &nbsp;·&nbsp; ")}</div>`;
+  }
+
+  const motivi = Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0
+    ? perchéNo({ giocatore: g, tipo: bozza.tipo, ingaggio: ingaggioQuarti, ingaggioScritto: Number(bozza.ingaggio),
+                 anni: bozza.anni, conto, contrattiTampone: quantiTampone })
+    : [];
+
+  return `<div class="velo" data-velo>
+    <div class="foglio" role="dialog" aria-modal="true" aria-label="Firma di ${pulito(g.nome)}">
+      <div class="foglio-testa">
+        <span class="ruolo ${g.ruolo}" style="width:36px;height:36px;border-radius:9px">${g.ruolo}</span>
+        <div>
+          <h2>${pulito(g.nome)}</h2>
+          <p style="font-size:13px;color:var(--inchiostro-med)">
+            ${pulito(g.squadra)} · quotato ${g.quotazione} M${g.eta != null ? ` · ${g.eta} anni al ${REGOLE.etaAl}` : " · età ignota"}
+            ${p.stato === "forse" ? ` · <span style="color:var(--avviso)">primavera da verificare</span>` : ""}
+          </p>
+        </div>
+        <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+      </div>
+
+      <form id="modulo-firma" class="moduli">
+        <label class="campo"><span>Quanto lo paghi — a passi di 0,25 M</span>
+          <input type="number" id="ingaggio" step="0.25" min="0.25" max="${REGOLE.tetto}"
+                 value="${pulito(bozza.ingaggio)}" placeholder="es. 3,5" inputmode="decimal" required></label>
+
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">Che contratto</span>
+          <div class="scelte">${tipi}</div></div>
+
+        ${sceltaAnni}
+        ${preventivo}
+        ${motivi.length ? `<div class="avviso errore">${motivi.map(pulito).join("<br>")}</div>` : ""}
+
+        <button class="bottone primario largo" type="submit"
+          ${motivi.length || !Number.isFinite(ingaggioQuarti) || ingaggioQuarti <= 0 ? "disabled" : ""}>
+          Metti in rosa${Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0 ? ` per ${soldi(ingaggioQuarti)}` : ""}
+        </button>
+        <p style="font-size:12px;color:var(--inchiostro-med);text-align:center">
+          Dopo la firma restano ${soldi(Math.max(0, conto.spazio - (Number.isFinite(ingaggioQuarti) ? ingaggioQuarti : 0)))} di spazio.
+        </p>
+      </form>
+    </div></div>`;
+}
+
+/* ── Pagina: il registro ──────────────────────────────────── */
+
+function paginaRegistro() {
+  if (!stato.registro.length) {
+    return `<h1>Registro</h1><div class="vuoto riquadro" style="margin-top:16px">
+      Ancora nessuna operazione. Qui finisce tutto quello che succede nella lega, in ordine di tempo.</div>`;
+  }
+  const righe = stato.registro.map((v) => {
+    const quando = new Date(v.quando);
+    const data = quando.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+    const ora = quando.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+    return `<div class="voce">
+      <span class="corpo">
+        <span class="nome">${pulito(v.dettaglio)}</span>
+        <span class="dettaglio">${pulito(v.chi)} · ${pulito(v.cosa)}</span>
+      </span>
+      <span class="coda"><span style="font-size:12px;color:var(--inchiostro-lieve)">${data}<br>${ora}</span></span>
+    </div>`;
+  }).join("");
+  return `<h1>Registro</h1>
+    <p style="color:var(--inchiostro-med);margin:6px 0 14px">
+      Le ultime ${stato.registro.length} operazioni della lega, dalla più recente.</p>
+    <div class="elenco">${righe}</div>`;
+}
+
+/* ── Pagina: gestione (solo commissioner) ─────────────────── */
+
+function paginaGestione() {
+  const righe = stato.squadre.map((s) => {
+    const conto = contoRosa(rosaDi(s.id));
+    return `<div class="voce">
+      <span class="ruolo" style="background:${pulito(s.colore || "#DADDD2")};color:#12140F">${pulito(s.sigla)}</span>
+      <span class="corpo">
+        <span class="nome">${pulito(s.nome)}</span>
+        <span class="dettaglio">${pulito(s.presidente || "presidente da assegnare")} · codice ${pulito(s.pin || "—")} · ${conto.numero} in rosa</span>
+      </span>
+      <span class="coda">
+        <button class="bottone piccolo" data-modifica="${pulito(s.id)}">Modifica</button>
+      </span>
+    </div>`;
+  }).join("");
+
+  const mancano = 10 - stato.squadre.length;
+
+  return `
+    <h1>Gestione</h1>
+    <p style="color:var(--inchiostro-med);margin:6px 0 18px">
+      Le squadre della lega e i codici dei presidenti. I codici sono in chiaro: servono a
+      non entrare per sbaglio nella squadra di un altro, non a difendere segreti.
+    </p>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Squadre</h2>
+        <span class="conteggio">${stato.squadre.length} su 10</span></div>
+      ${stato.squadre.length ? `<div class="elenco" style="margin-bottom:12px">${righe}</div>` : ""}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="bottone" id="aggiungi-squadra">Aggiungi una squadra</button>
+        ${mancano > 0 && stato.squadre.length === 0
+          ? `<button class="bottone primario" id="crea-dieci">Crea dieci squadre segnaposto</button>` : ""}
+      </div>
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>La lega</h2></div>
+      <div class="riquadro moduli">
+        <label class="campo"><span>Nome della lega</span>
+          <input type="text" id="rinomina-lega" value="${pulito(stato.config.nome)}" maxlength="40"></label>
+        <button class="bottone" id="salva-lega">Salva il nome</button>
+      </div>
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Ripartire da zero</h2></div>
+      <div class="riquadro">
+        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+          Toglie squadre, rose e registro. Il listone e la lega restano.
+          Scrivi <b>${pulito(stato.config.nome)}</b> per confermare.
+        </p>
+        <div class="moduli">
+          <input type="text" id="conferma-azzera" placeholder="Nome della lega">
+          <button class="bottone pericolo" id="azzera">Cancella squadre e rose</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function foglioSquadra(squadraId) {
+  const s = squadraId ? squadraDi(squadraId) : null;
+  const nuova = !s;
+  return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
+    <div class="foglio-testa">
+      <h2>${nuova ? "Nuova squadra" : pulito(s.nome)}</h2>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>
+    <form id="modulo-squadra" class="moduli" data-id="${pulito(squadraId ?? "")}">
+      <label class="campo"><span>Nome della squadra</span>
+        <input type="text" id="sq-nome" value="${pulito(s?.nome ?? "")}" maxlength="30" required></label>
+      <label class="campo"><span>Sigla — due o tre lettere</span>
+        <input type="text" id="sq-sigla" value="${pulito(s?.sigla ?? "")}" maxlength="3" required></label>
+      <label class="campo"><span>Presidente</span>
+        <input type="text" id="sq-presidente" value="${pulito(s?.presidente ?? "")}" maxlength="30"></label>
+      <label class="campo"><span>Codice d'ingresso — quattro cifre</span>
+        <input type="text" id="sq-pin" value="${pulito(s?.pin ?? "")}" inputmode="numeric"
+               pattern="[0-9]{4}" maxlength="4" required></label>
+      <label class="campo"><span>Colore</span>
+        <input type="color" id="sq-colore" value="${pulito(s?.colore ?? "#2C7A52")}"
+               style="height:44px;padding:4px"></label>
+      <button class="bottone primario largo" type="submit">${nuova ? "Iscrivi la squadra" : "Salva"}</button>
+      ${!nuova && rosaDi(squadraId).length === 0
+        ? `<button type="button" class="bottone pericolo largo" data-ritira="${pulito(squadraId)}">Ritira dalla lega</button>`
+        : !nuova ? `<p style="font-size:12px;color:var(--inchiostro-med);text-align:center">
+            Una squadra con dei contratti non si ritira: i suoi giocatori resterebbero senza squadra.</p>` : ""}
+    </form>
+  </div></div>`;
+}
+
+function foglioCodice(chi) {
+  const squadra = chi === "commissioner" ? null : squadraDi(chi);
+  return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true" style="max-width:400px">
+    <div class="foglio-testa">
+      <h2>${squadra ? pulito(squadra.nome) : "Commissioner"}</h2>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>
+    <form id="modulo-codice" class="moduli" data-chi="${pulito(chi)}">
+      <label class="campo"><span>Il tuo codice — quattro cifre</span>
+        <input type="text" id="codice" inputmode="numeric" pattern="[0-9]{4}" maxlength="4"
+               autocomplete="off" autofocus required></label>
+      <div id="esito-codice"></div>
+      <button class="bottone primario largo" type="submit">Entra</button>
+    </form>
+  </div></div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLI EFFETTI
+
+   Il disegno rifà l'HTML da capo, quindi gli ascoltatori si
+   riattaccano ogni volta. È il prezzo di non avere una libreria, e
+   per una pagina di questa misura è un prezzo basso.
+   ═══════════════════════════════════════════════════════════════ */
+
+const su = (selettore, evento, azione) => {
+  radice.querySelectorAll(selettore).forEach((elemento) => elemento.addEventListener(evento, azione));
+};
+
+function dopoIlDisegno() {
+  /* Navigazione, uscita, identità */
+  su("[data-vista]", "click", (e) => { stato.vista = e.currentTarget.dataset.vista; disegna(); });
+  su("#esci", "click", () => { dimenticaIo(); stato.vista = "lega"; disegna(); });
+  su("[data-entra]", "click", (e) => apriFoglio({ tipo: "codice", chi: e.currentTarget.dataset.entra }));
+  su("[data-chiudi], [data-velo]", "click", (e) => { if (e.target === e.currentTarget) chiudiFoglio(); });
+
+  /* Fondazione */
+  const fondazione = radice.querySelector("#modulo-fondazione");
+  if (fondazione) fondazione.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nome = radice.querySelector("#nome-lega").value.trim();
+    const pin = radice.querySelector("#pin-commissioner").value.trim();
+    const esito = radice.querySelector("#esito-fondazione");
+    if (!/^[0-9]{4}$/.test(pin)) { esito.innerHTML = `<div class="avviso errore">Il codice è di quattro cifre.</div>`; return; }
+    try {
+      await db.doc("lega/config").set({
+        nome: nome || "Dynasty League",
+        stagione: STAGIONE,
+        pinCommissioner: pin,
+        fondata: new Date().toISOString(),
+      });
+      ricordaIo({ ruolo: "commissioner" });
+      await annota("lega", `Lega «${nome}» aperta per la stagione ${STAGIONE}`, null);
+    } catch (errore) {
+      esito.innerHTML = `<div class="avviso errore">Non sono riuscito ad aprire la lega: ${pulito(errore.message ?? errore.code ?? errore)}</div>`;
+    }
+  });
+
+  /* Codice d'ingresso */
+  const campoCodice = radice.querySelector("#codice");
+  if (campoCodice && document.activeElement !== campoCodice) campoCodice.focus();
+
+  const moduloCodice = radice.querySelector("#modulo-codice");
+  if (moduloCodice) moduloCodice.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const chi = moduloCodice.dataset.chi;
+    const scritto = radice.querySelector("#codice").value.trim();
+    const atteso = chi === "commissioner" ? stato.config.pinCommissioner : squadraDi(chi)?.pin;
+    if (scritto !== atteso) {
+      radice.querySelector("#esito-codice").innerHTML =
+        `<div class="avviso errore">Codice sbagliato. Se l'hai perso, chiedilo al commissioner.</div>`;
+      return;
+    }
+    ricordaIo(chi === "commissioner" ? { ruolo: "commissioner" } : { ruolo: "presidente", squadraId: chi });
+    foglioAperto = null;
+    stato.vista = "lega";
+    disegna();
+  });
+
+  /* Listone: filtri e ricerca */
+  const cerca = radice.querySelector("#cerca-listone");
+  if (cerca) cerca.addEventListener("input", (e) => {
+    filtri.testo = e.target.value;
+    const posizione = e.target.selectionStart;
+    disegna();
+    const nuovo = radice.querySelector("#cerca-listone");
+    if (nuovo) { nuovo.focus(); nuovo.setSelectionRange(posizione, posizione); }
+  });
+  su("[data-ruolo]", "click", (e) => {
+    const r = e.currentTarget.dataset.ruolo;
+    filtri.ruolo = r === "" ? null : r === filtri.ruolo ? null : r;
+    disegna();
+  });
+  su("[data-eta]", "click", (e) => {
+    const eta = Number(e.currentTarget.dataset.eta);
+    filtri.etaMax = filtri.etaMax === eta ? null : eta;
+    disegna();
+  });
+  su("#filtro-primavera", "click", () => { filtri.soloPrimavera = !filtri.soloPrimavera; disegna(); });
+  su("#filtro-liberi", "click", () => { filtri.soloLiberi = !filtri.soloLiberi; disegna(); });
+
+  /* Dal listone al foglio della firma */
+  su("[data-giocatore]", "click", (e) => {
+    const id = e.currentTarget.dataset.giocatore;
+    if (tesserati().has(id)) return;
+    if (!squadraCorrente() || !possoToccare(squadraCorrente().id)) return;
+    bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
+    apriFoglio({ tipo: "firma", giocatoreId: id });
+  });
+
+  /* Ricerca dentro la pagina Rosa */
+  const cercaRosa = radice.querySelector("#cerca-per-rosa");
+  if (cercaRosa) {
+    cercaRosa.addEventListener("input", (e) => mostraRisultatiRosa(e.target.value));
+    if (cercaRosa.dataset.testo) cercaRosa.value = cercaRosa.dataset.testo;
+  }
+
+  /* Il commissioner cambia squadra su cui lavora */
+  const scegli = radice.querySelector("#scegli-squadra");
+  if (scegli) scegli.addEventListener("change", (e) => { stato.squadraScelta = e.target.value; disegna(); });
+
+  /* Firma */
+  su("[data-tipo]", "click", (e) => {
+    const tipo = e.currentTarget.dataset.tipo;
+    bozza.tipo = tipo;
+    const anni = REGOLE.contratti[tipo].anni;
+    if (!anni.includes(bozza.anni)) bozza.anni = anni[0];
+    disegna();
+  });
+  su("[data-anni]", "click", (e) => { bozza.anni = Number(e.currentTarget.dataset.anni); disegna(); });
+
+  const ingaggio = radice.querySelector("#ingaggio");
+  if (ingaggio) {
+    ingaggio.addEventListener("input", (e) => {
+      bozza.ingaggio = e.target.value;
+      const posizione = e.target.selectionStart;
+      disegna();
+      const nuovo = radice.querySelector("#ingaggio");
+      if (nuovo) { nuovo.focus(); try { nuovo.setSelectionRange(posizione, posizione); } catch { /* number input */ } }
+    });
+    if (document.activeElement !== ingaggio && bozza.ingaggio === "") ingaggio.focus();
+  }
+
+  const moduloFirma = radice.querySelector("#modulo-firma");
+  if (moduloFirma) moduloFirma.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await firma();
+  });
+
+  /* Togliere dalla rosa */
+  su("[data-togli]", "click", async (e) => {
+    const id = e.currentTarget.dataset.togli;
+    const squadra = squadraCorrente();
+    const contratto = rosaDi(squadra.id).find((c) => c.giocatoreId === id);
+    if (!contratto) return;
+    if (!confirm(`Togliere ${contratto.nome} dalla rosa? Torna libero nel listone.`)) return;
+    const restanti = rosaDi(squadra.id).filter((c) => c.giocatoreId !== id);
+    await scriviRosa(squadra.id, restanti);
+    await annota("rosa", `${contratto.nome} liberato da ${squadra.nome}`, squadra.id);
+  });
+
+  agganciaGestione();
+}
+
+/** I risultati della ricerca dentro la pagina Rosa. Non passa dal
+ *  disegno generale: il campo perderebbe il fuoco a ogni lettera. */
+function mostraRisultatiRosa(testo) {
+  const zona = radice.querySelector("#risultati-rosa");
+  if (!zona) return;
+  const cercato = testo.trim().toLowerCase();
+  if (cercato.length < 2) { zona.innerHTML = ""; return; }
+
+  const presi = tesserati();
+  const trovati = LISTONE
+    .filter((g) => !presi.has(g.id) && g.nome.toLowerCase().includes(cercato))
+    .slice(0, 8);
+
+  zona.innerHTML = trovati.length
+    ? `<div class="elenco" style="margin-top:10px">${trovati.map((g) => `
+        <button class="voce" data-giocatore="${pulito(g.id)}">
+          <span class="ruolo ${g.ruolo}">${g.ruolo}</span>
+          <span class="corpo"><span class="nome">${pulito(g.nome)}</span>
+            <span class="dettaglio">${pulito(g.squadra)}${g.eta != null ? ` · ${g.eta} anni` : ""}</span></span>
+          <span class="coda"><span class="prezzo num">${g.quotazione} M</span></span>
+        </button>`).join("")}</div>`
+    : `<div class="vuoto riquadro" style="margin-top:10px">Nessun giocatore libero con questo nome.</div>`;
+
+  zona.querySelectorAll("[data-giocatore]").forEach((b) =>
+    b.addEventListener("click", () => {
+      bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
+      apriFoglio({ tipo: "firma", giocatoreId: b.dataset.giocatore });
+    }));
+}
+
+/** Mette il giocatore in rosa, se le regole lo consentono. */
+async function firma() {
+  const g = PER_ID.get(foglioAperto.giocatoreId);
+  const squadra = squadraCorrente();
+  const contratti = rosaDi(squadra.id);
+  const conto = contoRosa(contratti);
+  const ingaggio = aQuarti(bozza.ingaggio);
+
+  const motivi = perchéNo({
+    giocatore: g, tipo: bozza.tipo, ingaggio, ingaggioScritto: Number(bozza.ingaggio), anni: bozza.anni, conto,
+    contrattiTampone: contratti.filter((c) => c.tipo === "TAMPONE").length,
+  });
+  if (motivi.length) { disegna(); return; }
+
+  /* Qualcuno potrebbe averlo appena preso: l'ultima parola è al database. */
+  if (tesserati().has(g.id)) {
+    alert(`${g.nome} è appena stato preso da un'altra squadra.`);
+    chiudiFoglio();
+    return;
+  }
+
+  const nuovo = {
+    giocatoreId: g.id, nome: g.nome, ruolo: g.ruolo,
+    tipo: bozza.tipo, anni: bozza.anni, ingaggio,
+    firmato: new Date().toISOString(),
+  };
+  await scriviRosa(squadra.id, [...contratti, nuovo]);
+  await annota("contratto",
+    `${g.nome} a ${squadra.nome} per ${soldi(ingaggio)} × ${bozza.anni} ${bozza.anni === 1 ? "anno" : "anni"} (${REGOLE.contratti[bozza.tipo].nome})`,
+    squadra.id);
+  chiudiFoglio();
+}
+
+/* ── Gestione: squadre, nome della lega, azzeramento ──────── */
+
+function agganciaGestione() {
+  su("#aggiungi-squadra", "click", () => apriFoglio({ tipo: "squadra", squadraId: null }));
+  su("[data-modifica]", "click", (e) => apriFoglio({ tipo: "squadra", squadraId: e.currentTarget.dataset.modifica }));
+
+  su("#crea-dieci", "click", async (e) => {
+    e.currentTarget.disabled = true;
+    const colori = ["#2C7A52", "#1B4A76", "#7C2620", "#6A4708", "#4A2A6B", "#1F6B6B", "#8A3B6B", "#3E5C1E", "#8A4B12", "#2E3B7A"];
+    for (let i = 0; i < 10; i++) {
+      const numero = i + 1;
+      await scriviSquadra({
+        id: "s" + numero,
+        nome: "Squadra " + numero,
+        sigla: "S" + numero,
+        presidente: "",
+        pin: String(1000 + Math.floor(Math.random() * 9000)),
+        colore: colori[i],
+        ordine: numero,
+      });
+    }
+    await annota("lega", "Dieci squadre segnaposto iscritte", null);
+  });
+
+  const moduloSquadra = radice.querySelector("#modulo-squadra");
+  if (moduloSquadra) moduloSquadra.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = moduloSquadra.dataset.id || "s" + Date.now().toString(36);
+    const nuova = !moduloSquadra.dataset.id;
+    const squadra = {
+      id,
+      nome: radice.querySelector("#sq-nome").value.trim(),
+      sigla: radice.querySelector("#sq-sigla").value.trim().toUpperCase(),
+      presidente: radice.querySelector("#sq-presidente").value.trim(),
+      pin: radice.querySelector("#sq-pin").value.trim(),
+      colore: radice.querySelector("#sq-colore").value,
+      ordine: squadraDi(id)?.ordine ?? stato.squadre.length + 1,
+    };
+    if (!/^[0-9]{4}$/.test(squadra.pin)) { alert("Il codice è di quattro cifre."); return; }
+    await scriviSquadra(squadra);
+    await annota("lega", nuova ? `${squadra.nome} iscritta alla lega` : `${squadra.nome} aggiornata`, id);
+    chiudiFoglio();
+  });
+
+  su("[data-ritira]", "click", async (e) => {
+    const id = e.currentTarget.dataset.ritira;
+    const squadra = squadraDi(id);
+    if (!confirm(`Ritirare ${squadra.nome} dalla lega?`)) return;
+    await db.collection("squadre").doc(id).delete();
+    await db.collection("rose").doc(id).delete().catch(() => {});
+    await annota("lega", `${squadra.nome} ritirata dalla lega`, null);
+    chiudiFoglio();
+  });
+
+  su("#salva-lega", "click", async () => {
+    const nome = radice.querySelector("#rinomina-lega").value.trim();
+    if (!nome) return;
+    await db.doc("lega/config").update({ nome });
+    await annota("lega", `La lega si chiama «${nome}»`, null);
+  });
+
+  su("#azzera", "click", async () => {
+    const scritto = radice.querySelector("#conferma-azzera").value.trim();
+    if (scritto !== stato.config.nome) { alert("Scrivi il nome della lega per confermare."); return; }
+    if (!confirm("Cancello squadre, rose e registro. Il listone resta. Procedo?")) return;
+    for (const s of stato.squadre) {
+      await db.collection("rose").doc(s.id).delete().catch(() => {});
+      await db.collection("squadre").doc(s.id).delete().catch(() => {});
+    }
+    const vecchie = await db.collection("registro").limit(500).get();
+    for (const d of vecchie.docs) await db.collection("registro").doc(d.id).delete().catch(() => {});
+    await annota("lega", "La lega è stata riportata a zero", null);
+    stato.vista = "lega";
+    disegna();
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AVVIO
+   ═══════════════════════════════════════════════════════════════ */
+
+riprendiIo();
+disegna();
+
+(async () => {
+  db = await claude.use("db");
+  if (!db) { stato.pronto = true; disegna(); return; }
+  ascolta();
+})();
+</script>
