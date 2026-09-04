@@ -17,6 +17,12 @@ finché c'è il repository.
 
 ---
 
+> **Fatto il 4 settembre 2026.** Il progetto Firebase esiste (`kubla-d5d89`), le
+> regole sono pubblicate e l'accesso anonimo è attivo; la configurazione è in
+> [`firebase-config.js`](firebase-config.js). Verificato parlando direttamente
+> con Firestore: chi è autenticato scrive e rilegge, chi non lo è riceve
+> `PERMISSION_DENIED`. Resta solo il passo 2, l'indirizzo.
+
 ## 1 · Il progetto Firebase — dieci minuti
 
 1. Vai su [console.firebase.google.com](https://console.firebase.google.com) e

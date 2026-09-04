@@ -9,14 +9,14 @@
  * Dove trovarli: console.firebase.google.com → il tuo progetto →
  * Impostazioni progetto (l'ingranaggio) → Le tue app → Configurazione SDK.
  *
- * Finché restano questi segnaposto la pagina non prova nemmeno a collegarsi:
- * lo dice, e spiega dove prendere i valori veri.
+ * Se un giorno questi valori sparissero, la pagina non proverebbe nemmeno a
+ * collegarsi: lo direbbe, spiegando dove riprenderli.
  */
 window.CONFIGURAZIONE_FIREBASE = {
-  apiKey: "DA-COMPILARE",
-  authDomain: "DA-COMPILARE.firebaseapp.com",
-  projectId: "",
-  storageBucket: "DA-COMPILARE.firebasestorage.app",
-  messagingSenderId: "DA-COMPILARE",
-  appId: "DA-COMPILARE",
+  apiKey: "AIzaSyAT5zZf93qricCZevtxtM4KCLORAAfs5iE",
+  authDomain: "kubla-d5d89.firebaseapp.com",
+  projectId: "kubla-d5d89",
+  storageBucket: "kubla-d5d89.firebasestorage.app",
+  messagingSenderId: "1064198929646",
+  appId: "1:1064198929646:web:99bbce0f8ea1d2db8b47ff",
 };
