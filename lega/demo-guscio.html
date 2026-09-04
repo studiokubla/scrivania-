@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Dynasty League — demo autonoma del gestionale: dieci squadre, rose vere, listone di Serie A filtrabile per età.">
+<style>
+  :root { color-scheme: light dark; }
+  html, body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+
+  /* La striscia della demo: sta in fondo al documento, non sopra la
+     navigazione, e dice le due cose che chi apre il file deve sapere. */
+  .striscia-demo {
+    max-width: 1120px; margin: 0 auto; padding: 14px 16px 130px;
+    font: 13px/1.5 "Archivo", system-ui, sans-serif;
+    color: #5B6154; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .striscia-demo b { color: #14170F; }
+  .striscia-demo button {
+    font: inherit; font-weight: 600; cursor: pointer;
+    border: 1px solid #C3C7B9; background: #FFF; color: #14170F;
+    padding: 7px 12px; border-radius: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .striscia-demo { color: #A2A899; }
+    .striscia-demo b { color: #EFF0E9; }
+    .striscia-demo button { background: #1B1E17; border-color: #434839; color: #EFF0E9; }
+  }
+  @media (min-width: 860px) { .striscia-demo { padding-bottom: 40px; } }
+</style>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   IL DATABASE DELLA DEMO
+
+   L'applicazione vera tiene lo stato nel database condiviso
+   dell'artifact: dieci persone lo scrivono insieme e ognuno vede le
+   mosse degli altri. Questo file gira da solo — un doppio clic, niente
+   rete — quindi al posto di quel database c'è questo: la stessa
+   interfaccia, ma i dati stanno nel `localStorage` del browser che lo
+   apre e non escono di lì.
+
+   Vuol dire che si può usare per davvero — firmare, togliere, iscrivere
+   squadre, e ritrovare tutto al prossimo avvio — ma che due persone che
+   aprono lo stesso file non si vedono fra loro. Per quello c'è l'app
+   pubblicata.
+   ═══════════════════════════════════════════════════════════════ */
+(() => {
+  const CHIAVE = "dynasty-league-demo";
+  const INIZIALI = __DATI__;
+
+  let dati;
+  try {
+    const salvato = localStorage.getItem(CHIAVE);
+    dati = salvato ? JSON.parse(salvato) : structuredClone(INIZIALI);
+  } catch { dati = structuredClone(INIZIALI); }
+
+  const ascoltatori = new Set();
+  function salvaEavvisa() {
+    try { localStorage.setItem(CHIAVE, JSON.stringify(dati)); } catch { /* finestra privata */ }
+    for (const avvisa of ascoltatori) avvisa();
+  }
+
+  const istantanea = (percorso) => ({
+    id: percorso.split("/").pop(),
+    exists: Object.prototype.hasOwnProperty.call(dati, percorso),
+    data: () => dati[percorso],
+    metadata: { fromCache: false, hasPendingWrites: false },
+  });
+
+  /** I documenti che stanno direttamente dentro una collezione. */
+  const figli = (collezione) => {
+    const profondità = collezione.split("/").length + 1;
+    return Object.keys(dati)
+      .filter((k) => k.startsWith(collezione + "/") && k.split("/").length === profondità)
+      .sort();
+  };
+
+  function documento(percorso) {
+    return {
+      id: percorso.split("/").pop(),
+      path: percorso,
+      async get() { return istantanea(percorso); },
+      async set(corpo) { dati[percorso] = corpo; salvaEavvisa(); },
+      async update(corpo) {
+        if (!(percorso in dati)) throw Object.assign(new Error("non esiste"), { code: "invalid_argument" });
+        dati[percorso] = { ...dati[percorso], ...corpo };
+        salvaEavvisa();
+      },
+      async delete() { delete dati[percorso]; salvaEavvisa(); },
+      async acquire() { return { acquired: true }; },
+      onSnapshot(avanti) {
+        const manda = () => avanti(istantanea(percorso));
+        ascoltatori.add(manda);
+        setTimeout(manda, 0);
+        return () => ascoltatori.delete(manda);
+      },
+      collection: (sotto) => collezione(percorso + "/" + sotto),
+    };
+  }
+
+  function collezione(percorso) {
+    const costruisci = (ordine, quanti) => {
+      const query = {
+        path: percorso,
+        orderBy: (campo, verso = "asc") => costruisci({ campo, verso }, quanti),
+        limit: (n) => costruisci(ordine, n),
+        where: () => query,
+        doc: (id) => documento(percorso + "/" + (id ?? "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7))),
+        async add(corpo) { const d = query.doc(); await d.set(corpo); return d; },
+        async get() { return { docs: righe(), size: righe().length, empty: righe().length === 0, docChanges: () => [], metadata: {} }; },
+        onSnapshot(avanti) {
+          const manda = () => avanti({ docs: righe(), size: righe().length, empty: righe().length === 0, docChanges: () => [], metadata: {} });
+          ascoltatori.add(manda);
+          setTimeout(manda, 0);
+          return () => ascoltatori.delete(manda);
+        },
+      };
+      function righe() {
+        let chiavi = figli(percorso);
+        if (ordine) {
+          chiavi = [...chiavi].sort((a, b) => {
+            const x = dati[a]?.[ordine.campo], y = dati[b]?.[ordine.campo];
+            const segno = x < y ? -1 : x > y ? 1 : 0;
+            return ordine.verso === "desc" ? -segno : segno;
+          });
+        }
+        if (quanti) chiavi = chiavi.slice(0, quanti);
+        return chiavi.map(istantanea);
+      }
+      return query;
+    };
+    return costruisci(null, null);
+  }
+
+  window.claude = {
+    use: async (nome) => (nome === "db" ? { doc: documento, collection: collezione } : null),
+  };
+
+  /* Rimettere la lega di esempio: la demo si esplora, si rompe e si rifà. */
+  window.rimettiLaDemo = () => {
+    if (!confirm("Rimetto la lega di esempio come l'hai trovata? Le tue modifiche a questa demo vanno perse.")) return;
+    dati = structuredClone(INIZIALI);
+    try { localStorage.removeItem("dynasty-league-io"); } catch { /* niente */ }
+    salvaEavvisa();
+    location.reload();
+  };
+})();
+</script>
+</head>
+<body>

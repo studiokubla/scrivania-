@@ -16,6 +16,12 @@ lega è rimasta senza gestionale. Qui non c'è niente che possa scadere.
 | --- | --- |
 | `app.html` | l'applicazione intera: stile, regolamento, motore regole, interfaccia |
 | `listone.json` | i 531 giocatori di Serie A 2026/27, che al momento della pubblicazione vengono incorporati nella pagina |
+| `demo.html` | la demo autonoma: un file solo, apribile con un doppio clic, con una lega di esempio già giocata |
+| `demo-guscio.html` | il guscio della demo: un database finto su `localStorage` al posto di quello condiviso |
+| `demo-dati.json` | la lega di esempio — dieci squadre, 250 contratti, 60 voci di registro |
+| `semina-demo.mjs` | genera `demo-dati.json` e verifica che ogni rosa rispetti il regolamento |
+
+Come si rifà la demo è scritto in [`COSTRUISCI-DEMO.md`](COSTRUISCI-DEMO.md).
 
 Il listone viaggia **dentro** la pagina, non nel database: è un dato di
 riferimento della stagione che non cambia da solo, e tenerlo nel database
