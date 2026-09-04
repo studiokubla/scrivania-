@@ -1,0 +1,48 @@
+# Cosa non finisce mai nel repository.
+#
+# Esiste gia' un .gitignore dentro dynasty/web/ con le regole di Next.js:
+# quello vale per la sua cartella, questo vale per tutto il resto.
+# Serve perche' in passato node_modules e degli screenshot sono finiti
+# nella storia proprio passando da cartelle che nessuno copriva.
+
+# Le librerie scaricate: si riottengono con npm install, non si versionano
+node_modules/
+
+# Quello che producono i build: si rigenera, non si versiona
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# Le chiavi e le password non si versionano mai.
+# L'esempio senza valori veri invece si', ed e' l'unica eccezione.
+.env
+.env.*
+!.env.example
+
+# La configurazione di Vercel con i valori veri
+.vercel/
+vercel.json
+
+# I file che macOS semina nelle cartelle
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# I file di lavoro degli editor
+.vscode/
+.idea/
+*.swp
+
+# I log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Le cartelle temporanee delle verifiche
+/coverage/
+/shot-*.png
