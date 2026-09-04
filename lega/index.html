@@ -186,19 +186,24 @@ try {
      tenuta in ombra. Il nero pieno spegne il vetro — non c'è niente da
      lasciar passare — ed è la ragione per cui la prima versione sembrava
      un pannello di controllo invece di un'app. */
-  --fondo:        #23271F;
+  --fondo:        #171C13;
 
   /* Le superfici sono vetro vero: molto trasparenti, con un blur forte.
      Prendono il colore da quello che hanno sotto, che cambia mentre si
      scorre. */
-  --vetro:        rgba(232, 240, 220, .07);
-  --vetro-alto:   rgba(232, 240, 220, .13);
-  --bordo:        rgba(255, 255, 255, .10);
-  --bordo-forte:  rgba(255, 255, 255, .20);
+  --vetro:        rgba(236, 246, 222, .10);
+  --vetro-alto:   rgba(236, 246, 222, .17);
+  --bordo:        rgba(255, 255, 255, .13);
+  --bordo-forte:  rgba(255, 255, 255, .24);
 
-  --luce:         #F4F7EE;
-  --luce-media:   #C3CBB8;
-  --luce-fioca:   #8D9683;
+  /* Il velo che sta *dentro* le superfici: schiarisce il bordo alto e si
+     spegne verso il basso, come una lastra inclinata verso la luce. È la
+     differenza fra un rettangolo trasparente e un pezzo di vetro. */
+  --lucido: linear-gradient(170deg, rgba(255,255,255,.11) 0%, rgba(255,255,255,.02) 42%, rgba(255,255,255,0) 100%);
+
+  --luce:         #F6F9F1;
+  --luce-media:   #D3DAC8;
+  --luce-fioca:   #AAB59A;
 
   --lime:         #D2F76A;
   --lime-caldo:   #B9EC45;
@@ -252,27 +257,42 @@ body {
  */
 body::before {
   content: "";
-  position: fixed; inset: 0; z-index: -2; pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%201400%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%20%3Cdefs%3E%3Cfilter%20id%3D%22s%22%20x%3D%22-30%25%22%20y%3D%22-30%25%22%20width%3D%22160%25%22%20height%3D%22160%25%22%3E%20%3CfeGaussianBlur%20stdDeviation%3D%2295%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%22800%22%20height%3D%221400%22%20fill%3D%22%2323271F%22%2F%3E%20%3Cg%20filter%3D%22url%28%23s%29%22%3E%20%3Cellipse%20cx%3D%22640%22%20cy%3D%22140%22%20rx%3D%22300%22%20ry%3D%22230%22%20fill%3D%22%2393B060%22%20opacity%3D%22.85%22%2F%3E%20%3Cellipse%20cx%3D%22250%22%20cy%3D%2260%22%20rx%3D%22240%22%20ry%3D%22170%22%20fill%3D%22%233D4636%22%2F%3E%20%3Cellipse%20cx%3D%2290%22%20cy%3D%22430%22%20rx%3D%22260%22%20ry%3D%22220%22%20fill%3D%22%237E9B52%22%20opacity%3D%22.55%22%2F%3E%20%3Cellipse%20cx%3D%22700%22%20cy%3D%22620%22%20rx%3D%22230%22%20ry%3D%22260%22%20fill%3D%22%232C3326%22%2F%3E%20%3Cellipse%20cx%3D%22380%22%20cy%3D%22820%22%20rx%3D%22330%22%20ry%3D%22250%22%20fill%3D%22%238FAE5C%22%20opacity%3D%22.45%22%2F%3E%20%3Cellipse%20cx%3D%22120%22%20cy%3D%221120%22%20rx%3D%22280%22%20ry%3D%22230%22%20fill%3D%22%2339422F%22%2F%3E%20%3Cellipse%20cx%3D%22690%22%20cy%3D%221250%22%20rx%3D%22300%22%20ry%3D%22240%22%20fill%3D%22%237A9750%22%20opacity%3D%22.5%22%2F%3E%20%3Cellipse%20cx%3D%22400%22%20cy%3D%221400%22%20rx%3D%22360%22%20ry%3D%22200%22%20fill%3D%22%231B1F18%22%2F%3E%20%3C%2Fg%3E%3C%2Fsvg%3E") center / cover no-repeat, var(--fondo);
+  position: fixed; inset: -12%; z-index: -2; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22s%22%20x%3D%22-35%25%22%20y%3D%22-35%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2288%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3Crect%20width%3D%221000%22%20height%3D%221000%22%20fill%3D%22%23171C13%22%2F%3E%3Cg%20filter%3D%22url%28%23s%29%22%3E%3Cellipse%20cx%3D%22820%22%20cy%3D%22250%22%20rx%3D%22250%22%20ry%3D%22215%22%20fill%3D%22%23D4F86F%22%20opacity%3D%22.72%22%2F%3E%3Cellipse%20cx%3D%22660%22%20cy%3D%22430%22%20rx%3D%22200%22%20ry%3D%22175%22%20fill%3D%22%236FCB55%22%20opacity%3D%22.38%22%2F%3E%3Cellipse%20cx%3D%22240%22%20cy%3D%2270%22%20rx%3D%22420%22%20ry%3D%22300%22%20fill%3D%22%23161C12%22%20opacity%3D%22.94%22%2F%3E%3Cellipse%20cx%3D%22640%22%20cy%3D%22700%22%20rx%3D%22230%22%20ry%3D%22250%22%20fill%3D%22%232FA089%22%20opacity%3D%22.46%22%2F%3E%3Cellipse%20cx%3D%22100%22%20cy%3D%22520%22%20rx%3D%22260%22%20ry%3D%22250%22%20fill%3D%22%237ACF57%22%20opacity%3D%22.32%22%2F%3E%3Cellipse%20cx%3D%22450%22%20cy%3D%22520%22%20rx%3D%22340%22%20ry%3D%22290%22%20fill%3D%22%23121810%22%20opacity%3D%22.70%22%2F%3E%3Cellipse%20cx%3D%22560%22%20cy%3D%22900%22%20rx%3D%22300%22%20ry%3D%22230%22%20fill%3D%22%23BFEE6A%22%20opacity%3D%22.40%22%2F%3E%3Cellipse%20cx%3D%22160%22%20cy%3D%22940%22%20rx%3D%22280%22%20ry%3D%22235%22%20fill%3D%22%23246045%22%20opacity%3D%22.62%22%2F%3E%3Cellipse%20cx%3D%22880%22%20cy%3D%22990%22%20rx%3D%22280%22%20ry%3D%22230%22%20fill%3D%22%2396DE5E%22%20opacity%3D%22.28%22%2F%3E%3Cellipse%20cx%3D%22500%22%20cy%3D%221030%22%20rx%3D%22440%22%20ry%3D%22240%22%20fill%3D%22%230B100A%22%20opacity%3D%22.85%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center / cover no-repeat, var(--fondo);
+  /* Respira. Un movimento lentissimo — un minuto e mezzo per andare e
+     tornare — che non si guarda mai davvero ma toglie alla pagina
+     l'aria di uno sfondo stampato. `inset: -12%` è il margine che serve
+     perché spostandosi non scopra mai un bordo. */
+  animation: respiro 96s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes respiro {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to   { transform: scale(1.12) translate3d(-2%, -3%, 0); }
 }
 
-/* Un velo scuro sopra le macchie: senza, il testo chiaro sulle zone più
-   luminose perde il contrasto. Con, il fondo resta vivo e le parole si
-   leggono ovunque.
+/* Non un velo ma una vignettatura: i bordi si spengono, il centro no.
 
-   È volutamente leggero. Un velo più fitto — la prima misura — rendeva
-   sì il testo comodissimo, ma spegneva le macchie fino a farle sembrare
-   una sfumatura sola: il fondo diventava piatto, che è esattamente il
-   difetto da cui si partiva. Il contrasto del testo lo tengono le
-   superfici di vetro, che sotto le parole ci sono quasi sempre. */
+   Un velo steso su tutto — le prime due misure — spegneva le macchie
+   fino a farne una sfumatura sola, cioè il difetto da cui si partiva.
+   Così invece la luce resta dov'è, e a tenere il contrasto del testo
+   sono le superfici di vetro (sotto le parole ci sono quasi sempre) e
+   l'ombra morbida sui titoli, che di vetro sotto non ne hanno. */
 body::after {
   content: "";
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(23,26,21,.10) 0%, rgba(23,26,21,.26) 45%, rgba(23,26,21,.46) 100%);
+    radial-gradient(130% 95% at 50% 12%, transparent 30%, rgba(11, 15, 10, .42) 100%),
+    linear-gradient(180deg, transparent 55%, rgba(11, 15, 10, .40) 100%);
 }
 
-h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
+h1, h2, h3 {
+  font-family: var(--display); margin: 0; text-wrap: balance;
+  /* I titoli sono l'unico testo appoggiato direttamente sulle macchie:
+     un'ombra larga e morbida — non un contorno — li tiene staccati anche
+     quando ci passa sotto la parte più accesa del fondo. */
+  text-shadow: 0 2px 22px rgba(8, 12, 7, .55);
+}
 /* I titoli sono grandi e **sottili**: su un fondo con delle macchie chiare
    il grassetto diventa una macchia a sua volta, mentre un peso leggero in
    corpo grande resta arioso e si legge lo stesso. */
@@ -392,9 +412,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 /* Vetro: si vede attraverso, prende luce dagli aloni e ha un filo di
    bordo chiaro in cima, come una superficie inclinata verso la luce. */
 .riquadro {
-  background: var(--vetro);
-  backdrop-filter: blur(26px) saturate(130%);
-  -webkit-backdrop-filter: blur(26px) saturate(130%);
+  background: var(--lucido), var(--vetro);
+  backdrop-filter: blur(28px) saturate(145%);
+  -webkit-backdrop-filter: blur(28px) saturate(145%);
   border: 1px solid var(--bordo);
   border-radius: var(--raggio);
   padding: 20px;
@@ -416,7 +436,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   color: #09140A;
   border-radius: var(--raggio); padding: 17px 18px;
   display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end;
-  box-shadow: 0 18px 44px rgba(120, 190, 50, .22);
+  box-shadow: 0 20px 50px rgba(150, 220, 60, .28), 0 0 0 1px rgba(255,255,255,.14) inset;
 }
 .tetto .occhiello { color: rgba(9, 20, 10, .58); }
 /* La cifra era in `11vw`: su un telefono diventava alta un dito e i due
@@ -451,8 +471,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 
 .elenco {
   display: flex; flex-direction: column;
-  background: var(--vetro);
-  backdrop-filter: blur(26px) saturate(130%); -webkit-backdrop-filter: blur(26px) saturate(130%);
+  background: var(--lucido), var(--vetro);
+  backdrop-filter: blur(28px) saturate(145%); -webkit-backdrop-filter: blur(28px) saturate(145%);
   border: 1px solid var(--bordo);
   border-radius: var(--raggio); overflow: hidden;
   box-shadow: var(--ombra);
@@ -465,7 +485,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   transition: background .15s ease;
 }
 .voce:last-child { border-bottom: 0; }
-button.voce:hover { background: var(--vetro-alto); }
+button.voce:hover {
+  background: linear-gradient(90deg, rgba(210,247,106,.10) 0%, rgba(236,246,222,.06) 45%, transparent 100%);
+}
 .voce .nome { font-weight: 600; letter-spacing: -.01em; }
 /* I ruoli Mantra accanto al nome: si leggono a colpo d'occhio e non rubano
    la scena al nome, che resta la cosa che si cerca. */
@@ -487,10 +509,11 @@ button.voce:hover { background: var(--vetro-alto); }
 }
 /* Un colore per reparto, tenuto basso di saturazione: nel buio le tinte
    accese si prendono l'attenzione che spetta ai numeri. */
-.ruolo.P { background: rgba(240, 199, 102, .16); color: #F0C766; }
-.ruolo.D { background: rgba(122, 176, 255, .15); color: #8FBEFF; }
-.ruolo.C { background: rgba(200, 247, 81, .15);  color: var(--lime); }
-.ruolo.A { background: rgba(255, 138, 114, .15); color: #FF9F8A; }
+.ruolo { box-shadow: 0 1px 0 rgba(255,255,255,.10) inset; }
+.ruolo.P { background: linear-gradient(160deg, rgba(245,212,136,.30), rgba(245,212,136,.11)); color: #F7DC97; }
+.ruolo.D { background: linear-gradient(160deg, rgba(140,186,255,.30), rgba(140,186,255,.10)); color: #A6CDFF; }
+.ruolo.C { background: linear-gradient(160deg, rgba(210,247,106,.30), rgba(210,247,106,.10)); color: var(--lime); }
+.ruolo.A { background: linear-gradient(160deg, rgba(255,164,140,.30), rgba(255,164,140,.10)); color: #FFB6A2; }
 
 .targhetta {
   display: inline-flex; align-items: center; gap: 4px;
@@ -520,7 +543,7 @@ button.voce:hover { background: var(--vetro-alto); }
 .filtri.scorrevoli::-webkit-scrollbar { display: none; }
 .filtri.scorrevoli .pillola { flex: none; scroll-snap-align: start; }
 .pillola {
-  border: 1px solid var(--bordo); background: var(--vetro); color: var(--luce-media);
+  border: 1px solid var(--bordo); background: var(--lucido), var(--vetro); color: var(--luce-media);
   padding: 7px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 500;
   transition: all .15s ease;
 }
@@ -547,7 +570,7 @@ label.campo { display: block; }
 label.campo > span { display: block; font-size: 12px; font-weight: 600; color: var(--luce-fioca); margin-bottom: 6px; }
 
 .bottone {
-  border: 1px solid var(--bordo-forte); background: var(--vetro-alto); color: var(--luce);
+  border: 1px solid var(--bordo-forte); background: var(--lucido), var(--vetro-alto); color: var(--luce);
   padding: 12px 18px; border-radius: 999px; font-weight: 600; font-size: 14px;
   transition: all .15s ease;
 }
