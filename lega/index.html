@@ -1858,7 +1858,7 @@ function paginaSocieta() {
       <td><b>${livello.livello} · ${pulito(livello.nome)}</b>${attuale ? ` <span class="targhetta ok">il tuo</span>` : ""}</td>
       <td class="n num">${soldi(aQuarti(livello.costruzione))}</td>
       <td class="n num">${soldi(aQuarti(livello.manutenzione))}</td>
-      <td class="n num">${soldi(aQuarti(c.incasso))}</td>
+      <td class="n num">${soldi(aQuarti(c.incasso))}<br><span style="font-size:11px;color:var(--inchiostro-lieve)">${soldi(aQuarti(livello.incassoPerGara))} a gara</span></td>
       <td class="n num" style="color:var(--ok)">+${soldi(aQuarti(c.netto))}</td>
       <td class="n num">${c.rientro.toFixed(1)}</td>
       <td>${raggiungibile && posso
@@ -1923,14 +1923,17 @@ function paginaSocieta() {
         ${prossimo ? `<span class="conteggio">prossimo livello ${soldi(aQuarti(prossimo.costo))}</span>` : `<span class="conteggio">al massimo</span>`}</div>
       <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
         Si sale un livello alla volta pagando la differenza; per saltarne uno si demolisce e si
-        ricostruisce da zero. Entra in funzione dalla ${REGOLE.capitale.operativoDallaGiornata}ª giornata,
-        e da lì incassa a ogni gara in casa (${REGOLE.capitale.gareInCasa} a stagione).
+        ricostruisce da zero. <b>L'incasso è quello di una stagione intera</b>: il guadagno a ogni
+        gara in casa moltiplicato per le ${REGOLE.capitale.gareInCasa} che se ne giocano.
+        L'anno in cui lo costruisci ne incassi circa la metà, perché lo stadio apre alla
+        ${REGOLE.capitale.operativoDallaGiornata}ª giornata (art. 15.1): sei mesi di cantiere.
+        <b>Rientro</b> sono gli anni che il netto impiega a ripagare la costruzione.
       </p>
       <div class="riquadro scorre">
         <table class="tabellina">
           <thead><tr>
-            <th>Livello</th><th style="text-align:right">Costruzione</th><th style="text-align:right">Manut.</th>
-            <th style="text-align:right">Incasso</th><th style="text-align:right">Netto</th>
+            <th>Livello</th><th style="text-align:right">Costruzione</th><th style="text-align:right">Manut./anno</th>
+            <th style="text-align:right">Incasso/anno</th><th style="text-align:right">Netto/anno</th>
             <th style="text-align:right">Rientro</th><th></th>
           </tr></thead>
           <tbody>${scalaStadi}</tbody>
