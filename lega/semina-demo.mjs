@@ -11,7 +11,12 @@ const giocatori = listone.righe.map((r, i) => ({
   quotazione: r[3], eta: r[5] === -1 ? null : r[5],
 }));
 
-const REGOLE = { tetto: 85, rosaMin: 25, minimi: { P: 3, D: 8, C: 8, A: 6 }, slot: 9 };
+/* La lega non impone minimi per ruolo: qui restano solo come criterio per
+   comporre rose credibili — una squadra vera i portieri se li prende — non come
+   vincolo da rispettare. Il controllo finale, più sotto, guarda tetto, numero di
+   giocatori e slot. */
+const REGOLE = { tetto: 85, rosaMin: 25, slot: 9 };
+const COMPOSIZIONE_TIPO = { P: 3, D: 8, C: 8, A: 6 };
 const aQuarti = (m) => Math.round(m * 4);
 
 const SQUADRE = [
@@ -96,7 +101,7 @@ SQUADRE.forEach(([nome], indice) => {
 
   /* Prima i minimi di ruolo, poi si completa fino a venticinque. */
   const ordine = [];
-  for (const r of ["P", "D", "C", "A"]) for (let i = 0; i < REGOLE.minimi[r]; i++) ordine.push(r);
+  for (const r of ["P", "D", "C", "A"]) for (let i = 0; i < COMPOSIZIONE_TIPO[r]; i++) ordine.push(r);
   while (ordine.length < REGOLE.rosaMin) ordine.push(["D", "C", "A"][Math.floor(caso() * 3)]);
 
   /* Nessuno spende fino all'ultimo centesimo del tetto: le squadre vere
@@ -159,7 +164,6 @@ SQUADRE.forEach(([nome], i) => {
   const guai = [];
   if (speso > REGOLE.tetto) guai.push(`sfora (${speso} M)`);
   if (c.length < REGOLE.rosaMin) guai.push(`solo ${c.length} giocatori`);
-  for (const r of ["P", "D", "C", "A"]) if (conta[r] < REGOLE.minimi[r]) guai.push(`${conta[r]}${r} sotto il minimo`);
   if (slot > REGOLE.slot) guai.push(`${slot} slot`);
   if (guai.length) { problemi++; console.log("  ✗", nome, guai.join(", ")); }
   else console.log(`  ${nome.padEnd(18)} ${c.length} giocatori · ${String(speso).replace(".", ",").padStart(5)} M · ${slot} slot`);

@@ -513,7 +513,10 @@ label.campo > span { display: block; font-size: 12px; font-weight: 600; color: v
 const REGOLE = {
   tetto: 85,                                  // milioni, art. 3.2
   rosaMin: 25, rosaMax: 30,
-  minimiRuolo: { P: 3, D: 8, C: 8, A: 6 },    // art. 3.1
+  /* Questa lega **non** impone minimi per ruolo: si può stare con un portiere
+     solo, purché la rosa resti fra il minimo e il massimo. È una scelta di lega
+     rispetto all'art. 3.1, ed è il motivo per cui il conteggio per ruolo qui
+     sotto resta un'informazione e non un vincolo. */
   slotPluriennali: 9,                         // art. 3.3
   passo: 0.25,                                // gli importi si muovono di 0,25 M
   riservaPerSlotMancante: 0.5,                // art. 8.6
@@ -658,7 +661,7 @@ function soldi(quarti, conUnita = true) {
 /** Quanto pesa un contratto sul tetto di quest'anno: il primo anno. */
 const pesoAnnuale = (contratto) => contratto.ingaggio;
 
-/** Il conto della rosa: speso, spazio, slot, minimi di ruolo. */
+/** Il conto della rosa: speso, spazio, slot, composizione per ruolo. */
 function contoRosa(contratti) {
   const speso = contratti.reduce((somma, c) => somma + pesoAnnuale(c), 0);
   const tetto = aQuarti(REGOLE.tetto);
@@ -666,10 +669,6 @@ function contoRosa(contratti) {
   for (const c of contratti) perRuolo[c.ruolo] = (perRuolo[c.ruolo] || 0) + 1;
 
   const slotUsati = contratti.filter((c) => REGOLE.contratti[c.tipo]?.slot).length;
-
-  const mancanti = ORDINE_RUOLI
-    .map((r) => ({ ruolo: r, quanti: Math.max(0, REGOLE.minimiRuolo[r] - perRuolo[r]) }))
-    .filter((m) => m.quanti > 0);
 
   const postiDaRiempire = Math.max(0, REGOLE.rosaMin - contratti.length);
 
@@ -680,7 +679,6 @@ function contoRosa(contratti) {
     spazio: tetto - speso,
     sforato: speso > tetto,
     perRuolo,
-    mancanti,
     postiDaRiempire,
     slotUsati,
     slotLiberi: REGOLE.slotPluriennali - slotUsati,
@@ -797,13 +795,9 @@ function perchéNoScambio({ daId, aId, cedeDa, cedeA, capitaleDa, capitaleA }) {
     if (conto.sforato) no.push(`${nome} sforerebbe il tetto di ${soldi(conto.speso - conto.tetto)}.`);
     if (conto.numero > REGOLE.rosaMax) no.push(`${nome} arriverebbe a ${conto.numero} giocatori, oltre i ${REGOLE.rosaMax}.`);
     if (conto.slotLiberi < 0) no.push(`${nome} avrebbe ${conto.slotUsati} contratti pluriennali, oltre i ${REGOLE.slotPluriennali}.`);
-    /* I minimi di ruolo si controllano solo se la rosa era già completa: a
-       mercato aperto una rosa in costruzione li viola per forza, e bloccare
-       lì ogni scambio renderebbe la funzione inutile proprio quando serve. */
-    const eraCompleta = contoRosa(nome === nomeDa ? contrattiDa : contrattiA).mancanti.length === 0;
-    if (eraCompleta && conto.mancanti.length) {
-      no.push(`${nome} scenderebbe sotto il minimo di ruolo: ${conto.mancanti.map((m) => `${m.quanti} ${NOME_RUOLO_PL[m.ruolo]}`).join(", ")}.`);
-    }
+    /* Nessun controllo sui ruoli: in questa lega la composizione della rosa la
+       decide il presidente, e uno scambio che lo lascia con un portiere solo è
+       una sua scelta, non un errore da impedire. */
   }
 
   if (capitaleDa > societaDi(daId).capitale) no.push(`${nomeDa} non ha ${soldi(capitaleDa)} di Capitale.`);
@@ -1424,7 +1418,7 @@ function paginaLega() {
     </div>
     <p style="font-size:12.5px;color:var(--inchiostro-med);margin-top:12px">
       Tetto salariale ${REGOLE.tetto} M · rosa da ${REGOLE.rosaMin} a ${REGOLE.rosaMax} ·
-      ${REGOLE.slotPluriennali} slot pluriennali · minimi ${ORDINE_RUOLI.map((r) => REGOLE.minimiRuolo[r] + r).join(" ")}
+      ${REGOLE.slotPluriennali} slot pluriennali · nessun minimo per ruolo
     </p>`;
 }
 
@@ -1450,14 +1444,12 @@ function paginaRosa() {
         </select></label>`
     : "";
 
-  const perRuolo = ORDINE_RUOLI.map((r) => {
-    const quanti = conto.perRuolo[r] ?? 0;
-    const minimo = REGOLE.minimiRuolo[r];
-    return `<div class="dato ${quanti < minimo ? "manca" : ""}">
+  /* Com'è fatta la rosa, non com'è obbligata a essere: la lega non impone
+     minimi per ruolo, quindi questi numeri raccontano e non giudicano. */
+  const perRuolo = ORDINE_RUOLI.map((r) => `<div class="dato">
       <div class="etichetta">${NOME_RUOLO_PL[r]}</div>
-      <div class="valore num">${quanti}<span style="font-size:13px;color:var(--inchiostro-lieve)">/${minimo}</span></div>
-    </div>`;
-  }).join("");
+      <div class="valore num">${conto.perRuolo[r] ?? 0}</div>
+    </div>`).join("");
 
   const inRosa = [...contratti]
     .sort((a, b) => ORDINE_RUOLI.indexOf(a.ruolo) - ORDINE_RUOLI.indexOf(b.ruolo) || b.ingaggio - a.ingaggio)
@@ -1484,12 +1476,14 @@ function paginaRosa() {
   if (conto.sforato) {
     avvisi.push(`<div class="avviso errore">La rosa sfora il tetto di ${soldi(conto.speso - conto.tetto)}.</div>`);
   }
-  if (conto.mancanti.length) {
-    avvisi.push(`<div class="avviso attenzione">Mancano al minimo di ruolo:
-      ${conto.mancanti.map((m) => `${m.quanti} ${NOME_RUOLO_PL[m.ruolo]}`).join(", ")}.</div>`);
+  if (conto.numero > 0 && conto.numero < REGOLE.rosaMin) {
+    avvisi.push(`<div class="avviso attenzione">Mancano ${conto.postiDaRiempire}
+      ${conto.postiDaRiempire === 1 ? "giocatore" : "giocatori"} per arrivare al minimo di
+      ${REGOLE.rosaMin}. Che ruoli siano lo decidi tu.</div>`);
   }
-  if (!conto.mancanti.length && conto.numero >= REGOLE.rosaMin && !conto.sforato) {
-    avvisi.push(`<div class="avviso bene">Rosa a posto: ${conto.numero} giocatori, minimi di ruolo rispettati, tetto rispettato.</div>`);
+  if (conto.numero >= REGOLE.rosaMin && !conto.sforato) {
+    avvisi.push(`<div class="avviso bene">Rosa a posto: ${conto.numero} giocatori su un massimo
+      di ${REGOLE.rosaMax}, tetto rispettato.</div>`);
   }
 
   return `

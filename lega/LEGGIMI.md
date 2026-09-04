@@ -46,7 +46,7 @@ poi si ricompone `lega/listone.json` in forma compatta
 ## Il regolamento, in numeri
 
 Tutte le regole stanno nell'oggetto `REGOLE` in cima allo script, e da nessuna
-altra parte: tetto 85 M, rosa 25-30, minimi 3P 8D 8C 6A, nove slot pluriennali,
+altra parte: tetto 85 M, rosa 25-30, nove slot pluriennali,
 i cinque tipi di contratto con i loro vincoli d'età e i massimali, e i requisiti
 del settore giovanile (fino a 20 anni, quotazione non oltre 3 M). Cambiare il
 regolamento è una modifica a quell'oggetto, non una caccia dentro le funzioni:
@@ -58,6 +58,11 @@ si entra* (`chiediCodice` nella configurazione della lega); serve a non sbagliar
 porta, non a difendere segreti, perché chi ha il link legge tutto comunque.
 
 ## Cosa c'è e cosa manca
+
+**Non ci sono minimi per ruolo**: si può stare con un portiere solo, purché la
+rosa resti fra 25 e 30 giocatori. È una scelta di questa lega rispetto all'art.
+3.1, e il conteggio per ruolo nella pagina Rosa resta un'informazione — racconta
+com'è fatta la squadra, non come dovrebbe essere.
 
 C'è: ingresso dei dieci presidenti e del commissioner, iscrizione delle squadre
 coi nomi veri, listone filtrabile per ruolo, età e idoneità primavera,
