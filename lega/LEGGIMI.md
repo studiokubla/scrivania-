@@ -65,6 +65,18 @@ salariale no. È la regola che rende il mercato una cosa seria — un contratto
 firmato è una decisione che si porta fino in fondo. A stagione conclusa il
 commissioner li libera tutti insieme da *Gestione → Fine stagione*.
 
+**L'albo d'oro** conserva le classifiche finali delle cinque competizioni
+(Apertura, Clausura, Cup, Super Cup, Youth), stagione per stagione, con la
+bacheca di chi ha vinto cosa. Il commissioner scrive la classifica toccando le
+squadre dalla prima all'ultima, e da lì i premi in Capitale dell'art. 19 si
+versano con un pulsante, una volta sola. Nell'albo si scrive il nome che la
+squadra aveva allora: fra tre stagioni potrà essersi rinominata o ritirata, e
+l'albo deve continuare a raccontare cos'è successo.
+
+La classifica di Apertura e Clausura allinea anche le posizioni che decidono lo
+spareggio del mercato (art. 9.4): scriverla in due posti sarebbe il modo
+migliore per ritrovarsi due verità diverse.
+
 **Le quotazioni si aggiornano da Leghe Fantacalcio.** Non c'è un collegamento
 automatico — LF non espone un'API pubblica, e leggere le loro pagine si
 romperebbe al primo cambio di grafica — ma il file `.xlsx` che pubblicano si

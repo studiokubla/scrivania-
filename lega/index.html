@@ -494,6 +494,49 @@ label.campo > span { display: block; font-size: 12px; font-weight: 600; color: v
 .scelta b { display: block; font-size: 14px; }
 .scelta small { color: var(--inchiostro-med); font-size: 11.5px; line-height: 1.35; display: block; }
 
+/* ── L'albo d'oro ─────────────────────────────────────────────
+   L'unica parte dell'applicazione che guarda indietro invece che avanti,
+   e l'unica dove un po' di solennità è nel posto giusto: qui si legge
+   chi ha vinto, e resta scritto. */
+
+.albo-vuoto { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+.podio { display: flex; flex-direction: column; gap: 6px; }
+.gradino {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--raggio-s);
+  background: var(--carta-bassa);
+}
+.gradino .posto {
+  width: 22px; height: 22px; flex: none; border-radius: 999px;
+  display: grid; place-items: center;
+  font-family: var(--display); font-size: 12px; font-weight: 800;
+  background: var(--bordo-forte); color: var(--carta-alta);
+}
+.gradino .chi { font-weight: 600; flex: 1; min-width: 0; }
+.gradino .premio { font-family: var(--display); font-weight: 600; font-size: 14px; }
+.gradino .premio-denaro { font-size: 12px; color: var(--inchiostro-lieve); }
+
+/* Oro, argento e bronzo: tre tinte, non tre emoji. Le medaglie disegnate
+   con i caratteri si vedono diverse su ogni telefono. */
+.gradino.oro      { background: #F6EEDA; }
+.gradino.oro .posto      { background: #B08324; }
+.gradino.argento  { background: #EDEEF0; }
+.gradino.argento .posto  { background: #8A8F96; }
+.gradino.bronzo   { background: #F2E7DF; }
+.gradino.bronzo .posto   { background: #8A5C3E; }
+:root[data-theme="dark"] .gradino.oro     { background: #2C2413; }
+:root[data-theme="dark"] .gradino.argento { background: #232529; }
+:root[data-theme="dark"] .gradino.bronzo  { background: #2A211B; }
+
+.coda-classifica {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px;
+  font-size: 12.5px; color: var(--inchiostro-med);
+}
+.trofei {
+  font-family: var(--display); font-weight: 800; font-size: 20px; color: var(--campo);
+}
+
 .tabellina { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .tabellina th { text-align: left; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--inchiostro-lieve); padding: 0 10px 7px; font-weight: 600; }
 .tabellina td { padding: 9px 10px; border-top: 1px solid var(--bordo); }
@@ -538,6 +581,27 @@ const REGOLE = {
   },
 
   primavera: { etaMax: 20, quotazioneMax: 3, presenzeMax: 5 },  // art. 16.1
+
+  /**
+   * Le competizioni della lega (artt. 19-20).
+   *
+   * I premi in Capitale entrano nel conto societario e cambiano quello che una
+   * squadra può costruire; quelli in denaro no — sono fra le persone, e il
+   * software si limita a ricordarli, perché una lega che discute su chi doveva
+   * quanto a fine stagione è una lega che litiga.
+   */
+  competizioni: [
+    { id: "APERTURA", nome: "Dynasty Apertura", formato: "Girone unico, 18 giornate · dalla 3ª alla 20ª di Serie A",
+      capitale: [27, 25, 23, 21, 19, 17, 15, 13, 12, 10], denaro: [130, 100, 70] },
+    { id: "CLAUSURA", nome: "Dynasty Clausura", formato: "Girone unico, 18 giornate · dalla 21ª alla 38ª",
+      capitale: [27, 25, 23, 21, 19, 17, 15, 13, 12, 10], denaro: [130, 100, 70] },
+    { id: "CUP", nome: "Dynasty Cup", formato: "Due gironi, poi andata e ritorno",
+      capitale: [15, 10, 7, 7, 5, 5, 5, 5], denaro: [75, 50] },
+    { id: "SUPERCUP", nome: "Super Cup", formato: "Le prime quattro di Apertura e di Clausura",
+      capitale: [7, 5, 3, 3], denaro: [25] },
+    { id: "YOUTH", nome: "Dynasty Youth", formato: "Media voto dei primavera, più il bonus del vivaio",
+      capitale: [5, 3, 1], denaro: [30, 15] },
+  ],
 
   /* Art. 9-11 — il mercato. L'asta di settembre si fa al tavolo, non qui:
      quello che passa dall'applicazione è ciò che succede dopo. */
@@ -985,6 +1049,7 @@ const stato = {
   societa: new Map(),
   mercato: [],
   scambi: [],
+  albo: [],
   aggiornamentoListone: null,
   esitoQuotazioni: null,   // il risultato dell'ultimo import, che deve sopravvivere al ridisegno
   registro: [],
@@ -1015,6 +1080,36 @@ const rosaDi = (squadraId) => stato.rose.get(squadraId)?.contratti ?? [];
 
 /** Gli ingaggi di chi è stato svincolato: pesano sul tetto fino a fine stagione. */
 const pesiMortiDi = (squadraId) => stato.rose.get(squadraId)?.pesiMorti ?? [];
+
+/* ── L'albo d'oro ──────────────────────────────────────────── */
+
+/** Il verdetto di una competizione in una stagione, se è già stato scritto. */
+const verdettoDi = (stagione, competizione) =>
+  stato.albo.find((a) => a.stagione === stagione && a.competizione === competizione) ?? null;
+
+/** Le stagioni di cui l'albo conserva qualcosa, dalla più recente. */
+const stagioniDellAlbo = () =>
+  [...new Set([STAGIONE, ...stato.albo.map((a) => a.stagione)])].sort().reverse();
+
+/**
+ * Quante volte ogni squadra ha vinto qualcosa.
+ *
+ * Conta i nomi, non gli identificativi: una squadra che cambia presidente o si
+ * ritira resta nell'albo con il nome che aveva quando ha vinto, ed è giusto
+ * così — l'albo racconta cos'è successo, non chi c'è adesso.
+ */
+function bacheca() {
+  const conteggio = new Map();
+  for (const verdetto of stato.albo) {
+    const primo = verdetto.classifica?.[0];
+    if (!primo) continue;
+    const riga = conteggio.get(primo.nome) ?? { nome: primo.nome, totale: 0, per: {} };
+    riga.totale += 1;
+    riga.per[verdetto.competizione] = (riga.per[verdetto.competizione] ?? 0) + 1;
+    conteggio.set(primo.nome, riga);
+  }
+  return [...conteggio.values()].sort((a, b) => b.totale - a.totale || a.nome.localeCompare(b.nome, "it"));
+}
 
 /** Il conto di una squadra, ingaggi e pesi morti insieme. */
 const contoDi = (squadraId) => contoRosa(rosaDi(squadraId), pesiMortiDi(squadraId));
@@ -1282,6 +1377,11 @@ function ascolta() {
 
   db.collection("rose").onSnapshot((istantanea) => {
     stato.rose = new Map(istantanea.docs.map((d) => [d.id, d.data()]));
+    disegna();
+  });
+
+  db.collection("albo").onSnapshot((istantanea) => {
+    stato.albo = istantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
     disegna();
   });
 
@@ -1575,6 +1675,7 @@ function vistaApplicazione() {
     { id: "listone", nome: "Listone" },
     { id: "mercato", nome: "Mercato" },
     { id: "societa", nome: "Società" },
+    { id: "albo", nome: "Albo d'oro" },
     { id: "registro", nome: "Registro" },
   ];
   if (sonoCommissioner()) pagine.push({ id: "gestione", nome: "Gestione" });
@@ -1586,6 +1687,7 @@ function vistaApplicazione() {
     : stato.vista === "listone" ? paginaListone()
     : stato.vista === "mercato" ? paginaMercato()
     : stato.vista === "societa" ? paginaSocieta()
+    : stato.vista === "albo" ? paginaAlbo()
     : stato.vista === "registro" ? paginaRegistro()
     : paginaGestione();
 
@@ -1882,6 +1984,7 @@ function disegnaFoglio() {
   if (foglioAperto?.tipo === "codice") return foglioCodice(foglioAperto.chi);
   if (foglioAperto?.tipo === "busta") return foglioBusta(foglioAperto.trattativaId, foglioAperto.giocatoreId);
   if (foglioAperto?.tipo === "scambio") return foglioScambio();
+  if (foglioAperto?.tipo === "verdetto") return foglioVerdetto();
   return "";
 }
 
@@ -2417,6 +2520,127 @@ function foglioScambio() {
   </div></div>`;
 }
 
+/* ── Pagina: l'albo d'oro ─────────────────────────────────── */
+
+const MEDAGLIE = ["oro", "argento", "bronzo"];
+
+function paginaAlbo() {
+  const stagioni = stagioniDellAlbo();
+  const trofei = bacheca();
+  const posso = sonoCommissioner();
+
+  const scheda = (stagione, competizione) => {
+    const verdetto = verdettoDi(stagione, competizione.id);
+    if (!verdetto) {
+      return `<div class="riquadro albo-vuoto">
+        <div>
+          <b>${pulito(competizione.nome)}</b>
+          <div style="font-size:12.5px;color:var(--inchiostro-lieve)">${pulito(competizione.formato)}</div>
+        </div>
+        ${posso ? `<button class="bottone piccolo" data-verdetto="${stagione}|${competizione.id}">Scrivi la classifica</button>`
+                : `<span class="targhetta neutra">non ancora assegnata</span>`}
+      </div>`;
+    }
+    const podio = verdetto.classifica.slice(0, 3).map((s, i) => `
+      <div class="gradino ${MEDAGLIE[i]}">
+        <span class="posto">${i + 1}</span>
+        <span class="chi">${pulito(s.nome)}</span>
+        ${competizione.capitale[i] != null ? `<span class="premio num">${competizione.capitale[i]} M</span>` : ""}
+        ${competizione.denaro?.[i] != null ? `<span class="premio-denaro num">${competizione.denaro[i]} €</span>` : ""}
+      </div>`).join("");
+    const resto = verdetto.classifica.slice(3);
+
+    return `<div class="riquadro">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+        <b>${pulito(competizione.nome)}</b>
+        ${posso ? `<button class="bottone piccolo" data-verdetto="${stagione}|${competizione.id}">Correggi</button>` : ""}
+      </div>
+      <div class="podio">${podio}</div>
+      ${resto.length ? `<div class="coda-classifica">
+        ${resto.map((s, i) => `<span>${i + 4}. ${pulito(s.nome)}${
+          competizione.capitale[i + 3] != null ? ` <span class="num" style="color:var(--inchiostro-lieve)">${competizione.capitale[i + 3]} M</span>` : ""}</span>`).join("")}
+      </div>` : ""}
+      ${verdetto.premiVersati
+        ? `<div style="font-size:12px;color:var(--ok);margin-top:8px">Premi in Capitale versati</div>`
+        : posso ? `<button class="bottone piccolo" style="margin-top:8px" data-premi="${verdetto.id}">Versa i premi in Capitale</button>` : ""}
+    </div>`;
+  };
+
+  return `
+    <h1>Albo d'oro</h1>
+    <p style="color:var(--inchiostro-med);margin:6px 0 18px">
+      Quello che resta quando la stagione è finita. Le classifiche si scrivono qui una volta sola,
+      e da qui non si cancellano più.
+    </p>
+
+    ${trofei.length ? `<div class="sezione">
+      <div class="intestazione-sezione"><h2>La bacheca</h2></div>
+      <div class="elenco">
+        ${trofei.map((s) => `<div class="voce">
+          <span class="corpo">
+            <span class="nome">${pulito(s.nome)}</span>
+            <span class="dettaglio">${Object.entries(s.per).map(([c, n]) =>
+              `${pulito(REGOLE.competizioni.find((x) => x.id === c)?.nome ?? c)}${n > 1 ? ` ×${n}` : ""}`).join(" · ")}</span>
+          </span>
+          <span class="coda"><span class="trofei num">${s.totale}</span></span>
+        </div>`).join("")}
+      </div>
+    </div>` : ""}
+
+    ${stagioni.map((stagione) => `<div class="sezione">
+      <div class="intestazione-sezione"><h2>${pulito(stagione)}</h2>
+        ${stagione === STAGIONE ? `<span class="conteggio">stagione in corso</span>` : ""}</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${REGOLE.competizioni.map((c) => scheda(stagione, c)).join("")}
+      </div>
+    </div>`).join("")}`;
+}
+
+/* ── Il foglio del verdetto ───────────────────────────────── */
+
+/* L'ordine che il commissioner sta componendo: le squadre dalla prima
+   all'ultima. Si costruisce toccando, perché su un telefono trascinare dieci
+   righe in ordine è un esercizio di pazienza. */
+let bozzaVerdetto = { stagione: null, competizione: null, ordine: [] };
+
+function foglioVerdetto() {
+  const competizione = REGOLE.competizioni.find((c) => c.id === bozzaVerdetto.competizione);
+  if (!competizione) return "";
+  const scelte = bozzaVerdetto.ordine;
+  const restano = stato.squadre.filter((s) => !scelte.includes(s.id));
+
+  return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
+    <div class="foglio-testa">
+      <div>
+        <h2>${pulito(competizione.nome)}</h2>
+        <p style="font-size:13px;color:var(--inchiostro-med)">${pulito(bozzaVerdetto.stagione)} · tocca le squadre dalla prima all'ultima</p>
+      </div>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>
+
+    <div class="moduli">
+      ${scelte.length ? `<div class="elenco">
+        ${scelte.map((id, i) => `<div class="voce">
+          <span class="ruolo" style="background:${pulito(squadraDi(id)?.colore ?? "#DADDD2")};color:#12140F">${i + 1}</span>
+          <span class="corpo"><span class="nome">${pulito(squadraDi(id)?.nome ?? "—")}</span>
+            <span class="dettaglio">${competizione.capitale[i] != null ? `${competizione.capitale[i]} M di premio` : "nessun premio"}${
+              competizione.denaro?.[i] != null ? ` · ${competizione.denaro[i]} €` : ""}</span></span>
+          <span class="coda"><button class="bottone piccolo" data-togli-posto="${i}">Togli</button></span>
+        </div>`).join("")}
+      </div>` : `<div class="avviso neutro">Tocca la squadra arrivata prima.</div>`}
+
+      ${restano.length ? `<div class="scelte">
+        ${restano.map((s) => `<button type="button" class="scelta" data-aggiungi-posto="${pulito(s.id)}">
+          <b>${pulito(s.nome)}</b><small>${pulito(s.presidente || "")}</small></button>`).join("")}
+      </div>` : `<div class="avviso bene">Classifica completa: ${scelte.length} squadre.</div>`}
+
+      <button class="bottone primario largo" id="salva-verdetto" ${scelte.length < 1 ? "disabled" : ""}>
+        Scrivi nell'albo${scelte.length && restano.length ? ` (solo le prime ${scelte.length})` : ""}
+      </button>
+    </div>
+  </div></div>`;
+}
+
 /* ── Pagina: il registro ──────────────────────────────────── */
 
 function paginaRegistro() {
@@ -2858,9 +3082,91 @@ function dopoIlDisegno() {
       squadra.id);
   });
 
+  agganciaAlbo();
   agganciaMercato();
   agganciaSocieta();
   agganciaGestione();
+}
+
+/* ── Gli effetti dell'albo ────────────────────────────────── */
+
+function agganciaAlbo() {
+  su("[data-verdetto]", "click", (e) => {
+    const [stagione, competizione] = e.currentTarget.dataset.verdetto.split("|");
+    const gia = verdettoDi(stagione, competizione);
+    bozzaVerdetto = {
+      stagione, competizione,
+      /* Correggendo un verdetto si riparte da quello scritto, non da zero:
+         rifare dieci tocchi per spostare una posizione sarebbe una punizione. */
+      ordine: (gia?.classifica ?? []).map((s) => s.squadraId).filter((id) => squadraDi(id)),
+    };
+    apriFoglio({ tipo: "verdetto" });
+  });
+
+  su("[data-aggiungi-posto]", "click", (e) => {
+    bozzaVerdetto.ordine = [...bozzaVerdetto.ordine, e.currentTarget.dataset.aggiungiPosto];
+    disegna();
+  });
+  su("[data-togli-posto]", "click", (e) => {
+    const i = Number(e.currentTarget.dataset.togliPosto);
+    bozzaVerdetto.ordine = bozzaVerdetto.ordine.filter((_, x) => x !== i);
+    disegna();
+  });
+
+  su("#salva-verdetto", "click", async (e) => {
+    const { stagione, competizione, ordine } = bozzaVerdetto;
+    if (!ordine.length) return;
+    e.currentTarget.disabled = true;
+    const gara = REGOLE.competizioni.find((c) => c.id === competizione);
+
+    /* Nell'albo si scrive il nome che la squadra aveva allora, non solo il suo
+       identificativo: fra tre stagioni quella squadra può essersi rinominata o
+       ritirata, e l'albo deve continuare a raccontare cos'è successo. */
+    const classifica = ordine.map((id, i) => ({
+      squadraId: id,
+      nome: squadraDi(id)?.nome ?? "—",
+      capitale: gara.capitale[i] ?? 0,
+      denaro: gara.denaro?.[i] ?? 0,
+    }));
+
+    const id = `${stagione.replace("/", "-")}-${competizione}`;
+    const gia = verdettoDi(stagione, competizione);
+    await db.collection("albo").doc(id).set({
+      stagione, competizione, classifica,
+      scritto: new Date().toISOString(),
+      premiVersati: gia?.premiVersati ?? false,
+    });
+    await annota("albo",
+      `${gara.nome} ${stagione}: vince ${classifica[0].nome}`,
+      classifica[0].squadraId);
+
+    /* La classifica dei tornei lunghi decide anche gli spareggi del mercato
+       (art. 9.4): scriverla qui e poi doverla ricopiare in Gestione sarebbe
+       il modo migliore per ritrovarsi due verità diverse. */
+    if (competizione === "APERTURA" || competizione === "CLAUSURA") {
+      for (const [i, riga] of classifica.entries()) {
+        const squadra = squadraDi(riga.squadraId);
+        if (squadra && squadra.posizione !== i + 1) await scriviSquadra({ ...squadra, posizione: i + 1 });
+      }
+    }
+    chiudiFoglio();
+  });
+
+  su("[data-premi]", "click", async (e) => {
+    const verdetto = stato.albo.find((a) => a.id === e.currentTarget.dataset.premi);
+    if (!verdetto || verdetto.premiVersati) return;
+    const gara = REGOLE.competizioni.find((c) => c.id === verdetto.competizione);
+    const totale = verdetto.classifica.reduce((s, r) => s + (r.capitale ?? 0), 0);
+    if (!confirm(`Verso ${totale} M di premi alle squadre per ${gara.nome} ${verdetto.stagione}. Si fa una volta sola. Procedo?`)) return;
+
+    e.currentTarget.disabled = true;
+    for (const riga of verdetto.classifica) {
+      if (!riga.capitale || !squadraDi(riga.squadraId)) continue;
+      await muoviCapitale(riga.squadraId, aQuarti(riga.capitale), `${gara.nome} ${verdetto.stagione}`);
+    }
+    await db.collection("albo").doc(verdetto.id).set({ ...verdetto, premiVersati: true });
+    await annota("albo", `Premi di ${gara.nome} ${verdetto.stagione} versati: ${totale} M in tutto`, null);
+  });
 }
 
 /* ── Gli effetti del mercato ──────────────────────────────── */
