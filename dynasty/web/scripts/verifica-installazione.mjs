@@ -10,14 +10,10 @@
  * SETUP_TOKEN, con il solo DATABASE_URL, e su un database svuotato.
  */
 import { chromium } from "playwright";
-import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { sql } from "./db.mjs";
 
 const BASE = process.env.BASE ?? "http://127.0.0.1:3101";
-const sql = (q) =>
-  execSync(`PGPASSWORD=maraka psql -h 127.0.0.1 -U maraka -d dynasty -t -A -c "${q.replace(/"/g, '\\"')}"`)
-    .toString()
-    .trim();
 
 let failures = 0;
 function check(label, cond, detail = "") {
@@ -122,7 +118,15 @@ check("una password sbagliata non entra", estraneo.url().includes("/login"));
 // AUTH_SECRET viene generata e conservata, e da lì in poi resta quella. Se
 // invece il server la riceve dall'ambiente — com'è giusto in produzione — nel
 // database non deve comparire nulla: sarebbe una chiave in chiaro di troppo.
-const dallAmbiente = /^\s*AUTH_SECRET\s*=\s*\S/m.test(readFileSync(".env", "utf8").replace(/^#.*$/gm, ""));
+/**
+ * Da dove arriva la chiave. Il `.env` **può non esserci**: è anzi il caso che
+ * questa verifica descrive — server avviato con la sola `DATABASE_URL` — e
+ * pretenderlo faceva morire lo script sull'ultimo controllo, dopo che i sedici
+ * precedenti erano passati, per un file che non doveva esistere.
+ */
+const dallAmbiente =
+  Boolean(process.env.AUTH_SECRET?.trim()) ||
+  (existsSync(".env") && /^\s*AUTH_SECRET\s*=\s*\S/m.test(readFileSync(".env", "utf8").replace(/^#.*$/gm, "")));
 const chiave = sql(`select value from "Setting" where key='app_secret';`);
 if (dallAmbiente) {
   check("con AUTH_SECRET la chiave non finisce nel database", chiave === "", `${chiave.length} caratteri`);

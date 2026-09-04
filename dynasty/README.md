@@ -55,7 +55,7 @@ cd web
 cp .env.example .env          # poi metti DATABASE_URL e AUTH_SECRET
 npm install
 npm run db:push               # crea le tabelle
-npm run db:seed               # lega dimostrativa con 10 squadre e 400 giocatori
+npm run db:seed               # lega dimostrativa con 10 squadre e 531 giocatori
 npm run dev
 ```
 
@@ -71,8 +71,10 @@ I calciatori sono **quelli veri**: il seed legge il listone ufficiale in
 dal pannello a ogni aggiornamento delle quotazioni. Squadre e manager sono invece
 segnaposto, da rinominare alla prima riunione di lega.
 
-Il listone non porta le date di nascita: finché non si importano i dati Transfermarkt i
-contratti Rookie e Veteran non si possono firmare (art. 4.2), e il seed non ne crea nessuno.
+Il listone porta l'età di 526 giocatori su 531, quindi Rookie e Veteran si possono firmare
+dal primo giorno (art. 4.2) e l'idoneità al settore giovanile si legge subito. I cinque
+rimasti restano «da verificare» finché qualcuno non scrive la loro età: sono giocatori che
+il listone stampa senza, non un errore di lettura.
 
 `AUTH_SECRET` firma i cookie di sessione e le impronte delle offerte a busta chiusa. In
 produzione va generata: `openssl rand -base64 32`.
@@ -92,9 +94,10 @@ pagine. Il software legge quindi un foglio compilato o esportato, con una riga p
 giocatore; il modello è scaricabile dal pannello. Sono dati che cambiano poche volte
 l'anno — la data di nascita mai — quindi un import a stagione basta.
 
-Le date di nascita non sono un dettaglio: senza, i contratti Rookie e Veteran non si
-possono firmare (art. 4.2) e i requisiti primavera non si verificano. Il pannello segnala
-quanti giocatori sotto contratto ne sono privi.
+L'età non è un dettaglio: senza, i contratti Rookie e Veteran non si possono firmare
+(art. 4.2) e l'idoneità al settore giovanile non si decide. Da quando il listone la porta,
+l'import Transfermarkt non serve più per firmare: serve per la data di nascita esatta, il
+valore di mercato e la provenienza. Il pannello segnala quanti giocatori ne sono privi.
 
 Quello che non si riconcilia **non si indovina**: finisce in un elenco da risolvere a mano.
 Un abbinamento sbagliato manderebbe i voti sul giocatore di un'altra squadra, ed è un
@@ -137,7 +140,7 @@ modifica di configurazione — che è quello che l'art. 24 prevede — non una r
 ## Verifiche
 
 ```bash
-npm test                  # 85 test unitari sul motore regole
+npm test                  # 102 test unitari sul motore regole
 npm run typecheck
 npm run verifica          # tutte le verifiche end-to-end (serve il server avviato)
 ```
@@ -176,6 +179,13 @@ Due strumenti a parte, che non fanno parte delle verifiche:
 
 Per eseguirle serve il server avviato (`npm run build && npm start`) e il database popolato
 con `npm run db:seed`. Impostano `BASE` se il server non è su `http://127.0.0.1:3100`.
+
+Le verifiche leggono il database direttamente, con `psql`: controllare l'esito di
+un'operazione guardando la pagina che l'ha appena eseguita proverebbe che la pagina è
+coerente con sé stessa, non che il dato è stato scritto. La connessione la prendono da
+`DATABASE_URL` — dall'ambiente o dal `.env` — cioè dalla stessa variabile del server che
+stanno verificando: non c'è un secondo posto in cui configurarla, e non c'è il modo di
+verificare un database mentre se ne guarda un altro.
 
 ---
 

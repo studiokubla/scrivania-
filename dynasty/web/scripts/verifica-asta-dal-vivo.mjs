@@ -11,13 +11,9 @@
  * DATABASE_URL.
  */
 import { chromium } from "playwright";
-import { execSync } from "node:child_process";
+import { sql } from "./db.mjs";
 
 const BASE = process.env.BASE ?? "http://127.0.0.1:3101";
-const sql = (q) =>
-  execSync(`PGPASSWORD=maraka psql -h 127.0.0.1 -U maraka -d dynasty -t -A -c "${q.replace(/"/g, '\\"')}"`)
-    .toString()
-    .trim();
 
 let ko = 0;
 const check = (etichetta, ok, dettaglio = "") => {

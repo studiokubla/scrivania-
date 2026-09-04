@@ -4,15 +4,18 @@ L'applicazione è pubblicata su Vercel. Serve **una sola variabile d'ambiente**,
 `DATABASE_URL`: tutto il resto — chiave di firma delle sessioni compresa — se
 lo genera e se lo conserva da sé al primo avvio.
 
-Indirizzo in uso:
-**https://dynasty-league-r2gj1ivcn-kubla.vercel.app**
+**Adesso non c'è nessun indirizzo attivo.** L'ultimo pubblicato —
+`dynasty-league-r2gj1ivcn-kubla.vercel.app` — risponde `410 Gone`: era
+l'indirizzo di un singolo deploy, e quei deploy non restano in piedi per sempre.
+Per rimettere la lega online si rifà il passo 2 di questa guida.
 
-È l'indirizzo di quel singolo deploy, e cambia a ogni pubblicazione: va bene per
-provare, non per darlo a dieci presidenti. L'indirizzo stabile sarebbe
-`dynasty-league-kubla.vercel.app`, ma va assegnato a mano dal pannello — *Project
-→ Domains → Add* — perché i deploy caricati come pacchetto, senza Git, non se lo
-prendono da soli in modo affidabile. Fatto una volta, resta valido per sempre e
-i manager non devono più cambiare link.
+Ed è la ragione per cui il passo che segue non è facoltativo: l'indirizzo di un
+deploy cambia a ogni pubblicazione e prima o poi scade, quindi va bene per
+provare, non per darlo a dieci presidenti. L'indirizzo stabile —
+`dynasty-league-kubla.vercel.app` — va assegnato a mano dal pannello, *Project →
+Domains → Add*, perché i deploy caricati come pacchetto, senza Git, non se lo
+prendono da soli in modo affidabile. Fatto una volta resta valido per sempre: i
+manager tengono lo stesso link e una ripubblicazione non lo tocca.
 
 ---
 
@@ -148,11 +151,13 @@ niente: si può rilanciare quando si vuole.
    tre scelte al draft. **Le password si vedono una volta sola**: copiale e
    mandale. Se una si perde, il pulsante *Password* ne genera un'altra — la
    vecchia non è recuperabile da nessuno, commissioner compreso.
-2. **Importa le anagrafiche Transfermarkt.** Il listone non porta le date di
-   nascita. Senza quelle non si firmano contratti Rookie e Veteran (art. 4.2)
-   **e non si può dire chi è idoneo al settore giovanile** (art. 16.1): il
-   listone li marca «da verificare» finché il dato non arriva. Il pannello dice
-   quanti ne mancano e da lì si scarica il modello del foglio.
+2. **Le età ci sono già.** Il listone porta l'età di 526 giocatori su 531:
+   Rookie e Veteran si firmano dal primo giorno (art. 4.2) e il filtro
+   *Primavera* del listone dice subito chi è idoneo (art. 16.1). I cinque senza
+   restano marcati «da verificare» finché qualcuno non scrive l'età. L'import
+   Transfermarkt resta utile — data di nascita esatta, valore, provenienza — ma
+   non blocca più niente: il pannello dice quanti ne mancano e da lì si scarica
+   il modello del foglio.
 3. **L'asta si fa al tavolo.** L'applicazione non la conduce: la registra. Il
    commissioner apre il **Listone**, cerca il giocatore appena aggiudicato,
    sceglie la squadra e scrive la cifra; il listone si accorcia e le rose si

@@ -3,13 +3,9 @@
  * premi delle competizioni e manutenzione annuale.
  */
 import { chromium } from "playwright";
-import { execSync } from "node:child_process";
+import { sql } from "./db.mjs";
 
 const BASE = process.env.BASE ?? "http://127.0.0.1:3100";
-const sql = (q) =>
-  execSync(`PGPASSWORD=maraka psql -h 127.0.0.1 -U maraka -d dynasty -t -A -c "${q.replace(/"/g, '\\"')}"`)
-    .toString()
-    .trim();
 
 let failures = 0;
 function check(label, cond, detail = "") {

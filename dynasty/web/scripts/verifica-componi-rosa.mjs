@@ -15,16 +15,12 @@
  * DATABASE_URL.
  */
 import { chromium } from "playwright";
-import { execSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
+import { sql } from "./db.mjs";
 
 const BASE = process.env.BASE ?? "http://127.0.0.1:3101";
 /** Dove appoggiare i fogli di prova. Non TMPDIR: spostarla fa crashare il browser. */
 const TMP = process.env.CARTELLA_PROVE ?? "/tmp";
-const sql = (q) =>
-  execSync(`PGPASSWORD=maraka psql -h 127.0.0.1 -U maraka -d dynasty -t -A -c "${q.replace(/"/g, '\\"')}"`)
-    .toString()
-    .trim();
 
 /**
  * Aspetta che il database dica quello che deve dire.
