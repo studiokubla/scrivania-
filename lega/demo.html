@@ -135,9 +135,10 @@
     return costruisci(null, null);
   }
 
-  window.claude = {
-    use: async (nome) => (nome === "db" ? { doc: documento, collection: collezione } : null),
-  };
+  /* Il database della demo si presenta qui, non al posto di `window.claude`:
+     dentro un artifact pubblicato quell'oggetto è della piattaforma, e provare
+     a rimpiazzarlo lascerebbe la demo senza dati senza dire niente. */
+  window.DYNASTY_DEMO = { doc: documento, collection: collezione };
 
   /* Rimettere la lega di esempio: la demo si esplora, si rompe e si rifà. */
   window.rimettiLaDemo = () => {
@@ -1773,7 +1774,14 @@ riprendiIo();
 disegna();
 
 (async () => {
-  db = await claude.use("db");
+  /* Tre situazioni, un solo avvio:
+     · la lega vera, dove il database arriva dalla piattaforma;
+     · la demo, che ne mette uno finto su `window.DYNASTY_DEMO` — non
+       sovrascrive `window.claude`, che è della piattaforma e in un artifact
+       pubblicato non si lascia sostituire;
+     · la pagina aperta da sola, dove `claude` non esiste affatto e l'unica
+       cosa sensata è dirlo invece di rompersi. */
+  db = window.DYNASTY_DEMO ?? (typeof claude !== "undefined" ? await claude.use("db") : null);
   if (!db) { stato.pronto = true; disegna(); return; }
   ascolta();
 })();
