@@ -16,7 +16,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 
-const COMMIT = "af4e612108eb4035eaf2e66e66b230f400489c44";
+const COMMIT = "d10ee3d18004597fd6a76d02a053197c7ec58271";
 const ARCHIVIO = `https://codeload.github.com/studiokubla/scrivania-/tar.gz/${COMMIT}`;
 
 /**
