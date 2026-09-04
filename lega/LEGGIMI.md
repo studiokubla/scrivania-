@@ -15,7 +15,7 @@ lega è rimasta senza gestionale. Qui non c'è niente che possa scadere.
 | File | Cosa contiene |
 | --- | --- |
 | `app.html` | l'applicazione intera: stile, regolamento, motore regole, interfaccia |
-| `listone.json` | i 531 giocatori di Serie A 2026/27, che al momento della pubblicazione vengono incorporati nella pagina |
+| `listone.json` | i 531 giocatori di Serie A 2026/27 con i **ruoli Mantra**; `componi.mjs` lo incorpora in `app.html` a ogni ricomposizione |
 | `demo.html` | la demo autonoma: un file solo, apribile con un doppio clic, con una lega di esempio già giocata |
 | `demo-guscio.html` | il guscio della demo: un database finto su `localStorage` al posto di quello condiviso |
 | `demo-dati.json` | la lega di esempio — dieci squadre, 250 contratti, 60 voci di registro |
@@ -64,6 +64,13 @@ resta sul tetto fino a fine stagione: la rosa torna a ventiquattro, lo spazio
 salariale no. È la regola che rende il mercato una cosa seria — un contratto
 firmato è una decisione che si porta fino in fondo. A stagione conclusa il
 commissioner li libera tutti insieme da *Gestione → Fine stagione*.
+
+**Il fantacalcio è Mantra**: ogni giocatore porta i suoi ruoli veri — Por, Dd,
+Dc, Ds, B, E, M, C, W, T, A, Pc — e 270 su 531 ne hanno più d'uno. Si vedono
+accanto al nome ovunque, per esteso al momento della firma, e il listone si
+filtra per ruolo Mantra oltre che per reparto. La rosa mostra quanti ne hai per
+ruolo: sapere di avere otto difensori non dice se puoi schierare una difesa a
+tre.
 
 **Non ci sono minimi per ruolo**: si può stare con un portiere solo, purché la
 rosa resti fra 25 e 30 giocatori. È una scelta di questa lega rispetto all'art.

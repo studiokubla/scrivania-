@@ -12,7 +12,24 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const leggi = (nome) => readFileSync(new URL(nome, import.meta.url), "utf8");
-const app = leggi("app.html");
+
+/* ── Prima di tutto: il listone dentro l'applicazione ──────────
+   Il listone viaggia incorporato nella pagina, e la prima volta ce l'ho messo
+   a mano. Quando poi è stato rigenerato — per aggiungere i ruoli Mantra — il
+   file aggiornato è rimasto fuori, e l'applicazione ha continuato a servire
+   quello vecchio senza dire niente. Adesso lo rimette a posto questo script:
+   `listone.json` è la fonte, `app.html` ne è solo il contenitore. */
+const listone = leggi("listone.json").trim();
+let app = leggi("app.html");
+const sostituito = app.replace(
+  /const LISTONE_GREZZO = .*?;\n/s,
+  "const LISTONE_GREZZO = " + listone + ";\n",
+);
+if (sostituito !== app) {
+  writeFileSync(new URL("app.html", import.meta.url), sostituito);
+  app = sostituito;
+  console.log("listone.json → app.html   il listone è stato riallineato");
+}
 
 /* ── Il sito pubblico: Firebase ───────────────────────────── */
 writeFileSync(new URL("index.html", import.meta.url), leggi("sito-guscio.html") + app + "\n</body>\n</html>\n");
