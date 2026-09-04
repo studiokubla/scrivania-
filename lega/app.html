@@ -1,129 +1,123 @@
 <title>Dynasty League</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Archivo:wght@400;500;600;700&display=swap">
 
 <style>
 /* ─────────────────────────────────────────────────────────────
    Dynasty League — il front office di una lega da dieci squadre.
-   Tavolo verde e inchiostro: i colori del campo, non quelli di un
-   foglio di calcolo. I numeri sono sempre tabulari perché nelle
-   colonne del tetto salariale le cifre devono incolonnarsi.
+
+   Notte e lime. Il fondo è quasi nero, l'accento è il verde acceso
+   dei campi illuminati, e la luce arriva da aloni sfocati che stanno
+   dietro al contenuto invece che da bordi e ombre. Le superfici sono
+   vetro: si vede attraverso, appena.
+
+   È un design **deliberatamente scuro**, uno solo: non segue il tema
+   di chi guarda, perché il verde acceso su fondo chiaro perde tutto.
+   Per questo ogni colore è dichiarato, nessuno ereditato.
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  /* Carta fredda, inchiostro con bias verde: il verde è il colore
-     strutturale della lega, non un accento acceso buttato sopra. */
-  --carta:          #F7F7F3;
-  --carta-alta:     #FFFFFF;
-  --carta-bassa:    #EBEDE6;
-  --bordo:          #DADDD2;
-  --bordo-forte:    #C3C7B9;
-  --inchiostro:     #14170F;
-  --inchiostro-med: #5B6154;
-  --inchiostro-lieve:#868C7E;
+  color-scheme: dark;
 
-  --campo:          #1E5F3F;
-  --campo-chiaro:   #E4EFE7;
-  --campo-vivo:     #2C7A52;
+  /* Il fondo non è nero puro: è un nero con dentro un po' di verde,
+     così l'accento non ci atterra sopra come su una lavagna. */
+  --notte:        #0B0E0B;
+  --notte-alta:   #12160F;
 
-  --allarme:        #96271A;
-  --allarme-tenue:  #F7E4E1;
-  --avviso:         #8A6110;
-  --avviso-tenue:   #F7EEDC;
-  --ok:             #1E5F3F;
-  --ok-tenue:       #E4EFE7;
+  /* Le superfici sono trasparenze, non tinte piatte: prendono luce da
+     quello che hanno sotto. */
+  --vetro:        rgba(255, 255, 255, .045);
+  --vetro-alto:   rgba(255, 255, 255, .075);
+  --vetro-basso:  rgba(255, 255, 255, .025);
+  --bordo:        rgba(255, 255, 255, .09);
+  --bordo-forte:  rgba(255, 255, 255, .16);
 
-  --ombra: 0 1px 2px rgba(20,23,15,.06), 0 4px 14px rgba(20,23,15,.05);
-  --ombra-alta: 0 2px 6px rgba(20,23,15,.10), 0 18px 40px rgba(20,23,15,.12);
+  --luce:         #F2F5EE;
+  --luce-media:   #A7B0A0;
+  --luce-fioca:   #6E766A;
 
-  --raggio: 12px;
-  --raggio-s: 8px;
-  --display: "Bricolage Grotesque", "Archivo", system-ui, sans-serif;
-  --testo: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
-}
+  /* Il lime è il colore che comanda. Il verde profondo serve solo agli
+     aloni, dove non deve gridare. */
+  --lime:         #C8F751;
+  --lime-caldo:   #A8E63F;
+  --lime-fioco:   rgba(200, 247, 81, .14);
+  --verde-cupo:   #1E4D2B;
+  --verde-alone:  #2F7A3F;
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --carta:          #12140F;
-    --carta-alta:     #1B1E17;
-    --carta-bassa:    #23271E;
-    --bordo:          #2E3328;
-    --bordo-forte:    #434839;
-    --inchiostro:     #EFF0E9;
-    --inchiostro-med: #A2A899;
-    --inchiostro-lieve:#7C8375;
+  --allarme:      #FF8A72;
+  --allarme-tenue: rgba(255, 138, 114, .13);
+  --avviso:       #F0C766;
+  --avviso-tenue: rgba(240, 199, 102, .12);
+  --ok:           var(--lime);
+  --ok-tenue:     var(--lime-fioco);
 
-    --campo:          #63BE8B;
-    --campo-chiaro:   #1C2C22;
-    --campo-vivo:     #7ED3A3;
+  /* Nel buio le ombre non si vedono: la profondità la fanno il bordo
+     chiaro in cima e l'alone colorato. */
+  --ombra:      0 1px 0 rgba(255,255,255,.05) inset, 0 10px 30px rgba(0,0,0,.5);
+  --ombra-alta: 0 1px 0 rgba(255,255,255,.07) inset, 0 24px 60px rgba(0,0,0,.65);
+  --alone-lime: 0 8px 30px rgba(200, 247, 81, .28);
 
-    --allarme:        #E98B7C;
-    --allarme-tenue:  #2E1D19;
-    --avviso:         #DDB25A;
-    --avviso-tenue:   #2B2416;
-    --ok:             #63BE8B;
-    --ok-tenue:       #1C2C22;
+  --raggio:   22px;
+  --raggio-s: 16px;
+  --raggio-xs: 12px;
 
-    --ombra: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
-    --ombra-alta: 0 2px 6px rgba(0,0,0,.5), 0 18px 40px rgba(0,0,0,.45);
-  }
-}
-
-:root[data-theme="dark"] {
-  --carta:          #12140F;
-  --carta-alta:     #1B1E17;
-  --carta-bassa:    #23271E;
-  --bordo:          #2E3328;
-  --bordo-forte:    #434839;
-  --inchiostro:     #EFF0E9;
-  --inchiostro-med: #A2A899;
-  --inchiostro-lieve:#7C8375;
-
-  --campo:          #63BE8B;
-  --campo-chiaro:   #1C2C22;
-  --campo-vivo:     #7ED3A3;
-
-  --allarme:        #E98B7C;
-  --allarme-tenue:  #2E1D19;
-  --avviso:         #DDB25A;
-  --avviso-tenue:   #2B2416;
-  --ok:             #63BE8B;
-  --ok-tenue:       #1C2C22;
-
-  --ombra: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
-  --ombra-alta: 0 2px 6px rgba(0,0,0,.5), 0 18px 40px rgba(0,0,0,.45);
+  --display: "Manrope", system-ui, sans-serif;
+  --testo:   "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --numeri:  "Archivo", system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: var(--carta);
-  color: var(--inchiostro);
+  background: var(--notte);
+  color: var(--luce);
   font-family: var(--testo);
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   padding-bottom: env(safe-area-inset-bottom);
+  min-height: 100vh;
 }
 
-h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -.015em; }
-h1 { font-size: clamp(26px, 5vw, 38px); font-weight: 800; line-height: 1.05; }
-h2 { font-size: 20px; font-weight: 600; }
-h3 { font-size: 16px; font-weight: 600; }
+/**
+ * La luce della pagina.
+ *
+ * Due aloni sfocati, uno verde acceso in alto a destra e uno più cupo in
+ * basso a sinistra, dipinti dietro a tutto. È da lì che viene la
+ * profondità: nel buio le ombre non si vedono, la luce sì. Restano fermi
+ * mentre il contenuto scorre, così la pagina sembra appoggiata su una
+ * superficie invece che stampata.
+ */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(70vw 55vh at 88% -8%,  rgba(200, 247, 81, .22), transparent 62%),
+    radial-gradient(60vw 50vh at 5% 18%,   rgba(47, 122, 63, .30),  transparent 66%),
+    radial-gradient(80vw 60vh at 50% 108%, rgba(47, 122, 63, .18),  transparent 70%),
+    var(--notte);
+}
+
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
+/* I titoli sono grandi e leggeri: in una pagina scura il peso lo dà la
+   dimensione, e il grassetto su fondo nero impasta. */
+h1 { font-size: clamp(34px, 9vw, 46px); font-weight: 500; line-height: 1.02; letter-spacing: -.035em; }
+h2 { font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
+h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
 p { margin: 0; }
 
-.num { font-variant-numeric: tabular-nums; }
+.num { font-family: var(--numeri); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
 
 .occhiello {
-  font-size: 11px; font-weight: 600; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--inchiostro-lieve);
+  font-size: 11px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--luce-fioca);
 }
 
 button { font-family: inherit; font-size: inherit; cursor: pointer; }
-button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
-  outline: 2px solid var(--campo); outline-offset: 2px;
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--lime); outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -134,254 +128,377 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 
 .guscio { min-height: 100vh; display: flex; flex-direction: column; }
 
+/* La testata sta ferma mentre il contenuto le scorre sotto, e sotto ci
+   passa anche la carta lime del tetto: con un velo troppo leggero il
+   nome della lega diventava illeggibile per un istante. Il fondo è
+   quindi quasi pieno, e sfuma sotto invece di tagliare netto. */
 .testata {
   position: sticky; top: 0; z-index: 30;
   display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px;
-  background: color-mix(in srgb, var(--carta) 88%, transparent);
-  backdrop-filter: blur(10px);
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(9, 12, 9, .94) 0%, rgba(9, 12, 9, .88) 70%, rgba(9, 12, 9, .78) 100%);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
   border-bottom: 1px solid var(--bordo);
 }
 .marchio {
   display: flex; align-items: center; gap: 9px; min-width: 0;
-  font-family: var(--display); font-weight: 800; letter-spacing: -.02em;
+  font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .marchio .sigla {
-  width: 26px; height: 26px; border-radius: 7px; flex: none;
-  background: var(--campo); color: var(--carta-alta);
-  display: grid; place-items: center; font-size: 14px; line-height: 1;
-  color: #F7F7F3;
+  width: 28px; height: 28px; border-radius: 9px; flex: none;
+  background: linear-gradient(145deg, var(--lime), var(--lime-caldo));
+  color: #0B0E0B;
+  display: grid; place-items: center; font-size: 14px; font-weight: 800; line-height: 1;
+  box-shadow: var(--alone-lime);
 }
-.testata .spinta { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.chi-sono { font-size: 12px; color: var(--inchiostro-med); text-align: right; line-height: 1.25; }
-.chi-sono b { display: block; color: var(--inchiostro); font-size: 13px; }
+.testata .spinta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.chi-sono { font-size: 12px; color: var(--luce-fioca); text-align: right; line-height: 1.25; }
+.chi-sono b { display: block; color: var(--luce); font-size: 13px; font-weight: 600; }
 
-.lavoro { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 20px 16px 110px; }
-@media (min-width: 860px) { .lavoro { padding-bottom: 40px; } }
+.lavoro { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 22px 16px 140px; }
+@media (min-width: 860px) { .lavoro { padding-bottom: 48px; } }
 
-/* Navigazione: in basso sul telefono (all'asta si sta seduti col
-   telefono in mano), in linea sotto la testata sullo schermo grande. */
+/* La navigazione galleggia in basso, dove arriva il pollice. Vetro scuro
+   e la voce attiva accesa di lime: si trova senza cercarla. */
 .navigazione {
-  position: fixed; left: 50%; transform: translateX(-50%); bottom: 14px; z-index: 40;
-  display: flex; gap: 2px; padding: 5px;
-  background: var(--inchiostro); border-radius: 999px;
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; z-index: 40;
+  display: flex; gap: 3px; padding: 6px;
+  background: rgba(20, 25, 20, .72);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid var(--bordo-forte);
+  border-radius: 999px;
   box-shadow: var(--ombra-alta);
   max-width: calc(100vw - 24px); overflow-x: auto; scrollbar-width: none;
 }
 .navigazione::-webkit-scrollbar { display: none; }
 .navigazione button {
-  border: 0; background: transparent; color: #CFD3C6;
-  padding: 9px 14px; border-radius: 999px; white-space: nowrap;
-  font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px;
+  border: 0; background: transparent; color: var(--luce-media);
+  padding: 10px 16px; border-radius: 999px; white-space: nowrap;
+  font-size: 13.5px; font-weight: 500; transition: color .15s ease, background .15s ease;
 }
-.navigazione button[aria-current="page"] { background: var(--campo-vivo); color: #0B1A12; font-weight: 600; }
-:root[data-theme="dark"] .navigazione { background: #262B20; }
+.navigazione button:hover { color: var(--luce); }
+.navigazione button[aria-current="page"] {
+  background: linear-gradient(145deg, var(--lime), var(--lime-caldo));
+  color: #0B0E0B; font-weight: 700;
+  box-shadow: var(--alone-lime);
+}
 
 @media (min-width: 860px) {
   .navigazione {
-    position: sticky; top: 57px; transform: none; left: auto; bottom: auto;
-    margin: 0 auto 4px; width: fit-content; max-width: none;
+    position: sticky; top: 68px; transform: none; left: auto; bottom: auto;
+    margin: 0 auto 6px; width: fit-content; max-width: none;
   }
 }
 
 /* ── Blocchi ──────────────────────────────────────────────── */
 
-.sezione { margin-bottom: 28px; }
-.intestazione-sezione { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.sezione { margin-bottom: 30px; }
+.intestazione-sezione { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 13px; }
 .intestazione-sezione .conteggio {
-  font-size: 12px; font-weight: 600; color: var(--campo);
-  background: var(--campo-chiaro); padding: 2px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; color: var(--lime);
+  background: var(--lime-fioco); padding: 3px 10px; border-radius: 999px;
 }
 
+/* Vetro: si vede attraverso, prende luce dagli aloni e ha un filo di
+   bordo chiaro in cima, come una superficie inclinata verso la luce. */
 .riquadro {
-  background: var(--carta-alta); border: 1px solid var(--bordo);
-  border-radius: var(--raggio); padding: 16px;
+  background: var(--vetro);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  padding: 18px;
 }
 
-/* Il pannello del tetto salariale: è il numero che comanda tutto,
-   quindi è l'unico elemento che si prende il fondo pieno. */
+/**
+ * La carta del tetto salariale.
+ *
+ * È il numero che comanda tutto, e si prende l'unico gradiente pieno
+ * della pagina — come la carta di un conto. Il testo ci sta sopra in
+ * scuro, che sul lime è l'unico modo per leggerlo davvero.
+ */
 .tetto {
-  background: var(--inchiostro); color: var(--carta);
-  border-radius: var(--raggio); padding: 18px 20px;
-  display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end;
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 88% 0%, rgba(255,255,255,.35), transparent 55%),
+    linear-gradient(150deg, var(--lime) 0%, var(--lime-caldo) 45%, #4E9E45 100%);
+  color: #09140A;
+  border-radius: var(--raggio); padding: 22px;
+  display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;
+  box-shadow: 0 18px 44px rgba(120, 190, 50, .22);
 }
-:root[data-theme="dark"] .tetto { background: var(--carta-bassa); color: var(--inchiostro); border: 1px solid var(--bordo); }
-.tetto .cifra { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 8vw, 46px); line-height: .95; letter-spacing: -.03em; }
-.tetto .sotto { font-size: 13px; opacity: .72; margin-top: 4px; }
-.tetto.sforato .cifra { color: #F0A79A; }
+.tetto .occhiello { color: rgba(9, 20, 10, .58); }
+.tetto .cifra {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(38px, 11vw, 54px); line-height: .92; letter-spacing: -.045em;
+}
+.tetto .sotto { font-size: 13px; color: rgba(9, 20, 10, .66); margin-top: 5px; font-weight: 500; }
+.tetto.sforato {
+  background:
+    radial-gradient(120% 140% at 88% 0%, rgba(255,255,255,.3), transparent 55%),
+    linear-gradient(150deg, #FFB199 0%, #F08A6E 50%, #A43F28 100%);
+}
 
-.barra-tetto { width: 100%; height: 7px; border-radius: 999px; background: rgba(255,255,255,.16); overflow: hidden; }
-:root[data-theme="dark"] .barra-tetto { background: var(--bordo); }
-.barra-tetto span { display: block; height: 100%; background: var(--campo-vivo); border-radius: 999px; transition: width .35s ease; }
-.barra-tetto span.sforato { background: #E9836F; }
+.barra-tetto { width: 100%; height: 8px; border-radius: 999px; background: rgba(9, 20, 10, .18); overflow: hidden; }
+.barra-tetto span { display: block; height: 100%; background: #09140A; border-radius: 999px; transition: width .4s cubic-bezier(.2,.7,.3,1); }
+.barra-tetto span.sforato { background: #5A1A0C; }
 
-.griglia-dati { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
-.dato { background: var(--carta-bassa); border-radius: var(--raggio-s); padding: 11px 13px; }
-.dato .etichetta { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--inchiostro-lieve); }
-.dato .valore { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.2; margin-top: 2px; }
-.dato .nota { font-size: 12px; color: var(--inchiostro-med); }
+.griglia-dati { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 10px; }
+.dato {
+  background: var(--vetro); border: 1px solid var(--bordo);
+  border-radius: var(--raggio-s); padding: 13px 15px;
+}
+.dato .etichetta { font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--luce-fioca); }
+.dato .valore { font-family: var(--display); font-weight: 700; font-size: 23px; line-height: 1.15; margin-top: 3px; letter-spacing: -.03em; }
+.dato .nota { font-size: 12px; color: var(--luce-media); }
 .dato.manca .valore { color: var(--allarme); }
 
 /* ── Giocatori ────────────────────────────────────────────── */
 
-.elenco { display: flex; flex-direction: column; background: var(--carta-alta); border: 1px solid var(--bordo); border-radius: var(--raggio); overflow: hidden; }
+.elenco {
+  display: flex; flex-direction: column;
+  background: var(--vetro);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio); overflow: hidden;
+}
 .voce {
-  display: flex; align-items: center; gap: 11px;
-  padding: 11px 13px; border-bottom: 1px solid var(--bordo);
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 15px; border-bottom: 1px solid var(--bordo);
   background: none; border-left: 0; border-right: 0; border-top: 0;
   width: 100%; text-align: left; color: inherit;
+  transition: background .15s ease;
 }
 .voce:last-child { border-bottom: 0; }
-button.voce:hover { background: var(--carta-bassa); }
-.voce .nome { font-weight: 600; }
+button.voce:hover { background: var(--vetro-alto); }
+.voce .nome { font-weight: 600; letter-spacing: -.01em; }
 /* I ruoli Mantra accanto al nome: si leggono a colpo d'occhio e non rubano
    la scena al nome, che resta la cosa che si cerca. */
 .mantra {
+  font-family: var(--numeri);
   font-size: 11px; font-weight: 600; letter-spacing: .04em;
-  color: var(--inchiostro-lieve); white-space: nowrap;
+  color: var(--lime); opacity: .8; white-space: nowrap;
 }
-.pillola.mantra-filtro { font-family: var(--testo); min-width: 42px; }
-.voce .dettaglio { font-size: 12.5px; color: var(--inchiostro-med); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pillola.mantra-filtro { font-family: var(--numeri); min-width: 44px; }
+.voce .dettaglio { font-size: 12.5px; color: var(--luce-fioca); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .voce .corpo { min-width: 0; flex: 1; }
 .voce .coda { margin-left: auto; text-align: right; flex: none; display: flex; align-items: center; gap: 10px; }
-.voce .prezzo { font-family: var(--display); font-weight: 600; font-size: 15px; }
+.voce .prezzo { font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: -.02em; }
 
 .ruolo {
-  width: 26px; height: 26px; flex: none; border-radius: 7px;
-  display: grid; place-items: center; font-size: 12px; font-weight: 700;
+  width: 30px; height: 30px; flex: none; border-radius: 10px;
+  display: grid; place-items: center; font-size: 12px; font-weight: 800;
+  font-family: var(--numeri);
 }
-.ruolo.P { background: #F6E2C3; color: #6A4708; }
-.ruolo.D { background: #D3E3F5; color: #1B4A76; }
-.ruolo.C { background: #D8EEDC; color: #1C5732; }
-.ruolo.A { background: #F7D8D8; color: #7C2620; }
-:root[data-theme="dark"] .ruolo.P { background: #3A2E15; color: #EEC77E; }
-:root[data-theme="dark"] .ruolo.D { background: #17293A; color: #94C2EA; }
-:root[data-theme="dark"] .ruolo.C { background: #16301F; color: #85CF9F; }
-:root[data-theme="dark"] .ruolo.A { background: #38201D; color: #E9A099; }
+/* Un colore per reparto, tenuto basso di saturazione: nel buio le tinte
+   accese si prendono l'attenzione che spetta ai numeri. */
+.ruolo.P { background: rgba(240, 199, 102, .16); color: #F0C766; }
+.ruolo.D { background: rgba(122, 176, 255, .15); color: #8FBEFF; }
+.ruolo.C { background: rgba(200, 247, 81, .15);  color: var(--lime); }
+.ruolo.A { background: rgba(255, 138, 114, .15); color: #FF9F8A; }
 
 .targhetta {
   display: inline-flex; align-items: center; gap: 4px;
-  font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
   border: 1px solid transparent; white-space: nowrap;
 }
-.targhetta.ok { background: var(--ok-tenue); color: var(--ok); }
+.targhetta.ok { background: var(--lime-fioco); color: var(--lime); }
 .targhetta.forse { background: var(--avviso-tenue); color: var(--avviso); }
 .targhetta.no { background: var(--allarme-tenue); color: var(--allarme); }
-.targhetta.neutra { background: var(--carta-bassa); color: var(--inchiostro-med); }
-.targhetta.contratto { background: var(--carta-bassa); color: var(--inchiostro-med); border-color: var(--bordo); }
+.targhetta.neutra { background: var(--vetro-alto); color: var(--luce-media); }
+.targhetta.contratto { background: var(--vetro-alto); color: var(--luce-media); border-color: var(--bordo); }
 
 /* ── Comandi ──────────────────────────────────────────────── */
 
-.filtri { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
-.pillola {
-  border: 1px solid var(--bordo-forte); background: var(--carta-alta); color: var(--inchiostro-med);
-  padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 500;
-}
-.pillola[aria-pressed="true"] { background: var(--inchiostro); color: var(--carta); border-color: var(--inchiostro); font-weight: 600; }
-.pillola.primavera[aria-pressed="true"] { background: var(--campo); border-color: var(--campo); color: #F7F7F3; }
+.filtri { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 0; }
 
-input[type="text"], input[type="number"], input[type="search"], select {
-  width: 100%; padding: 11px 13px; font-size: 15px; font-family: inherit;
-  color: var(--inchiostro); background: var(--carta-alta);
-  border: 1px solid var(--bordo-forte); border-radius: var(--raggio-s);
+/* I dodici ruoli Mantra stanno su una riga sola che scorre col dito.
+   A capo occupavano mezzo schermo, e sopra un elenco di 531 giocatori
+   metà schermo di filtri è metà schermo tolto ai giocatori. */
+.filtri.scorrevoli {
+  flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+  margin: 0 -16px 13px; padding: 2px 16px;
+  scroll-snap-type: x proximity;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 26px), transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 26px), transparent);
 }
-input::placeholder { color: var(--inchiostro-lieve); }
+.filtri.scorrevoli::-webkit-scrollbar { display: none; }
+.filtri.scorrevoli .pillola { flex: none; scroll-snap-align: start; }
+.pillola {
+  border: 1px solid var(--bordo); background: var(--vetro); color: var(--luce-media);
+  padding: 8px 15px; border-radius: 999px; font-size: 13px; font-weight: 500;
+  transition: all .15s ease;
+}
+.pillola:hover { color: var(--luce); border-color: var(--bordo-forte); }
+.pillola[aria-pressed="true"] {
+  background: var(--luce); color: #0B0E0B; border-color: var(--luce); font-weight: 600;
+}
+.pillola.primavera[aria-pressed="true"], .pillola.mantra-filtro[aria-pressed="true"] {
+  background: linear-gradient(145deg, var(--lime), var(--lime-caldo));
+  border-color: var(--lime); color: #0B0E0B;
+  box-shadow: var(--alone-lime);
+}
+
+input[type="text"], input[type="number"], input[type="search"], select, textarea {
+  width: 100%; padding: 13px 15px; font-size: 15px; font-family: inherit;
+  color: var(--luce); background: var(--vetro);
+  border: 1px solid var(--bordo); border-radius: var(--raggio-s);
+  transition: border-color .15s ease, background .15s ease;
+}
+input:focus, select:focus, textarea:focus { background: var(--vetro-alto); border-color: var(--bordo-forte); }
+input::placeholder, textarea::placeholder { color: var(--luce-fioca); }
+select option { background: var(--notte-alta); color: var(--luce); }
 label.campo { display: block; }
-label.campo > span { display: block; font-size: 12px; font-weight: 600; color: var(--inchiostro-med); margin-bottom: 5px; }
+label.campo > span { display: block; font-size: 12px; font-weight: 600; color: var(--luce-fioca); margin-bottom: 6px; }
 
 .bottone {
-  border: 1px solid var(--bordo-forte); background: var(--carta-alta); color: var(--inchiostro);
-  padding: 11px 16px; border-radius: var(--raggio-s); font-weight: 600; font-size: 14px;
+  border: 1px solid var(--bordo-forte); background: var(--vetro-alto); color: var(--luce);
+  padding: 12px 18px; border-radius: 999px; font-weight: 600; font-size: 14px;
+  transition: all .15s ease;
 }
-.bottone:hover { background: var(--carta-bassa); }
-.bottone.primario { background: var(--campo); border-color: var(--campo); color: #F7F7F3; }
-.bottone.primario:hover { background: var(--campo-vivo); }
-.bottone.pericolo { color: var(--allarme); border-color: var(--allarme); background: transparent; }
-.bottone[disabled] { opacity: .45; cursor: not-allowed; }
+.bottone:hover { background: rgba(255,255,255,.12); }
+/* Il bottone che conta è lime pieno con testo scuro: in una pagina di
+   vetro è l'unica cosa solida, e si vede che è quella da premere. */
+.bottone.primario {
+  background: linear-gradient(145deg, var(--lime), var(--lime-caldo));
+  border-color: transparent; color: #0B0E0B; font-weight: 700;
+  box-shadow: var(--alone-lime);
+}
+.bottone.primario:hover { filter: brightness(1.06); }
+.bottone.pericolo { color: var(--allarme); border-color: rgba(255,138,114,.4); background: var(--allarme-tenue); }
+.bottone[disabled] { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .bottone.largo { width: 100%; }
-.bottone.piccolo { padding: 6px 11px; font-size: 13px; }
+.bottone.piccolo { padding: 7px 13px; font-size: 13px; }
 
-.avviso { padding: 12px 14px; border-radius: var(--raggio-s); font-size: 13.5px; line-height: 1.45; }
-.avviso.errore { background: var(--allarme-tenue); color: var(--allarme); }
-.avviso.attenzione { background: var(--avviso-tenue); color: var(--avviso); }
-.avviso.bene { background: var(--ok-tenue); color: var(--ok); }
-.avviso.neutro { background: var(--carta-bassa); color: var(--inchiostro-med); }
+.avviso { padding: 13px 15px; border-radius: var(--raggio-s); font-size: 13.5px; line-height: 1.5; border: 1px solid transparent; }
+.avviso.errore { background: var(--allarme-tenue); color: var(--allarme); border-color: rgba(255,138,114,.25); }
+.avviso.attenzione { background: var(--avviso-tenue); color: var(--avviso); border-color: rgba(240,199,102,.22); }
+.avviso.bene { background: var(--lime-fioco); color: var(--lime); border-color: rgba(200,247,81,.25); }
+.avviso.neutro { background: var(--vetro); color: var(--luce-media); border-color: var(--bordo); }
 
-.vuoto { text-align: center; padding: 34px 18px; color: var(--inchiostro-med); font-size: 14px; }
+.vuoto { text-align: center; padding: 38px 20px; color: var(--luce-fioca); font-size: 14px; }
 
 /* ── Foglio che sale ──────────────────────────────────────── */
 
 .velo {
-  position: fixed; inset: 0; z-index: 60; background: rgba(12,14,10,.5);
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(5, 7, 5, .72);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   display: flex; align-items: flex-end; justify-content: center;
 }
 @media (min-width: 700px) { .velo { align-items: center; } }
 .foglio {
-  background: var(--carta); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
-  border-radius: 18px 18px 0 0; padding: 20px 18px calc(24px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #171C15 0%, var(--notte-alta) 100%);
+  border: 1px solid var(--bordo-forte); border-bottom: 0;
+  width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+  border-radius: 26px 26px 0 0; padding: 22px 18px calc(26px + env(safe-area-inset-bottom));
   box-shadow: var(--ombra-alta);
 }
-@media (min-width: 700px) { .foglio { border-radius: 16px; padding-bottom: 22px; } }
-.foglio-testa { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
-.foglio-testa .chiudi { margin-left: auto; border: 0; background: var(--carta-bassa); color: var(--inchiostro-med); width: 30px; height: 30px; border-radius: 999px; font-size: 17px; line-height: 1; flex: none; }
-
-.moduli { display: flex; flex-direction: column; gap: 13px; }
-.scelte { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
-.scelta {
-  text-align: left; border: 1px solid var(--bordo-forte); background: var(--carta-alta);
-  border-radius: var(--raggio-s); padding: 10px 12px; color: inherit;
+@media (min-width: 700px) { .foglio { border-radius: 24px; border-bottom: 1px solid var(--bordo-forte); padding-bottom: 24px; } }
+.foglio-testa { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+.foglio-testa .chiudi {
+  margin-left: auto; border: 1px solid var(--bordo); background: var(--vetro); color: var(--luce-media);
+  width: 32px; height: 32px; border-radius: 999px; font-size: 17px; line-height: 1; flex: none;
 }
-.scelta[aria-pressed="true"] { border-color: var(--campo); background: var(--campo-chiaro); box-shadow: inset 0 0 0 1px var(--campo); }
-.scelta[disabled] { opacity: .5; }
-.scelta b { display: block; font-size: 14px; }
-.scelta small { color: var(--inchiostro-med); font-size: 11.5px; line-height: 1.35; display: block; }
+
+.moduli { display: flex; flex-direction: column; gap: 14px; }
+.scelte { display: grid; grid-template-columns: repeat(auto-fit, minmax(152px, 1fr)); gap: 8px; }
+.scelta {
+  text-align: left; border: 1px solid var(--bordo); background: var(--vetro);
+  border-radius: var(--raggio-s); padding: 12px 14px; color: inherit;
+  transition: all .15s ease;
+}
+.scelta:hover { border-color: var(--bordo-forte); background: var(--vetro-alto); }
+.scelta[aria-pressed="true"] {
+  border-color: var(--lime); background: var(--lime-fioco);
+  box-shadow: 0 0 0 1px var(--lime) inset;
+}
+.scelta[disabled] { opacity: .38; }
+.scelta b { display: block; font-size: 14px; font-weight: 600; }
+.scelta small { color: var(--luce-fioca); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px; }
+
+.tabellina { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tabellina th { text-align: left; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--luce-fioca); padding: 0 10px 9px; font-weight: 600; }
+.tabellina td { padding: 11px 10px; border-top: 1px solid var(--bordo); }
+.tabellina td.n { text-align: right; font-family: var(--numeri); font-variant-numeric: tabular-nums; }
+.scorre { overflow-x: auto; }
 
 /* ── L'albo d'oro ─────────────────────────────────────────────
-   L'unica parte dell'applicazione che guarda indietro invece che avanti,
-   e l'unica dove un po' di solennità è nel posto giusto: qui si legge
-   chi ha vinto, e resta scritto. */
+   L'unica parte che guarda indietro invece che avanti, e l'unica dove
+   un po' di solennità è nel posto giusto: qui si legge chi ha vinto, e
+   resta scritto. */
 
 .albo-vuoto { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
-.podio { display: flex; flex-direction: column; gap: 6px; }
+.podio { display: flex; flex-direction: column; gap: 7px; }
 .gradino {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 12px; border-radius: var(--raggio-s);
-  background: var(--carta-bassa);
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 14px; border-radius: var(--raggio-s);
+  background: var(--vetro); border: 1px solid var(--bordo);
 }
 .gradino .posto {
-  width: 22px; height: 22px; flex: none; border-radius: 999px;
+  width: 24px; height: 24px; flex: none; border-radius: 999px;
   display: grid; place-items: center;
-  font-family: var(--display); font-size: 12px; font-weight: 800;
-  background: var(--bordo-forte); color: var(--carta-alta);
+  font-family: var(--numeri); font-size: 12px; font-weight: 700;
+  background: var(--vetro-alto); color: var(--luce-media);
 }
-.gradino .chi { font-weight: 600; flex: 1; min-width: 0; }
-.gradino .premio { font-family: var(--display); font-weight: 600; font-size: 14px; }
-.gradino .premio-denaro { font-size: 12px; color: var(--inchiostro-lieve); }
+.gradino .chi { font-weight: 600; flex: 1; min-width: 0; letter-spacing: -.01em; }
+.gradino .premio { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: -.02em; }
+.gradino .premio-denaro { font-size: 12px; color: var(--luce-fioca); font-family: var(--numeri); }
 
-/* Oro, argento e bronzo: tre tinte, non tre emoji. Le medaglie disegnate
-   con i caratteri si vedono diverse su ogni telefono. */
-.gradino.oro      { background: #F6EEDA; }
-.gradino.oro .posto      { background: #B08324; }
-.gradino.argento  { background: #EDEEF0; }
-.gradino.argento .posto  { background: #8A8F96; }
-.gradino.bronzo   { background: #F2E7DF; }
-.gradino.bronzo .posto   { background: #8A5C3E; }
-:root[data-theme="dark"] .gradino.oro     { background: #2C2413; }
-:root[data-theme="dark"] .gradino.argento { background: #232529; }
-:root[data-theme="dark"] .gradino.bronzo  { background: #2A211B; }
+/* Oro, argento e bronzo: tre tinte, non tre emoji — le medaglie
+   disegnate con i caratteri si vedono diverse su ogni telefono. Nel
+   buio si accendono da dentro, con un velo colorato e il bordo caldo. */
+.gradino.oro {
+  background: linear-gradient(120deg, rgba(224, 178, 74, .20), rgba(224, 178, 74, .05));
+  border-color: rgba(224, 178, 74, .38);
+}
+.gradino.oro .posto { background: linear-gradient(145deg, #F0CE72, #C69A32); color: #241802; }
+.gradino.oro .premio { color: #F0CE72; }
+
+.gradino.argento {
+  background: linear-gradient(120deg, rgba(200, 208, 216, .16), rgba(200, 208, 216, .04));
+  border-color: rgba(200, 208, 216, .30);
+}
+.gradino.argento .posto { background: linear-gradient(145deg, #DCE2E8, #A4AEB8); color: #1A1E22; }
+
+.gradino.bronzo {
+  background: linear-gradient(120deg, rgba(198, 124, 78, .16), rgba(198, 124, 78, .04));
+  border-color: rgba(198, 124, 78, .30);
+}
+.gradino.bronzo .posto { background: linear-gradient(145deg, #D9926A, #A05F38); color: #241207; }
 
 .coda-classifica {
-  display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px;
-  font-size: 12.5px; color: var(--inchiostro-med);
+  display: flex; flex-wrap: wrap; gap: 5px 16px; margin-top: 10px;
+  font-size: 12.5px; color: var(--luce-fioca);
 }
+/* Il conto dei ruoli in rosa: pastiglie piccole su una riga sola, i
+   quattro reparti davanti e i ruoli Mantra dietro, separati da un filo. */
+.conta-ruolo {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  font-family: var(--numeri); font-size: 12px; font-weight: 500;
+  color: var(--luce-media);
+  background: var(--vetro); border: 1px solid var(--bordo);
+  padding: 7px 12px; border-radius: 999px; white-space: nowrap;
+}
+.conta-ruolo b { font-weight: 700; color: var(--luce-fioca); }
+.conta-ruolo.reparto { color: var(--luce); }
+.conta-ruolo.reparto.P b { color: #F0C766; }
+.conta-ruolo.reparto.D b { color: #8FBEFF; }
+.conta-ruolo.reparto.C b { color: var(--lime); }
+.conta-ruolo.reparto.A b { color: #FF9F8A; }
+.separa-ruoli { flex: none; width: 1px; height: 22px; background: var(--bordo-forte); margin: 0 3px; align-self: center; }
+
 .trofei {
-  font-family: var(--display); font-weight: 800; font-size: 20px; color: var(--campo);
+  font-family: var(--display); font-weight: 800; font-size: 22px; color: var(--lime);
+  letter-spacing: -.03em;
 }
 
 .tabellina { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.tabellina th { text-align: left; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--inchiostro-lieve); padding: 0 10px 7px; font-weight: 600; }
+.tabellina th { text-align: left; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--luce-fioca); padding: 0 10px 7px; font-weight: 600; }
 .tabellina td { padding: 9px 10px; border-top: 1px solid var(--bordo); }
 .tabellina td.n { text-align: right; font-variant-numeric: tabular-nums; }
 .scorre { overflow-x: auto; }
@@ -1460,14 +1577,14 @@ function vistaFondazione() {
   return `<div class="lavoro" style="max-width:560px">
     <p class="occhiello">${pulito(STAGIONE)}</p>
     <h1 style="margin:6px 0 10px">Fondiamo la lega</h1>
-    <p style="color:var(--inchiostro-med); margin-bottom:20px; max-width:52ch">
+    <p style="color:var(--luce-media); margin-bottom:20px; max-width:52ch">
       Dieci squadre, un commissioner, ${LISTONE.length} giocatori di Serie A da contendersi.
       Serve un nome e un codice per te: sei tu che iscrivi i presidenti.
     </p>
     <form id="modulo-fondazione" class="moduli riquadro">
       <label class="campo"><span>Come si chiama la lega</span>
         <input type="text" id="nome-lega" value="Dynasty League" maxlength="40" required></label>
-      <p style="font-size:12.5px; color:var(--inchiostro-med)">
+      <p style="font-size:12.5px; color:var(--luce-media)">
         Si entra toccando la propria squadra, senza codice: chi ha il link è della lega.
         Se preferisci un codice per ciascuno, lo accendi dopo dal pannello.
       </p>
@@ -1500,10 +1617,10 @@ function vistaIngresso() {
          entra da commissioner e iscrivi i dieci presidenti.</div>`
       : `<div class="elenco" style="margin-bottom:14px">${squadre}</div>
          ${!serveIlCodice()
-           ? `<p style="font-size:12.5px;color:var(--inchiostro-med);margin:-4px 0 14px">
+           ? `<p style="font-size:12.5px;color:var(--luce-media);margin:-4px 0 14px">
                 Tocca la tua squadra: si entra senza codice.</p>`
            : stato.squadre.every((s) => s.pin === CODICE_PREDEFINITO)
-           ? `<p style="font-size:12.5px;color:var(--inchiostro-med);margin:-4px 0 14px">
+           ? `<p style="font-size:12.5px;color:var(--luce-media);margin:-4px 0 14px">
                 Il codice per tutti, per ora, è <b>${CODICE_PREDEFINITO}</b>.</p>` : ""}`}
     <button class="bottone largo" data-entra="commissioner">Entro da commissioner</button>
   </div>`;
@@ -1571,10 +1688,10 @@ function paginaLega() {
       : conto.numero >= REGOLE.rosaMin ? `<span class="targhetta ok">rosa completa</span>`
       : `<span class="targhetta forse">${conto.postiDaRiempire} da prendere</span>`;
     return `<tr>
-      <td><b>${pulito(s.nome)}</b><br><span style="font-size:12px;color:var(--inchiostro-med)">${pulito(s.presidente || "—")}</span></td>
+      <td><b>${pulito(s.nome)}</b><br><span style="font-size:12px;color:var(--luce-media)">${pulito(s.presidente || "—")}</span></td>
       <td class="n num">${conto.numero}</td>
       <td class="n num">${soldi(conto.ingaggi)}</td>
-      <td class="n num" style="color:${conto.pesoMorto > 0 ? "var(--allarme)" : "var(--inchiostro-lieve)"}">${conto.pesoMorto > 0 ? soldi(conto.pesoMorto) : "—"}</td>
+      <td class="n num" style="color:${conto.pesoMorto > 0 ? "var(--allarme)" : "var(--luce-fioca)"}">${conto.pesoMorto > 0 ? soldi(conto.pesoMorto) : "—"}</td>
       <td class="n num" style="color:${conto.sforato ? "var(--allarme)" : "inherit"}">${soldi(conto.spazio)}</td>
       <td class="n num">${conto.slotUsati}/${REGOLE.slotPluriennali}</td>
       <td>${stato_}<div class="barra-tetto" style="margin-top:6px;height:5px"><span class="${conto.sforato ? "sforato" : ""}" style="width:${quota}%"></span></div></td>
@@ -1585,7 +1702,7 @@ function paginaLega() {
 
   return `
     <h1>${pulito(stato.config.nome)}</h1>
-    <p style="color:var(--inchiostro-med); margin:6px 0 18px">
+    <p style="color:var(--luce-media); margin:6px 0 18px">
       ${stato.squadre.length} squadre · ${tesserati_} giocatori sotto contratto ·
       ${LISTONE.length - tesserati_} ancora liberi
     </p>
@@ -1599,7 +1716,7 @@ function paginaLega() {
         <tbody>${righe}</tbody>
       </table>
     </div>
-    <p style="font-size:12.5px;color:var(--inchiostro-med);margin-top:12px">
+    <p style="font-size:12.5px;color:var(--luce-media);margin-top:12px">
       Tetto salariale ${REGOLE.tetto} M · rosa da ${REGOLE.rosaMin} a ${REGOLE.rosaMax} ·
       ${REGOLE.slotPluriennali} slot pluriennali · nessun minimo per ruolo
     </p>`;
@@ -1629,11 +1746,11 @@ function paginaRosa() {
     : "";
 
   /* Com'è fatta la rosa, non com'è obbligata a essere: la lega non impone
-     minimi per ruolo, quindi questi numeri raccontano e non giudicano. */
-  const perRuolo = ORDINE_RUOLI.map((r) => `<div class="dato">
-      <div class="etichetta">${NOME_RUOLO_PL[r]}</div>
-      <div class="valore num">${conto.perRuolo[r] ?? 0}</div>
-    </div>`).join("");
+     minimi per ruolo, quindi questi numeri raccontano e non giudicano.
+     Reparti e ruoli Mantra stanno sulla stessa riga: erano due griglie che
+     dicevano la stessa cosa, e la prima non ci stava nemmeno in larghezza. */
+  const perRuolo = ORDINE_RUOLI.map((r) => `<span class="conta-ruolo reparto ${r}">
+      <b>${r}</b> ${conto.perRuolo[r] ?? 0}</span>`).join("");
 
   /* I ruoli Mantra che hai in rosa. Un giocatore ne copre spesso due, quindi la
      somma supera il numero dei giocatori: è giusto così, ed è il motivo per cui
@@ -1644,8 +1761,8 @@ function paginaRosa() {
     for (const r of PER_ID.get(c.giocatoreId)?.mantra ?? []) conteggioMantra[r] = (conteggioMantra[r] ?? 0) + 1;
   }
   const rigaMantra = ORDINE_MANTRA.filter((r) => conteggioMantra[r])
-    .map((r) => `<span class="targhetta neutra" title="${pulito(RUOLI_MANTRA[r]?.nome ?? r)}">${r} ${conteggioMantra[r]}</span>`)
-    .join(" ");
+    .map((r) => `<span class="conta-ruolo" title="${pulito(RUOLI_MANTRA[r]?.nome ?? r)}">
+       <b>${r}</b> ${conteggioMantra[r]}</span>`).join("");
 
   const inRosa = [...contratti]
     .sort((a, b) => ORDINE_RUOLI.indexOf(a.ruolo) - ORDINE_RUOLI.indexOf(b.ruolo) || b.ingaggio - a.ingaggio)
@@ -1702,8 +1819,8 @@ function paginaRosa() {
       <div class="barra-tetto"><span class="${conto.sforato ? "sforato" : ""}" style="width:${quota}%"></span></div>
     </div>
 
-    <div class="griglia-dati" style="margin-bottom:${rigaMantra ? "10px" : "14px"}">${perRuolo}</div>
-    ${rigaMantra ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">${rigaMantra}</div>` : ""}
+    <div class="filtri scorrevoli" style="margin-bottom:16px">${perRuolo}${
+      rigaMantra ? `<span class="separa-ruoli"></span>${rigaMantra}` : ""}</div>
     ${avvisi.length ? `<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">${avvisi.join("")}</div>` : ""}
 
     ${posso ? `<div class="sezione">
@@ -1717,14 +1834,14 @@ function paginaRosa() {
     ${pesiMorti.length ? `<div class="sezione">
       <div class="intestazione-sezione"><h2>Pesano ancora</h2>
         <span class="conteggio">${soldi(conto.pesoMorto)}</span></div>
-      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+      <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
         Giocatori che hai svincolato. Non sono più in rosa, ma il loro ingaggio resta sul tetto
         fino a fine stagione: il posto si libera, lo spazio no.
       </p>
       <div class="elenco">${pesiMorti.map((x) => `<div class="voce">
         <span class="ruolo ${pulito(x.ruolo)}" style="opacity:.55">${pulito(x.ruolo)}</span>
         <span class="corpo">
-          <span class="nome" style="color:var(--inchiostro-med)">${pulito(x.nome)}</span>
+          <span class="nome" style="color:var(--luce-media)">${pulito(x.nome)}</span>
           <span class="dettaglio">svincolato il ${new Date(x.svincolato).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}</span>
         </span>
         <span class="coda"><span class="prezzo num" style="color:var(--allarme)">${soldi(x.ingaggio)}</span></span>
@@ -1789,16 +1906,16 @@ function bloccoListone({ soloLettura = false } = {}) {
       <button class="pillola" data-ruolo="" aria-pressed="${!filtri.ruolo && !filtri.mantra}">Tutti</button>
       ${ORDINE_RUOLI.map((r) => `<button class="pillola" data-ruolo="${r}" aria-pressed="${filtri.ruolo === r}">${NOME_RUOLO_PL[r][0].toUpperCase() + NOME_RUOLO_PL[r].slice(1)}</button>`).join("")}
     </div>
-    <div class="filtri" style="margin-top:-4px">
+    <div class="filtri scorrevoli">
       ${ORDINE_MANTRA.map((r) => `<button class="pillola mantra-filtro" data-mantra="${r}"
           aria-pressed="${filtri.mantra === r}" title="${pulito(RUOLI_MANTRA[r]?.nome ?? r)}">${r}</button>`).join("")}
     </div>
-    <div class="filtri" style="margin-top:-4px">
+    <div class="filtri scorrevoli">
       <button class="pillola primavera" id="filtro-primavera" aria-pressed="${filtri.soloPrimavera}">Primavera</button>
       ${[21, 23, 26].map((e) => `<button class="pillola" data-eta="${e}" aria-pressed="${filtri.etaMax === e}">Under ${e + 1}</button>`).join("")}
       <button class="pillola" id="filtro-liberi" aria-pressed="${filtri.soloLiberi}">Solo liberi</button>
     </div>
-    <p style="font-size:12.5px;color:var(--inchiostro-med);margin:0 0 10px">
+    <p style="font-size:12.5px;color:var(--luce-media);margin:0 0 10px">
       ${trovati.length} giocatori${trovati.length > mostrati.length ? ` · ne vedi i primi ${mostrati.length}, restringi la ricerca` : ""}
     </p>
     ${trovati.length ? `<div class="elenco">${righe}</div>`
@@ -1808,7 +1925,7 @@ function bloccoListone({ soloLettura = false } = {}) {
 function paginaListone() {
   return `
     <h1>Listone</h1>
-    <p style="color:var(--inchiostro-med); margin:6px 0 4px">
+    <p style="color:var(--luce-media); margin:6px 0 4px">
       I ${LISTONE.length} giocatori di Serie A ${pulito(STAGIONE)}, con quotazione ed età.
       Il filtro <b>Primavera</b> tiene chi può entrare nel settore giovanile:
       fino a ${REGOLE.primavera.etaMax} anni e non oltre ${REGOLE.primavera.quotazioneMax} M di quotazione.
@@ -1891,7 +2008,7 @@ function foglioFirma(giocatoreId) {
         <span class="ruolo ${g.ruolo}" style="width:36px;height:36px;border-radius:9px">${g.ruolo}</span>
         <div>
           <h2>${pulito(g.nome)}</h2>
-          <p style="font-size:13px;color:var(--inchiostro-med)">
+          <p style="font-size:13px;color:var(--luce-media)">
             ${(g.mantra ?? []).map((r) => pulito(RUOLI_MANTRA[r]?.nome ?? r)).join(" · ")}<br>
             ${pulito(g.squadra)} · quotato ${g.quotazione} M${g.eta != null ? ` · ${g.eta} anni al ${REGOLE.etaAl}` : " · età ignota"}
             ${p.stato === "forse" ? ` · <span style="color:var(--avviso)">primavera da verificare</span>` : ""}
@@ -1905,7 +2022,7 @@ function foglioFirma(giocatoreId) {
           <input type="number" id="ingaggio" step="0.25" min="0.25" max="${REGOLE.tetto}"
                  value="${pulito(bozza.ingaggio)}" placeholder="es. 3,5" inputmode="decimal" required></label>
 
-        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">Che contratto</span>
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">Che contratto</span>
           <div class="scelte">${tipi}</div></div>
 
         ${sceltaAnni}
@@ -1916,7 +2033,7 @@ function foglioFirma(giocatoreId) {
           ${motivi.length || !Number.isFinite(ingaggioQuarti) || ingaggioQuarti <= 0 ? "disabled" : ""}>
           Metti in rosa${Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0 ? ` per ${soldi(ingaggioQuarti)}` : ""}
         </button>
-        <p style="font-size:12px;color:var(--inchiostro-med);text-align:center">
+        <p style="font-size:12px;color:var(--luce-media);text-align:center">
           Dopo la firma restano ${soldi(Math.max(0, conto.spazio - (Number.isFinite(ingaggioQuarti) ? ingaggioQuarti : 0)))} di spazio.
         </p>
       </form>
@@ -1948,7 +2065,7 @@ function paginaMercato() {
         </span>
       </span>
       <span class="coda">
-        <span style="font-size:12px;color:var(--inchiostro-lieve);text-align:right">chiude<br>${fraQuanto(m.scadeIl)}</span>
+        <span style="font-size:12px;color:var(--luce-fioca);text-align:right">chiude<br>${fraQuanto(m.scadeIl)}</span>
         ${squadra && possoToccare(squadra.id)
           ? `<button class="bottone piccolo" data-offri="${pulito(m.id)}">${mia ? "Ritocca" : "Offri"}</button>` : ""}
       </span>
@@ -1982,7 +2099,7 @@ function paginaMercato() {
     return `<div class="riquadro" style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
         <b>${pulito(da?.nome ?? "—")} → ${pulito(a?.nome ?? "—")}</b>
-        <span style="font-size:12px;color:var(--inchiostro-lieve)">
+        <span style="font-size:12px;color:var(--luce-fioca)">
           ${s.stato === "PROPOSTO" ? `scade ${fraQuanto(s.scadeIl)}` : pulito(s.stato.toLowerCase())}</span>
       </div>
       <div class="scorre"><table class="tabellina" style="margin-bottom:6px">
@@ -2002,7 +2119,7 @@ function paginaMercato() {
 
   return `
     <h1>Mercato</h1>
-    <p style="color:var(--inchiostro-med);margin:6px 0 14px">
+    <p style="color:var(--luce-media);margin:6px 0 14px">
       L'asta di settembre si fa al tavolo. Qui passa quello che viene dopo: i giocatori rimasti
       liberi, chi viene tagliato e gli scambi fra squadre.
       ${squadra ? `Hai speso <b>${spese}</b> offerte su ${REGOLE.mercato.offertePerStagione} (art. 9.1).` : ""}
@@ -2070,11 +2187,11 @@ function paginaSocieta() {
     const attuale = livello.livello === s.stadio;
     const salto = costoSalto(s.stadio, livello.livello);
     const raggiungibile = livello.livello > s.stadio;
-    return `<tr style="${attuale ? "background:var(--campo-chiaro)" : ""}">
+    return `<tr style="${attuale ? "background:var(--lime-fioco)" : ""}">
       <td><b>${livello.livello} · ${pulito(livello.nome)}</b>${attuale ? ` <span class="targhetta ok">il tuo</span>` : ""}</td>
       <td class="n num">${soldi(aQuarti(livello.costruzione))}</td>
       <td class="n num">${soldi(aQuarti(livello.manutenzione))}</td>
-      <td class="n num">${soldi(aQuarti(c.incasso))}<br><span style="font-size:11px;color:var(--inchiostro-lieve)">${soldi(aQuarti(livello.incassoPerGara))} a gara</span></td>
+      <td class="n num">${soldi(aQuarti(c.incasso))}<br><span style="font-size:11px;color:var(--luce-fioca)">${soldi(aQuarti(livello.incassoPerGara))} a gara</span></td>
       <td class="n num" style="color:var(--ok)">+${soldi(aQuarti(c.netto))}</td>
       <td class="n num">${c.rientro.toFixed(1)}</td>
       <td>${raggiungibile && posso
@@ -2105,7 +2222,7 @@ function paginaSocieta() {
         <span class="coda">
           <span class="prezzo num" style="color:${m.quanto < 0 ? "var(--allarme)" : "var(--ok)"}">
             ${m.quanto < 0 ? "−" : "+"}${soldi(Math.abs(m.quanto))}</span>
-          <span style="font-size:12px;color:var(--inchiostro-lieve)" class="num">saldo ${soldi(m.saldo)}</span>
+          <span style="font-size:12px;color:var(--luce-fioca)" class="num">saldo ${soldi(m.saldo)}</span>
         </span>
       </div>`).join("")
     : `<div class="vuoto riquadro">Nessun movimento: il Capitale è ancora quello di partenza.</div>`;
@@ -2137,7 +2254,7 @@ function paginaSocieta() {
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Stadio</h2>
         ${prossimo ? `<span class="conteggio">prossimo livello ${soldi(aQuarti(prossimo.costo))}</span>` : `<span class="conteggio">al massimo</span>`}</div>
-      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+      <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
         Si sale un livello alla volta pagando la differenza; per saltarne uno si demolisce e si
         ricostruisce da zero. <b>L'incasso è quello di una stagione intera</b>: il guadagno a ogni
         gara in casa moltiplicato per le ${REGOLE.capitale.gareInCasa} che se ne giocano.
@@ -2160,7 +2277,7 @@ function paginaSocieta() {
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Settore giovanile</h2>
         <span class="conteggio">${s.capienzaGiovanile} posti</span></div>
-      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+      <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
         I giovani non percepiscono ingaggio e non occupano spazio salariale: costano Capitale.
         ${vivaio.mantenimento > 0 ? `Oggi il vivaio costa ${soldi(aQuarti(vivaio.mantenimento))} l'anno.` : ""}
       </p>
@@ -2168,19 +2285,19 @@ function paginaSocieta() {
         ${ampliamento
           ? `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
               <div><b>Portare la capienza a ${ampliamento.capienza}</b>
-                <div style="font-size:13px;color:var(--inchiostro-med)">
+                <div style="font-size:13px;color:var(--luce-media)">
                   ${soldi(aQuarti(ampliamento.costo))} adesso · ${soldi(aQuarti(ampliamento.mantenimento))} l'anno</div></div>
               ${posso ? `<button class="bottone" id="amplia-vivaio" ${s.capitale < aQuarti(ampliamento.costo) ? "disabled" : ""}>
                 ${s.capitale < aQuarti(ampliamento.costo) ? "Capitale insufficiente" : "Amplia"}</button>` : ""}
             </div>`
-          : `<p style="font-size:13.5px;color:var(--inchiostro-med)">Il settore giovanile è alla capienza massima: ${s.capienzaGiovanile} posti.</p>`}
+          : `<p style="font-size:13.5px;color:var(--luce-media)">Il settore giovanile è alla capienza massima: ${s.capienzaGiovanile} posti.</p>`}
       </div>
     </div>
 
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Rete osservatori</h2>
         <span class="conteggio">${s.osservatori.length} attivi</span></div>
-      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+      <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
         Un osservatore dà il diritto di <b>pareggiare l'offerta più alta</b> su un giocatore che da
         quel campionato arriva in Serie A. Non è un acquisto esclusivo né uno sconto, e dura una stagione.
       </p>
@@ -2193,7 +2310,7 @@ function paginaSocieta() {
       ${sonoCommissioner() ? `
         <div class="riquadro" style="margin-top:12px">
           <h3 style="margin-bottom:8px">Accredita o addebita</h3>
-          <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+          <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
             Premi delle competizioni, sponsor, manutenzione di inizio stagione: le voci che non
             nascono da un pulsante le mette il commissioner, e restano scritte qui.</p>
           <form id="modulo-capitale" class="moduli">
@@ -2255,7 +2372,7 @@ function foglioBusta(trattativaId, giocatoreId) {
     <div class="foglio-testa">
       <span class="ruolo ${g.ruolo}" style="width:36px;height:36px;border-radius:9px">${g.ruolo}</span>
       <div><h2>${pulito(g.nome)}</h2>
-        <p style="font-size:13px;color:var(--inchiostro-med)">
+        <p style="font-size:13px;color:var(--luce-media)">
           ${pulito(g.squadra)} · quotato ${g.quotazione} M${g.eta != null ? ` · ${g.eta} anni` : ""}
           · chiude ${fraQuanto(m.scadeIl)}</p></div>
       <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
@@ -2276,14 +2393,14 @@ function foglioBusta(trattativaId, giocatoreId) {
         <label class="campo"><span>Quanto offri — a passi di 0,25 M</span>
           <input type="number" id="ingaggio" step="0.25" min="0.25" max="${REGOLE.tetto}"
                  value="${pulito(bozza.ingaggio)}" placeholder="es. 3,5" inputmode="decimal" required></label>
-        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">Che contratto</span>
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">Che contratto</span>
           <div class="scelte">${tipi}</div></div>
         ${sceltaAnni}
         ${motivi.length ? `<div class="avviso errore">${motivi.map(pulito).join("<br>")}</div>` : ""}
         <button class="bottone primario largo" type="submit"
           ${motivi.length || !Number.isFinite(quarti) || quarti <= 0 ? "disabled" : ""}>
           ${mia ? "Cambia la busta" : "Deposita la busta"}</button>
-        <p style="font-size:12px;color:var(--inchiostro-med);text-align:center">
+        <p style="font-size:12px;color:var(--luce-media);text-align:center">
           ${mia ? "Ritoccare non consuma una seconda offerta." : `Ti resteranno ${REGOLE.mercato.offertePerStagione - spese - 1} offerte.`}
         </p>
       </form>`}
@@ -2309,7 +2426,7 @@ function foglioScambio() {
               <b>${pulito(c.nome)} · ${c.ruolo}</b>
               <small>${soldi(c.ingaggio)} · ${pulito(REGOLE.contratti[c.tipo]?.nome ?? c.tipo)}${c.anni > 1 ? ` ${c.anni} anni` : ""}</small>
             </button>`).join("")
-      : `<p style="font-size:13px;color:var(--inchiostro-med)">Rosa vuota.</p>`;
+      : `<p style="font-size:13px;color:var(--luce-media)">Rosa vuota.</p>`;
 
   const motivi = con
     ? perchéNoScambio({
@@ -2323,7 +2440,7 @@ function foglioScambio() {
   return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
     <div class="foglio-testa">
       <div><h2>Proponi uno scambio</h2>
-        <p style="font-size:13px;color:var(--inchiostro-med)">
+        <p style="font-size:13px;color:var(--luce-media)">
           I giocatori viaggiano con il loro contratto. Si scambia anche Capitale, mai spazio
           salariale (art. 11.1).</p></div>
       <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
@@ -2337,11 +2454,11 @@ function foglioScambio() {
         </select></label>
 
       ${con ? `
-        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">
           Dai — dalla rosa di ${pulito(mia.nome)}</span>
           <div class="scelte">${listaGiocatori(mia.id, bozzaScambio.cedeDa, "data-cede-da")}</div></div>
 
-        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">
           Ricevi — dalla rosa di ${pulito(con.nome)}</span>
           <div class="scelte">${listaGiocatori(con.id, bozzaScambio.cedeA, "data-cede-a")}</div></div>
 
@@ -2378,7 +2495,7 @@ function paginaAlbo() {
       return `<div class="riquadro albo-vuoto">
         <div>
           <b>${pulito(competizione.nome)}</b>
-          <div style="font-size:12.5px;color:var(--inchiostro-lieve)">${pulito(competizione.formato)}</div>
+          <div style="font-size:12.5px;color:var(--luce-fioca)">${pulito(competizione.formato)}</div>
         </div>
         ${posso ? `<button class="bottone piccolo" data-verdetto="${stagione}|${competizione.id}">Scrivi la classifica</button>`
                 : `<span class="targhetta neutra">non ancora assegnata</span>`}
@@ -2401,7 +2518,7 @@ function paginaAlbo() {
       <div class="podio">${podio}</div>
       ${resto.length ? `<div class="coda-classifica">
         ${resto.map((s, i) => `<span>${i + 4}. ${pulito(s.nome)}${
-          competizione.capitale[i + 3] != null ? ` <span class="num" style="color:var(--inchiostro-lieve)">${competizione.capitale[i + 3]} M</span>` : ""}</span>`).join("")}
+          competizione.capitale[i + 3] != null ? ` <span class="num" style="color:var(--luce-fioca)">${competizione.capitale[i + 3]} M</span>` : ""}</span>`).join("")}
       </div>` : ""}
       ${verdetto.premiVersati
         ? `<div style="font-size:12px;color:var(--ok);margin-top:8px">Premi in Capitale versati</div>`
@@ -2411,7 +2528,7 @@ function paginaAlbo() {
 
   return `
     <h1>Albo d'oro</h1>
-    <p style="color:var(--inchiostro-med);margin:6px 0 18px">
+    <p style="color:var(--luce-media);margin:6px 0 18px">
       Quello che resta quando la stagione è finita. Le classifiche si scrivono qui una volta sola,
       e da qui non si cancellano più.
     </p>
@@ -2456,7 +2573,7 @@ function foglioVerdetto() {
     <div class="foglio-testa">
       <div>
         <h2>${pulito(competizione.nome)}</h2>
-        <p style="font-size:13px;color:var(--inchiostro-med)">${pulito(bozzaVerdetto.stagione)} · tocca le squadre dalla prima all'ultima</p>
+        <p style="font-size:13px;color:var(--luce-media)">${pulito(bozzaVerdetto.stagione)} · tocca le squadre dalla prima all'ultima</p>
       </div>
       <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
     </div>
@@ -2500,11 +2617,11 @@ function paginaRegistro() {
         <span class="nome">${pulito(v.dettaglio)}</span>
         <span class="dettaglio">${pulito(v.chi)} · ${pulito(v.cosa)}</span>
       </span>
-      <span class="coda"><span style="font-size:12px;color:var(--inchiostro-lieve)">${data}<br>${ora}</span></span>
+      <span class="coda"><span style="font-size:12px;color:var(--luce-fioca)">${data}<br>${ora}</span></span>
     </div>`;
   }).join("");
   return `<h1>Registro</h1>
-    <p style="color:var(--inchiostro-med);margin:6px 0 14px">
+    <p style="color:var(--luce-media);margin:6px 0 14px">
       Le ultime ${stato.registro.length} operazioni della lega, dalla più recente.</p>
     <div class="elenco">${righe}</div>`;
 }
@@ -2530,7 +2647,7 @@ function paginaGestione() {
 
   return `
     <h1>Gestione</h1>
-    <p style="color:var(--inchiostro-med);margin:6px 0 18px">
+    <p style="color:var(--luce-media);margin:6px 0 18px">
       Le squadre della lega e chi le guida.
     </p>
 
@@ -2545,7 +2662,7 @@ function paginaGestione() {
             <b>Chiedi un codice</b>
             <small>Quattro cifre per ciascuno. Evita di entrare per sbaglio nella squadra di un altro.</small></button>
         </div>
-        <p style="font-size:12.5px;color:var(--inchiostro-med);margin-top:10px">
+        <p style="font-size:12.5px;color:var(--luce-media);margin-top:10px">
           In nessuno dei due casi il codice difende dei segreti: chiunque abbia il link può
           leggere tutta la lega comunque. Serve solo a non sbagliare porta.
         </p>
@@ -2565,7 +2682,7 @@ function paginaGestione() {
       ${stato.squadre.length === 0 ? `
         <div class="riquadro" style="margin-top:14px">
           <h3 style="margin-bottom:6px">Iscrivi tutte le squadre in una volta</h3>
-          <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+          <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
             Una riga per squadra: <b>nome della squadra, presidente</b>. Il presidente si può
             lasciare fuori e aggiungerlo dopo. Ognuna nasce con la dotazione di
             ${REGOLE.capitale.dotazione} M (art. 14) e con il codice ${CODICE_PREDEFINITO}.
@@ -2574,7 +2691,7 @@ function paginaGestione() {
             <textarea id="elenco-squadre" rows="10" spellcheck="false"
               placeholder="Real Marasca, Giulio&#10;Atletico Sorata, Marta&#10;Borgo United, Ivan"
               style="width:100%;padding:11px 13px;font:inherit;font-size:14px;line-height:1.7;
-                     color:var(--inchiostro);background:var(--carta-alta);
+                     color:var(--luce);background:var(--vetro);
                      border:1px solid var(--bordo-forte);border-radius:var(--raggio-s);resize:vertical"></textarea>
             <button class="bottone primario largo" type="submit">Iscrivi le squadre</button>
             <div id="esito-iscrizioni"></div>
@@ -2585,7 +2702,7 @@ function paginaGestione() {
     <div class="sezione">
       <div class="intestazione-sezione"><h2>A che punto siamo</h2></div>
       <div class="riquadro">
-        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
           Il giorno dopo l'asta si scrivono le rose così come sono uscite dal tavolo: si cerca il
           giocatore e si mette dentro. A stagione avviata invece un giocatore libero se lo
           contendono in più squadre, e allora passa dalle buste chiuse
@@ -2603,7 +2720,7 @@ function paginaGestione() {
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Classifica</h2></div>
       <div class="riquadro">
-        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
           A parità di offerta vince la squadra <b>peggio piazzata</b> (art. 9.4): è il modo di non
           far scappare via i primi. Scrivi qui la classifica della stagione scorsa — 1 alla prima,
           10 all'ultima.
@@ -2631,18 +2748,18 @@ function paginaGestione() {
           ? `<span class="conteggio">aggiornate il ${new Date(stato.aggiornamentoListone.quando).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}</span>`
           : `<span class="conteggio">quelle di partenza</span>`}</div>
       <div class="riquadro">
-        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
           Le quotazioni si muovono ogni settimana, e qui contano: decidono chi è idoneo al settore
           giovanile (fino a ${REGOLE.primavera.quotazioneMax} M) e quanto vale un giocatore in una
           trattativa. Scarica da <b>Leghe Fantacalcio</b> il file delle quotazioni e caricalo qui —
           va bene l'<code>.xlsx</code> così com'è, o un CSV.
         </p>
-        <p style="font-size:12.5px;color:var(--inchiostro-lieve);margin-bottom:12px">
+        <p style="font-size:12.5px;color:var(--luce-fioca);margin-bottom:12px">
           I giocatori si riconoscono dall'identificativo di Leghe Fantacalcio, non dal nome: chi è
           arrivato dopo entra nel listone, gli altri aggiornano quotazione e ruoli Mantra.
         </p>
         <input type="file" id="file-quotazioni" accept=".xlsx,.xls,.csv,.txt"
-               style="width:100%;padding:10px;border:1px dashed var(--bordo-forte);border-radius:var(--raggio-s);background:var(--carta-alta)">
+               style="width:100%;padding:10px;border:1px dashed var(--bordo-forte);border-radius:var(--raggio-s);background:var(--vetro)">
         <div id="esito-quotazioni" style="margin-top:10px">${
           stato.esitoQuotazioni
             ? `<div class="avviso ${stato.esitoQuotazioni.tipo}">${stato.esitoQuotazioni.testo}</div>`
@@ -2654,7 +2771,7 @@ function paginaGestione() {
       <div class="intestazione-sezione"><h2>Fine stagione</h2>
         <span class="conteggio">${soldi(stato.squadre.reduce((s, x) => s + contoDi(x.id).pesoMorto, 0))} da liberare</span></div>
       <div class="riquadro">
-        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
           Gli ingaggi degli svincolati pesano sul tetto <b>fino a fine stagione</b>. Quando la
           stagione è finita davvero, questo comando li cancella e restituisce lo spazio a tutti.
           Rose, contratti e Capitale non si toccano.
@@ -2668,14 +2785,14 @@ function paginaGestione() {
               </div>`).join("")}
             </div>
             <button class="bottone" id="libera-pesi">Libera gli ingaggi degli svincolati</button>`
-          : `<p style="font-size:13.5px;color:var(--inchiostro-med)">Nessuno ha svincolato: non c'è niente da liberare.</p>`}
+          : `<p style="font-size:13.5px;color:var(--luce-media)">Nessuno ha svincolato: non c'è niente da liberare.</p>`}
       </div>
     </div>
 
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Ripartire da zero</h2></div>
       <div class="riquadro">
-        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
           Toglie squadre, rose e registro. Il listone e la lega restano.
           Scrivi <b>${pulito(stato.config.nome)}</b> per confermare.
         </p>
@@ -2711,7 +2828,7 @@ function foglioSquadra(squadraId) {
       <button class="bottone primario largo" type="submit">${nuova ? "Iscrivi la squadra" : "Salva"}</button>
       ${!nuova && rosaDi(squadraId).length === 0
         ? `<button type="button" class="bottone pericolo largo" data-ritira="${pulito(squadraId)}">Ritira dalla lega</button>`
-        : !nuova ? `<p style="font-size:12px;color:var(--inchiostro-med);text-align:center">
+        : !nuova ? `<p style="font-size:12px;color:var(--luce-media);text-align:center">
             Una squadra con dei contratti non si ritira: i suoi giocatori resterebbero senza squadra.</p>` : ""}
     </form>
   </div></div>`;

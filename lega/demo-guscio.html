@@ -7,28 +7,27 @@
 <style>
   :root { color-scheme: light dark; }
   html, body { margin: 0; }
+  body { background: #0B0E0B; }
   img { max-width: 100%; }
   [hidden] { display: none !important; }
 
   /* La striscia della demo: sta in fondo al documento, non sopra la
      navigazione, e dice le due cose che chi apre il file deve sapere. */
+  /* La striscia della demo: in fondo al documento, non sopra la
+     navigazione, e dice le due cose che chi apre il file deve sapere. */
   .striscia-demo {
-    max-width: 1120px; margin: 0 auto; padding: 14px 16px 130px;
-    font: 13px/1.5 "Archivo", system-ui, sans-serif;
-    color: #5B6154; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    max-width: 1120px; margin: 0 auto; padding: 16px 16px 140px;
+    font: 13px/1.55 "Manrope", system-ui, sans-serif;
+    color: #6E766A; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
   }
-  .striscia-demo b { color: #14170F; }
+  .striscia-demo b { color: #C8F751; }
   .striscia-demo button {
     font: inherit; font-weight: 600; cursor: pointer;
-    border: 1px solid #C3C7B9; background: #FFF; color: #14170F;
-    padding: 7px 12px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.06); color: #F2F5EE;
+    padding: 9px 15px; border-radius: 999px;
   }
-  @media (prefers-color-scheme: dark) {
-    .striscia-demo { color: #A2A899; }
-    .striscia-demo b { color: #EFF0E9; }
-    .striscia-demo button { background: #1B1E17; border-color: #434839; color: #EFF0E9; }
-  }
-  @media (min-width: 860px) { .striscia-demo { padding-bottom: 40px; } }
+  .striscia-demo button:hover { background: rgba(255,255,255,.12); }
+  @media (min-width: 860px) { .striscia-demo { padding-bottom: 48px; } }
 </style>
 
 <script>
