@@ -65,6 +65,17 @@ salariale no. È la regola che rende il mercato una cosa seria — un contratto
 firmato è una decisione che si porta fino in fondo. A stagione conclusa il
 commissioner li libera tutti insieme da *Gestione → Fine stagione*.
 
+**Le quotazioni si aggiornano da Leghe Fantacalcio.** Non c'è un collegamento
+automatico — LF non espone un'API pubblica, e leggere le loro pagine si
+romperebbe al primo cambio di grafica — ma il file `.xlsx` che pubblicano si
+carica da *Gestione → Quotazioni*: quotazioni, ruoli Mantra e giocatori arrivati
+dopo entrano nel listone. L'aggancio è l'identificativo di Leghe Fantacalcio,
+non il nome: abbinare per somiglianza sposterebbe la quotazione sul giocatore
+sbagliato senza che nessuno se ne accorga.
+
+Il listone incorporato resta quello di partenza; gli scostamenti vivono nel
+database, sopra di esso.
+
 **Il fantacalcio è Mantra**: ogni giocatore porta i suoi ruoli veri — Por, Dd,
 Dc, Ds, B, E, M, C, W, T, A, Pc — e 270 su 531 ne hanno più d'uno. Si vedono
 accanto al nome ovunque, per esteso al momento della firma, e il listone si
