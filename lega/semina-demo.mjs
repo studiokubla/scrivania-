@@ -255,6 +255,35 @@ SQUADRE.forEach(([nome, sigla, presidente, colore], i) => {
 });
 registro.reverse().forEach((v, i) => { dati["registro/r" + String(i).padStart(3, "0")] = v; });
 
+/* Una trattativa aperta e uno scambio sul tavolo: senza, chi apre la demo
+   trova le due pagine vuote e non capisce a cosa servono. Le scadenze sono
+   nel futuro rispetto a chi guarda, non a quando è stata generata la demo:
+   una busta già scaduta si chiuderebbe appena aperta la pagina. */
+const fraOre = (ore) => new Date(Date.now() + ore * 3600000).toISOString();
+const liberi = giocatori.filter((g) => !presi.has(g.id) && !daPrimavera(g) && g.quotazione >= 8);
+const conteso = liberi[0];
+
+dati["mercato/m001"] = {
+  tipo: "FREE_AGENCY", giocatoreId: conteso.id, nome: conteso.nome, ruolo: conteso.ruolo,
+  apertaIl: new Date(Date.now() - 3600000).toISOString(), scadeIl: fraOre(23),
+  stato: "APERTA",
+  offerte: [
+    { squadraId: "s3", ingaggio: aQuarti(4),    anni: 1, tipo: "ANNUALE",  quando: new Date().toISOString() },
+    { squadraId: "s10", ingaggio: aQuarti(3.5), anni: 2, tipo: "STANDARD", quando: new Date().toISOString() },
+  ],
+};
+
+const daAlfa = rose["s3"].contratti.find((c) => c.ruolo === "C");
+const daBeta = rose["s4"].contratti.find((c) => c.ruolo === "D");
+dati["scambi/x001"] = {
+  da: "s3", a: "s4",
+  cedeDa: [daAlfa.giocatoreId], cedeA: [daBeta.giocatoreId],
+  capitaleDa: 0, capitaleA: aQuarti(2),
+  proposto: new Date(Date.now() - 7200000).toISOString(), scadeIl: fraOre(40),
+  stato: "PROPOSTO",
+};
+console.log(`\n  Mercato: ${conteso.nome} conteso da due squadre · scambio ${daAlfa.nome} ↔ ${daBeta.nome}`);
+
 writeFileSync("/home/user/scrivania-/lega/demo-dati.json", JSON.stringify(dati));
 const liberiPrimavera = giocatori.filter((g) => daPrimavera(g) && !presi.has(g.id)).length;
 console.log(problemi

@@ -72,6 +72,20 @@ e presidente. Ognuna nasce con la dotazione dell'art. 14, e la riga che lo dice
 finisce nel registro — un capitale che compare senza una traccia che lo spieghi
 è un capitale su cui prima o poi qualcuno discute.
 
-Manca ancora: l'asta di settembre, il mercato a buste chiuse e gli scambi. Il
-regolamento consolidato di tutte queste parti è in
-`dynasty/docs/REGOLAMENTO.md`.
+C'è anche il mercato: free agency a busta chiusa con apertura dopo 24 ore,
+waiver di 48 ore su chi viene tagliato, scambi validati su **entrambe** le rose.
+Le scadenze si risolvono quando qualcuno apre la pagina, non con un processo che
+gira di notte: per dieci persone basta, e l'esito dipende solo dall'orario
+scritto nel documento, non da chi guarda né da quando.
+
+**L'asta di settembre non c'è, ed è voluto:** si fa al tavolo. La lega ha due
+momenti, che il commissioner sceglie da *Gestione* → *A che punto siamo*:
+`COMPOSIZIONE` per scrivere le rose come sono uscite dall'asta (dal listone si
+firma subito) e `MERCATO` per il resto della stagione (sui liberi si depositano
+buste).
+
+Un limite da conoscere: **le buste sono chiuse per accordo, non per
+crittografia.** L'applicazione non mostra a nessuno le offerte altrui prima
+dell'apertura, ma chi sa aprire il database della lega potrebbe leggerle. Fra
+dieci persone che si conoscono va bene, purché sia detto — e infatti la pagina
+del mercato lo dice.

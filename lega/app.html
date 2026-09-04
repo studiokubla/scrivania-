@@ -372,6 +372,16 @@ const REGOLE = {
 
   primavera: { etaMax: 20, quotazioneMax: 3, presenzeMax: 5 },  // art. 16.1
 
+  /* Art. 9-11 — il mercato. L'asta di settembre si fa al tavolo, non qui:
+     quello che passa dall'applicazione è ciò che succede dopo. */
+  mercato: {
+    offertePerStagione: 5,       // art. 9.1
+    oreFreeAgency: 24,           // art. 9.2
+    oreWaiver: 48,               // art. 10.1
+    oreAccettazioneScambio: 48,  // art. 11.1.3
+    oreAnnullamentoScambio: 24,  // art. 11.1.3 — la finestra del commissioner
+  },
+
   /* Il Capitale è l'altro conto della società, e non va confuso col tetto: il
      tetto è un limite agli ingaggi, il Capitale è denaro che si accumula e si
      investe. Nessuna operazione converte l'uno nell'altro (art. 14). */
@@ -587,6 +597,64 @@ function perchéNo({ giocatore, tipo, ingaggio, ingaggioScritto, anni, conto, co
   return no;
 }
 
+/* ── Gli scambi (art. 11.1) ───────────────────────────────── */
+
+/**
+ * Come resterebbe una rosa dopo uno scambio.
+ *
+ * Si scambiano giocatori **con il loro contratto** e Capitale, mai spazio
+ * salariale (art. 11.1.1): l'ingaggio viaggia con il giocatore, e la squadra
+ * che lo riceve se lo prende com'è.
+ */
+function rosaDopoScambio(squadraId, cede, riceve) {
+  const restano = rosaDi(squadraId).filter((c) => !cede.includes(c.giocatoreId));
+  return [...restano, ...riceve];
+}
+
+/**
+ * Perché lo scambio non si può fare — su **entrambi i lati** (art. 11.1.2).
+ *
+ * Validare un lato solo sarebbe peggio che non validare: farebbe passare la
+ * proposta e lascerebbe l'altra squadra a scoprire il problema quando ormai
+ * ha accettato. Qui la proposta non parte proprio, e dice di chi è il guaio.
+ */
+function perchéNoScambio({ daId, aId, cedeDa, cedeA, capitaleDa, capitaleA }) {
+  const no = [];
+  const nomeDa = squadraDi(daId)?.nome ?? "la prima squadra";
+  const nomeA = squadraDi(aId)?.nome ?? "l'altra squadra";
+
+  if (!cedeDa.length && !cedeA.length && !capitaleDa && !capitaleA) {
+    return ["Lo scambio è vuoto: metti almeno un giocatore o del Capitale."];
+  }
+
+  const contrattiDa = rosaDi(daId);
+  const contrattiA = rosaDi(aId);
+  const pacchettoDa = contrattiDa.filter((c) => cedeDa.includes(c.giocatoreId));
+  const pacchettoA = contrattiA.filter((c) => cedeA.includes(c.giocatoreId));
+
+  for (const [nome, rosaNuova] of [
+    [nomeDa, rosaDopoScambio(daId, cedeDa, pacchettoA)],
+    [nomeA, rosaDopoScambio(aId, cedeA, pacchettoDa)],
+  ]) {
+    const conto = contoRosa(rosaNuova);
+    if (conto.sforato) no.push(`${nome} sforerebbe il tetto di ${soldi(conto.speso - conto.tetto)}.`);
+    if (conto.numero > REGOLE.rosaMax) no.push(`${nome} arriverebbe a ${conto.numero} giocatori, oltre i ${REGOLE.rosaMax}.`);
+    if (conto.slotLiberi < 0) no.push(`${nome} avrebbe ${conto.slotUsati} contratti pluriennali, oltre i ${REGOLE.slotPluriennali}.`);
+    /* I minimi di ruolo si controllano solo se la rosa era già completa: a
+       mercato aperto una rosa in costruzione li viola per forza, e bloccare
+       lì ogni scambio renderebbe la funzione inutile proprio quando serve. */
+    const eraCompleta = contoRosa(nome === nomeDa ? contrattiDa : contrattiA).mancanti.length === 0;
+    if (eraCompleta && conto.mancanti.length) {
+      no.push(`${nome} scenderebbe sotto il minimo di ruolo: ${conto.mancanti.map((m) => `${m.quanti} ${NOME_RUOLO_PL[m.ruolo]}`).join(", ")}.`);
+    }
+  }
+
+  if (capitaleDa > societaDi(daId).capitale) no.push(`${nomeDa} non ha ${soldi(capitaleDa)} di Capitale.`);
+  if (capitaleA > societaDi(aId).capitale) no.push(`${nomeA} non ha ${soldi(capitaleA)} di Capitale.`);
+
+  return no;
+}
+
 /* ── L'economia della società (artt. 14-17) ───────────────── */
 
 /** Lo stadio a un certo livello. Livello 0 = non c'è ancora. */
@@ -682,6 +750,8 @@ const stato = {
   squadre: [],
   rose: new Map(),
   societa: new Map(),
+  mercato: [],
+  scambi: [],
   registro: [],
   io: null,                // { ruolo: "commissioner" | "presidente", squadraId }
   vista: "lega",
@@ -732,6 +802,17 @@ function squadraCorrente() {
 
 const sonoCommissioner = () => stato.io?.ruolo === "commissioner";
 
+/**
+ * In che momento della stagione siamo.
+ *
+ * `COMPOSIZIONE` è il giorno dopo l'asta, che si fa al tavolo: si scrivono in
+ * fretta i venticinque nomi con la cifra segnata a matita, e chiedere una busta
+ * chiusa per ognuno sarebbe assurdo. `MERCATO` è tutto il resto della stagione:
+ * lì un giocatore libero se lo contendono in più squadre, e passa dalle buste.
+ */
+const fase = () => stato.config?.fase ?? "COMPOSIZIONE";
+const siamoAlMercato = () => fase() === "MERCATO";
+
 /** Posso muovere questa rosa? Il presidente la propria, il commissioner tutte. */
 const possoToccare = (squadraId) =>
   sonoCommissioner() || (stato.io?.ruolo === "presidente" && stato.io.squadraId === squadraId);
@@ -743,6 +824,121 @@ function tesserati() {
     for (const c of rosa.contratti ?? []) mappa.set(c.giocatoreId, squadraId);
   }
   return mappa;
+}
+
+/* ── Il tempo del mercato ─────────────────────────────────── */
+
+/**
+ * Le scadenze si risolvono quando qualcuno apre la pagina, non con un
+ * processo che gira di notte.
+ *
+ * Per una lega di dieci persone basta, e ha una proprietà che conta più della
+ * puntualità: l'esito dipende solo dall'orario di scadenza scritto nel
+ * documento, non da chi guarda né da quando. Chi apre per primo non vince
+ * niente — si limita a far succedere una cosa che era già decisa.
+ */
+let staRisolvendo = false;
+
+async function risolviScadenze() {
+  if (staRisolvendo || !db || !stato.io) return;
+  const adesso = Date.now();
+
+  const scadute = stato.mercato.filter((m) => m.stato === "APERTA" && Date.parse(m.scadeIl) <= adesso);
+  const scambiScaduti = stato.scambi.filter((s) => s.stato === "PROPOSTO" && Date.parse(s.scadeIl) <= adesso);
+  if (!scadute.length && !scambiScaduti.length) return;
+
+  staRisolvendo = true;
+  try {
+    for (const trattativa of scadute) await chiudiTrattativa(trattativa);
+    for (const scambio of scambiScaduti) {
+      await db.collection("scambi").doc(scambio.id).set({ ...scambio, stato: "SCADUTO" });
+      await annota("scambio", `Proposta di scambio scaduta senza risposta`, scambio.da);
+    }
+  } catch (e) {
+    console.warn("scadenze non risolte", e);
+  } finally {
+    staRisolvendo = false;
+  }
+}
+
+/**
+ * Chi vince un'offerta (art. 9.3-9.4).
+ *
+ * Vince l'ingaggio più alto; a parità la durata maggiore; a parità ancora la
+ * squadra **peggio piazzata** in classifica. Quest'ultimo criterio è
+ * rovesciato rispetto ai regolamenti vecchi, dove vinceva chi stava meglio:
+ * dare la precedenza a chi va male è il modo delle leghe americane di non far
+ * scappare via i primi.
+ */
+function vincitoreFra(offerte) {
+  if (!offerte.length) return null;
+  return [...offerte].sort((a, b) =>
+    b.ingaggio - a.ingaggio ||
+    b.anni - a.anni ||
+    (posizioneDi(b.squadraId) - posizioneDi(a.squadraId))
+  )[0];
+}
+
+/** La posizione in classifica, o l'ordine di iscrizione se non c'è ancora. */
+const posizioneDi = (squadraId) =>
+  squadraDi(squadraId)?.posizione ?? squadraDi(squadraId)?.ordine ?? 99;
+
+/** Chiude una trattativa scaduta e, se qualcuno ha offerto, assegna. */
+async function chiudiTrattativa(trattativa) {
+  const valide = (trattativa.offerte ?? []).filter((o) => {
+    /* Un'offerta fatta ieri può essere diventata impossibile: la squadra ha
+       riempito la rosa o speso lo spazio. Si scarta, non si forza. */
+    const conto = contoRosa(rosaDi(o.squadraId));
+    const g = PER_ID.get(trattativa.giocatoreId);
+    if (!g) return false;
+    return perchéNo({
+      giocatore: g, tipo: o.tipo, ingaggio: o.ingaggio, ingaggioScritto: aMilioni(o.ingaggio),
+      anni: o.anni, conto, contrattiTampone: rosaDi(o.squadraId).filter((c) => c.tipo === "TAMPONE").length,
+    }).length === 0;
+  });
+
+  const vince = vincitoreFra(valide);
+  await db.collection("mercato").doc(trattativa.id).set({
+    ...trattativa, stato: "CHIUSA", chiusaIl: new Date().toISOString(),
+    vincitore: vince?.squadraId ?? null,
+    scartate: (trattativa.offerte ?? []).length - valide.length,
+  });
+
+  if (!vince) {
+    await annota("mercato", `${trattativa.nome}: nessuna offerta valida, resta libero`, null);
+    return;
+  }
+
+  const g = PER_ID.get(trattativa.giocatoreId);
+  const squadra = squadraDi(vince.squadraId);
+  await scriviRosa(vince.squadraId, [...rosaDi(vince.squadraId), {
+    giocatoreId: g.id, nome: g.nome, ruolo: g.ruolo,
+    tipo: vince.tipo, anni: vince.anni, ingaggio: vince.ingaggio,
+    firmato: new Date().toISOString(),
+  }]);
+  await annota("mercato",
+    `${g.nome} va a ${squadra?.nome ?? "—"} per ${soldi(vince.ingaggio)} × ${vince.anni} ` +
+    `${vince.anni === 1 ? "anno" : "anni"} (${(trattativa.offerte ?? []).length} offerte)`,
+    vince.squadraId);
+}
+
+/** Quante offerte ha già speso una squadra in questa stagione (art. 9.1). */
+const offerteSpeseDa = (squadraId) =>
+  stato.mercato.filter((m) => (m.offerte ?? []).some((o) => o.squadraId === squadraId)).length;
+
+/** Il giocatore è già in trattativa? Non se ne aprono due sullo stesso. */
+const trattativaAperta = (giocatoreId) =>
+  stato.mercato.find((m) => m.stato === "APERTA" && m.giocatoreId === giocatoreId) ?? null;
+
+/** Quanto manca, detto come lo direbbe una persona. */
+function fraQuanto(scadenza) {
+  const minuti = Math.max(0, Math.round((Date.parse(scadenza) - Date.now()) / 60000));
+  if (minuti < 1) return "sta per chiudersi";
+  if (minuti < 60) return `fra ${minuti} ${minuti === 1 ? "minuto" : "minuti"}`;
+  const ore = Math.round(minuti / 60);
+  if (ore < 24) return `fra ${ore} ${ore === 1 ? "ora" : "ore"}`;
+  const giorni = Math.round(ore / 24);
+  return `fra ${giorni} ${giorni === 1 ? "giorno" : "giorni"}`;
 }
 
 /* ── Scritture ────────────────────────────────────────────── */
@@ -830,6 +1026,18 @@ function ascolta() {
 
   db.collection("rose").onSnapshot((istantanea) => {
     stato.rose = new Map(istantanea.docs.map((d) => [d.id, d.data()]));
+    disegna();
+  });
+
+  db.collection("mercato").onSnapshot((istantanea) => {
+    stato.mercato = istantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
+    risolviScadenze();
+    disegna();
+  });
+
+  db.collection("scambi").onSnapshot((istantanea) => {
+    stato.scambi = istantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
+    risolviScadenze();
     disegna();
   });
 
@@ -967,6 +1175,7 @@ function vistaApplicazione() {
     { id: "lega", nome: "Lega" },
     { id: "rosa", nome: "Rosa" },
     { id: "listone", nome: "Listone" },
+    { id: "mercato", nome: "Mercato" },
     { id: "societa", nome: "Società" },
     { id: "registro", nome: "Registro" },
   ];
@@ -977,6 +1186,7 @@ function vistaApplicazione() {
     stato.vista === "lega" ? paginaLega()
     : stato.vista === "rosa" ? paginaRosa()
     : stato.vista === "listone" ? paginaListone()
+    : stato.vista === "mercato" ? paginaMercato()
     : stato.vista === "societa" ? paginaSocieta()
     : stato.vista === "registro" ? paginaRegistro()
     : paginaGestione();
@@ -1233,6 +1443,8 @@ function disegnaFoglio() {
   if (foglioAperto?.tipo === "firma") return foglioFirma(foglioAperto.giocatoreId);
   if (foglioAperto?.tipo === "squadra") return foglioSquadra(foglioAperto.squadraId);
   if (foglioAperto?.tipo === "codice") return foglioCodice(foglioAperto.chi);
+  if (foglioAperto?.tipo === "busta") return foglioBusta(foglioAperto.trattativaId, foglioAperto.giocatoreId);
+  if (foglioAperto?.tipo === "scambio") return foglioScambio();
   return "";
 }
 
@@ -1325,6 +1537,126 @@ function foglioFirma(giocatoreId) {
         </p>
       </form>
     </div></div>`;
+}
+
+/* ── Pagina: il mercato ───────────────────────────────────── */
+
+function paginaMercato() {
+  const squadra = squadraCorrente();
+  const aperte = stato.mercato.filter((m) => m.stato === "APERTA").sort((a, b) => Date.parse(a.scadeIl) - Date.parse(b.scadeIl));
+  const chiuse = stato.mercato.filter((m) => m.stato === "CHIUSA").sort((a, b) => Date.parse(b.chiusaIl ?? 0) - Date.parse(a.chiusaIl ?? 0)).slice(0, 12);
+  const mieiScambi = stato.scambi.filter((s) => s.stato === "PROPOSTO" && (s.da === squadra?.id || s.a === squadra?.id));
+  const altriScambi = stato.scambi.filter((s) => s.stato !== "PROPOSTO").sort((a, b) => Date.parse(b.proposto) - Date.parse(a.proposto)).slice(0, 8);
+  const spese = squadra ? offerteSpeseDa(squadra.id) : 0;
+
+  const schedaTrattativa = (m) => {
+    const mia = (m.offerte ?? []).find((o) => o.squadraId === squadra?.id);
+    const g = PER_ID.get(m.giocatoreId);
+    const waiver = m.tipo === "WAIVER";
+    return `<div class="voce">
+      <span class="ruolo ${pulito(m.ruolo)}">${pulito(m.ruolo)}</span>
+      <span class="corpo">
+        <span class="nome">${pulito(m.nome)}</span>
+        <span class="dettaglio">
+          ${pulito(g?.squadra ?? "")}${g?.eta != null ? ` · ${g.eta} anni` : ""}
+          <span class="targhetta ${waiver ? "forse" : "neutra"}">${waiver ? "waiver" : "free agency"}</span>
+          <span class="targhetta neutra">${(m.offerte ?? []).length} ${(m.offerte ?? []).length === 1 ? "busta" : "buste"}</span>
+        </span>
+      </span>
+      <span class="coda">
+        <span style="font-size:12px;color:var(--inchiostro-lieve);text-align:right">chiude<br>${fraQuanto(m.scadeIl)}</span>
+        ${squadra && possoToccare(squadra.id)
+          ? `<button class="bottone piccolo" data-offri="${pulito(m.id)}">${mia ? "Ritocca" : "Offri"}</button>` : ""}
+      </span>
+    </div>`;
+  };
+
+  const schedaChiusa = (m) => {
+    const vincitrice = m.vincitore ? squadraDi(m.vincitore) : null;
+    return `<div class="voce">
+      <span class="ruolo ${pulito(m.ruolo)}">${pulito(m.ruolo)}</span>
+      <span class="corpo">
+        <span class="nome">${pulito(m.nome)}</span>
+        <span class="dettaglio">
+          ${vincitrice ? `a ${pulito(vincitrice.nome)}` : "nessuna offerta valida"}
+          <span class="targhetta neutra">${(m.offerte ?? []).length} buste</span>
+          ${m.scartate ? `<span class="targhetta forse">${m.scartate} non più valide</span>` : ""}
+        </span>
+      </span>
+      <span class="coda">${vincitrice
+        ? `<span class="prezzo num">${soldi(vincitoreFra(m.offerte ?? [])?.ingaggio ?? 0)}</span>`
+        : `<span class="targhetta neutra">libero</span>`}</span>
+    </div>`;
+  };
+
+  const schedaScambio = (s) => {
+    const da = squadraDi(s.da), a = squadraDi(s.a);
+    const nomi = (ids, squadraId) => ids.length
+      ? ids.map((id) => pulito(rosaDi(squadraId).find((c) => c.giocatoreId === id)?.nome ?? PER_ID.get(id)?.nome ?? "—")).join(", ")
+      : "—";
+    const tocca = s.a === squadra?.id && possoToccare(squadra.id);
+    return `<div class="riquadro" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <b>${pulito(da?.nome ?? "—")} → ${pulito(a?.nome ?? "—")}</b>
+        <span style="font-size:12px;color:var(--inchiostro-lieve)">
+          ${s.stato === "PROPOSTO" ? `scade ${fraQuanto(s.scadeIl)}` : pulito(s.stato.toLowerCase())}</span>
+      </div>
+      <div class="scorre"><table class="tabellina" style="margin-bottom:6px">
+        <tr><td style="width:50%"><span class="occhiello">dà</span><br>${nomi(s.cedeDa, s.da)}
+          ${s.capitaleDa ? `<br><span class="targhetta neutra">${soldi(s.capitaleDa)} di Capitale</span>` : ""}</td>
+        <td><span class="occhiello">riceve</span><br>${nomi(s.cedeA, s.a)}
+          ${s.capitaleA ? `<br><span class="targhetta neutra">${soldi(s.capitaleA)} di Capitale</span>` : ""}</td></tr>
+      </table></div>
+      ${tocca ? `<div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="bottone primario piccolo" data-accetta="${pulito(s.id)}">Accetta</button>
+          <button class="bottone piccolo" data-rifiuta="${pulito(s.id)}">Rifiuta</button>
+        </div>` : ""}
+      ${s.da === squadra?.id && s.stato === "PROPOSTO"
+        ? `<button class="bottone piccolo" data-ritira-scambio="${pulito(s.id)}">Ritira la proposta</button>` : ""}
+    </div>`;
+  };
+
+  return `
+    <h1>Mercato</h1>
+    <p style="color:var(--inchiostro-med);margin:6px 0 14px">
+      L'asta di settembre si fa al tavolo. Qui passa quello che viene dopo: i giocatori rimasti
+      liberi, chi viene tagliato e gli scambi fra squadre.
+      ${squadra ? `Hai speso <b>${spese}</b> offerte su ${REGOLE.mercato.offertePerStagione} (art. 9.1).` : ""}
+    </p>
+
+    <div class="avviso attenzione" style="margin-bottom:18px">
+      <b>Le buste sono chiuse per accordo, non per crittografia.</b> L'applicazione non mostra a
+      nessuno le offerte altrui prima dell'apertura, ma chi sa aprire il database della lega
+      potrebbe leggerle. Fra dieci persone che si conoscono va bene saperlo, ed è giusto dirlo.
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Trattative aperte</h2>
+        <span class="conteggio">${aperte.length}</span></div>
+      ${aperte.length ? `<div class="elenco">${aperte.map(schedaTrattativa).join("")}</div>`
+        : `<div class="vuoto riquadro">Nessuna trattativa aperta. Apri il <b>Listone</b>, scegli un
+           giocatore libero e deposita la prima busta: gli altri avranno
+           ${REGOLE.mercato.oreFreeAgency} ore per rilanciare.</div>`}
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Scambi da decidere</h2>
+        <span class="conteggio">${mieiScambi.length}</span></div>
+      ${squadra && possoToccare(squadra.id)
+        ? `<button class="bottone" id="nuovo-scambio" style="margin-bottom:10px">Proponi uno scambio</button>` : ""}
+      ${mieiScambi.length ? mieiScambi.map(schedaScambio).join("")
+        : `<div class="vuoto riquadro">Nessuna proposta sul tavolo.</div>`}
+    </div>
+
+    ${chiuse.length ? `<div class="sezione">
+      <div class="intestazione-sezione"><h2>Trattative chiuse</h2></div>
+      <div class="elenco">${chiuse.map(schedaChiusa).join("")}</div>
+    </div>` : ""}
+
+    ${altriScambi.length ? `<div class="sezione">
+      <div class="intestazione-sezione"><h2>Scambi conclusi</h2></div>
+      ${altriScambi.map(schedaScambio).join("")}
+    </div>` : ""}`;
 }
 
 /* ── Pagina: la società ───────────────────────────────────── */
@@ -1488,6 +1820,162 @@ function paginaSocieta() {
     </div>`;
 }
 
+/* ── Il foglio della busta ────────────────────────────────── */
+
+function foglioBusta(trattativaId, giocatoreId) {
+  const squadra = squadraCorrente();
+  /* Due modi di arrivare qui: rilanciare su una trattativa già aperta, o
+     aprirne una nuova su un giocatore libero. Nel secondo caso la trattativa
+     non esiste ancora e nasce con la prima busta. */
+  const m = trattativaId
+    ? stato.mercato.find((x) => x.id === trattativaId)
+    : { id: null, giocatoreId, nome: PER_ID.get(giocatoreId)?.nome, ruolo: PER_ID.get(giocatoreId)?.ruolo,
+        offerte: [], stato: "APERTA", tipo: "FREE_AGENCY",
+        scadeIl: new Date(Date.now() + REGOLE.mercato.oreFreeAgency * 3600000).toISOString() };
+  if (!m || !squadra) return "";
+  const g = PER_ID.get(m.giocatoreId);
+  const contratti = rosaDi(squadra.id);
+  const conto = contoRosa(contratti);
+  const mia = (m.offerte ?? []).find((o) => o.squadraId === squadra.id);
+
+  const tipi = Object.entries(REGOLE.contratti).map(([id, regola]) => {
+    const serveEtà = regola.etaMax != null || regola.etaMin != null;
+    const impossibile =
+      (serveEtà && g.eta == null) ? "serve l'età del giocatore"
+      : (regola.etaMax != null && g.eta > regola.etaMax) ? `ne ha ${g.eta}, oltre i ${regola.etaMax}`
+      : (regola.etaMin != null && g.eta < regola.etaMin) ? `ne ha ${g.eta}, sotto i ${regola.etaMin}`
+      : (regola.slot && conto.slotLiberi < 1) ? "slot pluriennali finiti"
+      : null;
+    return `<button type="button" class="scelta" data-tipo="${id}" aria-pressed="${bozza.tipo === id}" ${impossibile ? "disabled" : ""}>
+        <b>${regola.nome}${impossibile ? ` — ${impossibile}` : ""}</b><small>${regola.nota}</small></button>`;
+  }).join("");
+
+  const regolaScelta = REGOLE.contratti[bozza.tipo];
+  const sceltaAnni = regolaScelta.anni.length > 1
+    ? `<label class="campo"><span>Per quanti anni</span><div class="filtri" style="margin:0">
+        ${regolaScelta.anni.map((a) => `<button type="button" class="pillola" data-anni="${a}" aria-pressed="${bozza.anni === a}">${a} anni</button>`).join("")}
+      </div></label>` : "";
+
+  const quarti = bozza.ingaggio === "" ? NaN : aQuarti(bozza.ingaggio);
+  const motivi = Number.isFinite(quarti) && quarti > 0
+    ? perchéNo({ giocatore: g, tipo: bozza.tipo, ingaggio: quarti, ingaggioScritto: Number(bozza.ingaggio),
+                 anni: bozza.anni, conto, contrattiTampone: contratti.filter((c) => c.tipo === "TAMPONE").length })
+    : [];
+  const spese = offerteSpeseDa(squadra.id);
+  const fuoriQuota = !mia && spese >= REGOLE.mercato.offertePerStagione;
+
+  return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
+    <div class="foglio-testa">
+      <span class="ruolo ${g.ruolo}" style="width:36px;height:36px;border-radius:9px">${g.ruolo}</span>
+      <div><h2>${pulito(g.nome)}</h2>
+        <p style="font-size:13px;color:var(--inchiostro-med)">
+          ${pulito(g.squadra)} · quotato ${g.quotazione} M${g.eta != null ? ` · ${g.eta} anni` : ""}
+          · chiude ${fraQuanto(m.scadeIl)}</p></div>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>
+
+    <div class="avviso neutro" style="margin-bottom:14px">
+      ${(m.offerte ?? []).length
+        ? `Ci sono <b>${(m.offerte ?? []).length} buste</b> depositate. Quanto valgono lo saprai
+           all'apertura, come tutti gli altri.`
+        : `Sei il primo. Da adesso gli altri hanno ${REGOLE.mercato.oreFreeAgency} ore per rilanciare.`}
+      ${mia ? `<br>La tua offerta di adesso: <b>${soldi(mia.ingaggio)} × ${mia.anni} ${mia.anni === 1 ? "anno" : "anni"}</b>.` : ""}
+    </div>
+
+    ${fuoriQuota ? `<div class="avviso errore">Hai già speso tutte e
+      ${REGOLE.mercato.offertePerStagione} le offerte della stagione (art. 9.1).</div>`
+    : `<form id="modulo-busta" class="moduli" data-trattativa="${pulito(m.id ?? "")}"
+             data-per-giocatore="${pulito(m.giocatoreId)}">
+        <label class="campo"><span>Quanto offri — a passi di 0,25 M</span>
+          <input type="number" id="ingaggio" step="0.25" min="0.25" max="${REGOLE.tetto}"
+                 value="${pulito(bozza.ingaggio)}" placeholder="es. 3,5" inputmode="decimal" required></label>
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">Che contratto</span>
+          <div class="scelte">${tipi}</div></div>
+        ${sceltaAnni}
+        ${motivi.length ? `<div class="avviso errore">${motivi.map(pulito).join("<br>")}</div>` : ""}
+        <button class="bottone primario largo" type="submit"
+          ${motivi.length || !Number.isFinite(quarti) || quarti <= 0 ? "disabled" : ""}>
+          ${mia ? "Cambia la busta" : "Deposita la busta"}</button>
+        <p style="font-size:12px;color:var(--inchiostro-med);text-align:center">
+          ${mia ? "Ritoccare non consuma una seconda offerta." : `Ti resteranno ${REGOLE.mercato.offertePerStagione - spese - 1} offerte.`}
+        </p>
+      </form>`}
+  </div></div>`;
+}
+
+/* ── Il foglio dello scambio ──────────────────────────────── */
+
+let bozzaScambio = { conChi: null, cedeDa: [], cedeA: [], capitaleDa: "", capitaleA: "" };
+
+function foglioScambio() {
+  const mia = squadraCorrente();
+  if (!mia) return "";
+  const altre = stato.squadre.filter((s) => s.id !== mia.id);
+  const con = bozzaScambio.conChi ? squadraDi(bozzaScambio.conChi) : null;
+
+  const listaGiocatori = (squadraId, selezionati, attributo) =>
+    rosaDi(squadraId).length
+      ? [...rosaDi(squadraId)]
+          .sort((a, b) => ORDINE_RUOLI.indexOf(a.ruolo) - ORDINE_RUOLI.indexOf(b.ruolo) || b.ingaggio - a.ingaggio)
+          .map((c) => `<button type="button" class="scelta" ${attributo}="${pulito(c.giocatoreId)}"
+              aria-pressed="${selezionati.includes(c.giocatoreId)}">
+              <b>${pulito(c.nome)} · ${c.ruolo}</b>
+              <small>${soldi(c.ingaggio)} · ${pulito(REGOLE.contratti[c.tipo]?.nome ?? c.tipo)}${c.anni > 1 ? ` ${c.anni} anni` : ""}</small>
+            </button>`).join("")
+      : `<p style="font-size:13px;color:var(--inchiostro-med)">Rosa vuota.</p>`;
+
+  const motivi = con
+    ? perchéNoScambio({
+        daId: mia.id, aId: con.id,
+        cedeDa: bozzaScambio.cedeDa, cedeA: bozzaScambio.cedeA,
+        capitaleDa: bozzaScambio.capitaleDa ? aQuarti(bozzaScambio.capitaleDa) : 0,
+        capitaleA: bozzaScambio.capitaleA ? aQuarti(bozzaScambio.capitaleA) : 0,
+      })
+    : [];
+
+  return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
+    <div class="foglio-testa">
+      <div><h2>Proponi uno scambio</h2>
+        <p style="font-size:13px;color:var(--inchiostro-med)">
+          I giocatori viaggiano con il loro contratto. Si scambia anche Capitale, mai spazio
+          salariale (art. 11.1).</p></div>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>
+
+    <form id="modulo-scambio" class="moduli">
+      <label class="campo"><span>Con quale squadra</span>
+        <select id="scambio-con">
+          <option value="">Scegli…</option>
+          ${altre.map((s) => `<option value="${pulito(s.id)}" ${bozzaScambio.conChi === s.id ? "selected" : ""}>${pulito(s.nome)}</option>`).join("")}
+        </select></label>
+
+      ${con ? `
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">
+          Dai — dalla rosa di ${pulito(mia.nome)}</span>
+          <div class="scelte">${listaGiocatori(mia.id, bozzaScambio.cedeDa, "data-cede-da")}</div></div>
+
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--inchiostro-med);margin-bottom:6px">
+          Ricevi — dalla rosa di ${pulito(con.nome)}</span>
+          <div class="scelte">${listaGiocatori(con.id, bozzaScambio.cedeA, "data-cede-a")}</div></div>
+
+        <div class="scelte">
+          <label class="campo"><span>Capitale che dai</span>
+            <input type="number" id="cap-da" step="0.25" min="0" value="${pulito(bozzaScambio.capitaleDa)}" placeholder="0"></label>
+          <label class="campo"><span>Capitale che ricevi</span>
+            <input type="number" id="cap-a" step="0.25" min="0" value="${pulito(bozzaScambio.capitaleA)}" placeholder="0"></label>
+        </div>
+
+        ${motivi.length ? `<div class="avviso errore">${motivi.map(pulito).join("<br>")}</div>`
+          : `<div class="avviso bene">Le due rose restano valide. ${pulito(con.nome)} ha
+             ${REGOLE.mercato.oreAccettazioneScambio} ore per rispondere.</div>`}
+
+        <button class="bottone primario largo" type="submit" ${motivi.length ? "disabled" : ""}>
+          Manda la proposta a ${pulito(con.nome)}</button>
+      ` : ""}
+    </form>
+  </div></div>`;
+}
+
 /* ── Pagina: il registro ──────────────────────────────────── */
 
 function paginaRegistro() {
@@ -1569,6 +2057,40 @@ function paginaGestione() {
             <div id="esito-iscrizioni"></div>
           </form>
         </div>` : ""}
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>A che punto siamo</h2></div>
+      <div class="riquadro">
+        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+          Il giorno dopo l'asta si scrivono le rose così come sono uscite dal tavolo: si cerca il
+          giocatore e si mette dentro. A stagione avviata invece un giocatore libero se lo
+          contendono in più squadre, e allora passa dalle buste chiuse
+          (${REGOLE.mercato.oreFreeAgency} ore, art. 9).
+        </p>
+        <div class="scelte">
+          <button class="scelta" data-fase="COMPOSIZIONE" aria-pressed="${fase() === "COMPOSIZIONE"}">
+            <b>Si compongono le rose</b><small>Dal listone si firma subito, senza aspettare.</small></button>
+          <button class="scelta" data-fase="MERCATO" aria-pressed="${fase() === "MERCATO"}">
+            <b>Mercato aperto</b><small>Sui liberi si depositano buste e vince la più alta.</small></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Classifica</h2></div>
+      <div class="riquadro">
+        <p style="font-size:13.5px;color:var(--inchiostro-med);margin-bottom:12px">
+          A parità di offerta vince la squadra <b>peggio piazzata</b> (art. 9.4): è il modo di non
+          far scappare via i primi. Scrivi qui la classifica della stagione scorsa — 1 alla prima,
+          10 all'ultima.
+        </p>
+        <div class="scelte">
+          ${stato.squadre.map((s) => `<label class="campo"><span>${pulito(s.nome)}</span>
+            <input type="number" min="1" max="${stato.squadre.length}" data-posizione="${pulito(s.id)}"
+                   value="${s.posizione ?? ""}" placeholder="${s.ordine ?? ""}"></label>`).join("")}
+        </div>
+      </div>
     </div>
 
     <div class="sezione">
@@ -1728,11 +2250,20 @@ function dopoIlDisegno() {
 
   /* Dal listone al foglio della firma */
   su("[data-giocatore]", "click", (e) => {
+    /* Un click nato dentro un foglio appartiene al foglio, non all'elenco che
+       sta sotto: senza questa riga un modulo che portasse lo stesso attributo
+       riaprirebbe la scheda invece di lasciar lavorare il suo bottone. */
+    if (e.currentTarget.closest(".velo")) return;
     const id = e.currentTarget.dataset.giocatore;
     if (tesserati().has(id)) return;
     if (!squadraCorrente() || !possoToccare(squadraCorrente().id)) return;
     bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
-    apriFoglio({ tipo: "firma", giocatoreId: id });
+    if (siamoAlMercato()) {
+      const aperta = trattativaAperta(id);
+      apriFoglio({ tipo: "busta", trattativaId: aperta?.id ?? null, giocatoreId: id });
+    } else {
+      apriFoglio({ tipo: "firma", giocatoreId: id });
+    }
   });
 
   /* Ricerca dentro la pagina Rosa */
@@ -1780,14 +2311,152 @@ function dopoIlDisegno() {
     const squadra = squadraCorrente();
     const contratto = rosaDi(squadra.id).find((c) => c.giocatoreId === id);
     if (!contratto) return;
-    if (!confirm(`Togliere ${contratto.nome} dalla rosa? Torna libero nel listone.`)) return;
+    if (!confirm(`Togliere ${contratto.nome} dalla rosa? Va in waiver per ${REGOLE.mercato.oreWaiver} ore: in quel tempo le altre squadre possono reclamarlo.`)) return;
     const restanti = rosaDi(squadra.id).filter((c) => c.giocatoreId !== id);
     await scriviRosa(squadra.id, restanti);
-    await annota("rosa", `${contratto.nome} liberato da ${squadra.nome}`, squadra.id);
+
+    /* Art. 10 — chi viene tagliato non torna subito libero: resta 48 ore in
+       waiver. Serve a impedire la corsa al click sul giocatore appena tagliato. */
+    await db.collection("mercato").doc("w" + Date.now().toString(36)).set({
+      tipo: "WAIVER", giocatoreId: id, nome: contratto.nome, ruolo: contratto.ruolo,
+      apertaIl: new Date().toISOString(),
+      scadeIl: new Date(Date.now() + REGOLE.mercato.oreWaiver * 3600000).toISOString(),
+      offerte: [], stato: "APERTA", tagliatoDa: squadra.id,
+    });
+    await annota("mercato", `${contratto.nome} tagliato da ${squadra.nome}: in waiver per ${REGOLE.mercato.oreWaiver} ore`, squadra.id);
   });
 
+  agganciaMercato();
   agganciaSocieta();
   agganciaGestione();
+}
+
+/* ── Gli effetti del mercato ──────────────────────────────── */
+
+function agganciaMercato() {
+  su("[data-offri]", "click", (e) => {
+    const m = stato.mercato.find((x) => x.id === e.currentTarget.dataset.offri);
+    const mia = (m?.offerte ?? []).find((o) => o.squadraId === squadraCorrente()?.id);
+    bozza = mia
+      ? { tipo: mia.tipo, anni: mia.anni, ingaggio: String(aMilioni(mia.ingaggio)) }
+      : { tipo: "ANNUALE", anni: 1, ingaggio: "" };
+    apriFoglio({ tipo: "busta", trattativaId: e.currentTarget.dataset.offri });
+  });
+
+  const moduloBusta = radice.querySelector("#modulo-busta");
+  if (moduloBusta) moduloBusta.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const squadra = squadraCorrente();
+    if (!squadra) { chiudiFoglio(); return; }
+    const offerta = { squadraId: squadra.id, ingaggio: aQuarti(bozza.ingaggio),
+                      anni: bozza.anni, tipo: bozza.tipo, quando: new Date().toISOString() };
+
+    let m = stato.mercato.find((x) => x.id === moduloBusta.dataset.trattativa);
+    if (!m) {
+      /* Trattativa nuova su un giocatore libero. Se qualcuno l'ha aperta un
+         istante fa, ci si accoda alla sua invece di aprirne una seconda. */
+      const giocatoreId = moduloBusta.dataset.perGiocatore;
+      const g = PER_ID.get(giocatoreId);
+      m = trattativaAperta(giocatoreId);
+      if (!m) {
+        m = { id: "m" + Date.now().toString(36), tipo: "FREE_AGENCY",
+              giocatoreId, nome: g.nome, ruolo: g.ruolo,
+              apertaIl: new Date().toISOString(),
+              scadeIl: new Date(Date.now() + REGOLE.mercato.oreFreeAgency * 3600000).toISOString(),
+              offerte: [], stato: "APERTA" };
+      }
+    }
+    if (m.stato !== "APERTA") { chiudiFoglio(); return; }
+
+    const altre = (m.offerte ?? []).filter((o) => o.squadraId !== squadra.id);
+    const { id, ...corpo } = m;
+    await db.collection("mercato").doc(id).set({ ...corpo, offerte: [...altre, offerta] });
+    /* Il registro dice che una busta è arrivata, non quanto vale: pubblicarne
+       l'importo prima dell'apertura vanificherebbe la busta. */
+    await annota("mercato", `${squadra.nome} deposita una busta per ${m.nome}`, squadra.id);
+    chiudiFoglio();
+  });
+
+  su("#nuovo-scambio", "click", () => {
+    bozzaScambio = { conChi: null, cedeDa: [], cedeA: [], capitaleDa: "", capitaleA: "" };
+    apriFoglio({ tipo: "scambio" });
+  });
+
+  const scegliCon = radice.querySelector("#scambio-con");
+  if (scegliCon) scegliCon.addEventListener("change", (e) => {
+    bozzaScambio = { conChi: e.target.value || null, cedeDa: [], cedeA: [], capitaleDa: "", capitaleA: "" };
+    disegna();
+  });
+
+  const scambia = (elenco, id) =>
+    elenco.includes(id) ? elenco.filter((x) => x !== id) : [...elenco, id];
+  su("[data-cede-da]", "click", (e) => { bozzaScambio.cedeDa = scambia(bozzaScambio.cedeDa, e.currentTarget.dataset.cedeDa); disegna(); });
+  su("[data-cede-a]", "click", (e) => { bozzaScambio.cedeA = scambia(bozzaScambio.cedeA, e.currentTarget.dataset.cedeA); disegna(); });
+
+  for (const [selettore, campo] of [["#cap-da", "capitaleDa"], ["#cap-a", "capitaleA"]]) {
+    const elemento = radice.querySelector(selettore);
+    if (elemento) elemento.addEventListener("input", (ev) => { bozzaScambio[campo] = ev.target.value; disegna(); });
+  }
+
+  const moduloScambio = radice.querySelector("#modulo-scambio");
+  if (moduloScambio) moduloScambio.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const mia = squadraCorrente();
+    const con = squadraDi(bozzaScambio.conChi);
+    if (!mia || !con) return;
+    const proposta = {
+      da: mia.id, a: con.id,
+      cedeDa: bozzaScambio.cedeDa, cedeA: bozzaScambio.cedeA,
+      capitaleDa: bozzaScambio.capitaleDa ? aQuarti(bozzaScambio.capitaleDa) : 0,
+      capitaleA: bozzaScambio.capitaleA ? aQuarti(bozzaScambio.capitaleA) : 0,
+      proposto: new Date().toISOString(),
+      scadeIl: new Date(Date.now() + REGOLE.mercato.oreAccettazioneScambio * 3600000).toISOString(),
+      stato: "PROPOSTO",
+    };
+    if (perchéNoScambio({ daId: mia.id, aId: con.id, ...proposta }).length) { disegna(); return; }
+    await db.collection("scambi").doc(Date.now().toString(36)).set(proposta);
+    await annota("scambio", `${mia.nome} propone uno scambio a ${con.nome}`, mia.id);
+    chiudiFoglio();
+  });
+
+  su("[data-accetta]", "click", async (e) => {
+    const s = stato.scambi.find((x) => x.id === e.currentTarget.dataset.accetta);
+    if (!s || s.stato !== "PROPOSTO") return;
+    const motivi = perchéNoScambio({ daId: s.da, aId: s.a, cedeDa: s.cedeDa, cedeA: s.cedeA,
+                                     capitaleDa: s.capitaleDa, capitaleA: s.capitaleA });
+    if (motivi.length) { alert("Lo scambio non è più valido:\n\n" + motivi.join("\n")); return; }
+    if (!confirm("Accetti lo scambio? I giocatori passano subito, con il loro contratto.")) return;
+
+    e.currentTarget.disabled = true;
+    const pacchettoDa = rosaDi(s.da).filter((c) => s.cedeDa.includes(c.giocatoreId));
+    const pacchettoA = rosaDi(s.a).filter((c) => s.cedeA.includes(c.giocatoreId));
+
+    await scriviRosa(s.da, rosaDopoScambio(s.da, s.cedeDa, pacchettoA));
+    await scriviRosa(s.a, rosaDopoScambio(s.a, s.cedeA, pacchettoDa));
+    if (s.capitaleDa) { await muoviCapitale(s.da, -s.capitaleDa, `Scambio con ${squadraDi(s.a)?.nome ?? "—"}`);
+                        await muoviCapitale(s.a, s.capitaleDa, `Scambio con ${squadraDi(s.da)?.nome ?? "—"}`); }
+    if (s.capitaleA) { await muoviCapitale(s.a, -s.capitaleA, `Scambio con ${squadraDi(s.da)?.nome ?? "—"}`);
+                       await muoviCapitale(s.da, s.capitaleA, `Scambio con ${squadraDi(s.a)?.nome ?? "—"}`); }
+
+    await db.collection("scambi").doc(s.id).set({ ...s, stato: "ACCETTATO", chiusoIl: new Date().toISOString() });
+    const nomi = (p) => p.length ? p.map((c) => c.nome).join(", ") : "nessun giocatore";
+    await annota("scambio",
+      `${squadraDi(s.da)?.nome} ↔ ${squadraDi(s.a)?.nome}: ${nomi(pacchettoDa)} per ${nomi(pacchettoA)}`, s.a);
+  });
+
+  su("[data-rifiuta]", "click", async (e) => {
+    const s = stato.scambi.find((x) => x.id === e.currentTarget.dataset.rifiuta);
+    if (!s) return;
+    await db.collection("scambi").doc(s.id).set({ ...s, stato: "RIFIUTATO", chiusoIl: new Date().toISOString() });
+    await annota("scambio", `${squadraDi(s.a)?.nome} rifiuta lo scambio di ${squadraDi(s.da)?.nome}`, s.a);
+  });
+
+  su("[data-ritira-scambio]", "click", async (e) => {
+    const s = stato.scambi.find((x) => x.id === e.currentTarget.dataset.ritiraScambio);
+    if (!s) return;
+    await db.collection("scambi").doc(s.id).set({ ...s, stato: "RITIRATO", chiusoIl: new Date().toISOString() });
+    await annota("scambio", `${squadraDi(s.da)?.nome} ritira la sua proposta`, s.da);
+  });
 }
 
 /* ── Gli effetti della società ────────────────────────────── */
@@ -1893,7 +2562,12 @@ function mostraRisultatiRosa(testo) {
   zona.querySelectorAll("[data-giocatore]").forEach((b) =>
     b.addEventListener("click", () => {
       bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
-      apriFoglio({ tipo: "firma", giocatoreId: b.dataset.giocatore });
+      if (siamoAlMercato()) {
+        const aperta = trattativaAperta(b.dataset.giocatore);
+        apriFoglio({ tipo: "busta", trattativaId: aperta?.id ?? null, giocatoreId: b.dataset.giocatore });
+      } else {
+        apriFoglio({ tipo: "firma", giocatoreId: b.dataset.giocatore });
+      }
     }));
 }
 
@@ -2023,6 +2697,23 @@ function agganciaGestione() {
     await db.collection("societa").doc(id).delete().catch(() => {});
     await annota("lega", `${squadra.nome} ritirata dalla lega`, null);
     chiudiFoglio();
+  });
+
+  su("[data-fase]", "click", async (e) => {
+    const nuova = e.currentTarget.dataset.fase;
+    if (nuova === fase()) return;
+    await db.doc("lega/config").update({ fase: nuova });
+    await annota("lega", nuova === "MERCATO"
+      ? "Mercato aperto: sui liberi si depositano buste"
+      : "Si compongono le rose: dal listone si firma subito", null);
+  });
+
+  su("[data-posizione]", "change", async (e) => {
+    const squadra = squadraDi(e.currentTarget.dataset.posizione);
+    const valore = e.currentTarget.value.trim();
+    if (!squadra) return;
+    const posizione = valore === "" ? null : Number(valore);
+    await scriviSquadra({ ...squadra, posizione });
   });
 
   su("#salva-lega", "click", async () => {
