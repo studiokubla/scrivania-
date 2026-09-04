@@ -371,6 +371,52 @@ const REGOLE = {
   },
 
   primavera: { etaMax: 20, quotazioneMax: 3, presenzeMax: 5 },  // art. 16.1
+
+  /* Il Capitale è l'altro conto della società, e non va confuso col tetto: il
+     tetto è un limite agli ingaggi, il Capitale è denaro che si accumula e si
+     investe. Nessuna operazione converte l'uno nell'altro (art. 14). */
+  capitale: {
+    dotazione: 40,                    // art. 14 — con cui parte ogni squadra
+    gareInCasa: 19,
+    operativoDallaGiornata: 20,       // art. 15.1 — sei mesi di cantiere
+
+    /* Art. 15.2 — la manutenzione è il 10% della costruzione e l'incasso è per
+       gara casalinga: a ogni livello il saldo annuo è positivo. Lo stadio è un
+       investimento lento, non una tassa. */
+    stadi: [
+      { livello: 1, nome: "Comunale",        costruzione: 30,  manutenzione: 3,  incassoPerGara: 0.5, fantapunti: 0.5 },
+      { livello: 2, nome: "Rinnovato",       costruzione: 60,  manutenzione: 6,  incassoPerGara: 0.9, fantapunti: 1.0 },
+      { livello: 3, nome: "Moderno",         costruzione: 100, manutenzione: 10, incassoPerGara: 1.4, fantapunti: 1.5 },
+      { livello: 4, nome: "Grande impianto", costruzione: 150, manutenzione: 15, incassoPerGara: 2.0, fantapunti: 2.0 },
+      { livello: 5, nome: "Cattedrale",      costruzione: 210, manutenzione: 21, incassoPerGara: 2.7, fantapunti: 2.5 },
+    ],
+
+    /* Art. 16.2 — la capienza del settore giovanile. I giovani non percepiscono
+       ingaggio e non occupano spazio salariale: costano Capitale, non tetto. */
+    giovanile: [
+      { capienza: 3,  investimento: 0,  mantenimento: 0 },
+      { capienza: 5,  investimento: 5,  mantenimento: 1 },
+      { capienza: 7,  investimento: 7,  mantenimento: 1.5 },
+      { capienza: 9,  investimento: 9,  mantenimento: 2 },
+      { capienza: 11, investimento: 10, mantenimento: 2.5 },
+    ],
+
+    /* Art. 17.2 — un osservatore su un campionato dà il diritto di pareggiare
+       l'offerta più alta sui giocatori che da lì arrivano in Serie A. Dura una
+       stagione e si rinnova pagando di nuovo. */
+    osservatori: [
+      { campionato: "Premier League",   paese: "Inghilterra", costo: 10 },
+      { campionato: "La Liga",          paese: "Spagna",      costo: 9 },
+      { campionato: "Bundesliga",       paese: "Germania",    costo: 9 },
+      { campionato: "Ligue 1",          paese: "Francia",     costo: 8 },
+      { campionato: "Eredivisie",       paese: "Olanda",      costo: 8 },
+      { campionato: "Primeira Liga",    paese: "Portogallo",  costo: 8 },
+      { campionato: "Serie B",          paese: "Italia",      costo: 7 },
+      { campionato: "Brasileirão",      paese: "Brasile",     costo: 6 },
+      { campionato: "Primera División", paese: "Argentina",   costo: 6 },
+      { campionato: "Altri",            paese: "Altri",       costo: 6 },
+    ],
+  },
 };
 
 /* Per cominciare tutti entrano con lo stesso codice: alla prima riunione di
@@ -541,6 +587,53 @@ function perchéNo({ giocatore, tipo, ingaggio, ingaggioScritto, anni, conto, co
   return no;
 }
 
+/* ── L'economia della società (artt. 14-17) ───────────────── */
+
+/** Lo stadio a un certo livello. Livello 0 = non c'è ancora. */
+const stadioAl = (livello) => REGOLE.capitale.stadi.find((s) => s.livello === livello) ?? null;
+
+/** Il conto annuo dello stadio: quanto incassa, quanto costa, quanto resta. */
+function contoStadio(livello) {
+  const s = stadioAl(livello);
+  if (!s) return null;
+  const incasso = s.incassoPerGara * REGOLE.capitale.gareInCasa;
+  return { ...s, incasso, netto: incasso - s.manutenzione, rientro: s.costruzione / (incasso - s.manutenzione) };
+}
+
+/**
+ * Quanto costa passare da un livello all'altro (art. 15.2).
+ *
+ * Si sale **un livello alla volta** pagando la differenza fra i due costi di
+ * costruzione. Per saltare un livello si demolisce e si ricostruisce da zero,
+ * e allora si paga tutto: è la ragione per cui conviene pianificare invece di
+ * rincorrere.
+ */
+function costoSalto(da, a) {
+  const arrivo = stadioAl(a);
+  if (!arrivo) return null;
+  if (a === da + 1) return { costo: arrivo.costruzione - (stadioAl(da)?.costruzione ?? 0), ricostruzione: false };
+  return { costo: arrivo.costruzione, ricostruzione: true };
+}
+
+/** Il gradino del settore giovanile che tiene una certa capienza. */
+const giovanileDa = (capienza) =>
+  REGOLE.capitale.giovanile.find((g) => g.capienza === capienza) ?? REGOLE.capitale.giovanile[0];
+
+/** Quanto costa ampliare il settore giovanile da una capienza alla successiva. */
+function costoAmpliamento(capienzaAttuale) {
+  const indice = REGOLE.capitale.giovanile.findIndex((g) => g.capienza === capienzaAttuale);
+  const prossimo = REGOLE.capitale.giovanile[indice + 1];
+  if (!prossimo) return null;
+  return { ...prossimo, costo: prossimo.investimento - giovanileDa(capienzaAttuale).investimento };
+}
+
+/** Il mantenimento che la società paga ogni anno: stadio più settore giovanile. */
+function manutenzioneAnnua(societa) {
+  const stadio = stadioAl(societa.stadio)?.manutenzione ?? 0;
+  const giovanile = giovanileDa(societa.capienzaGiovanile).mantenimento;
+  return aQuarti(stadio + giovanile);
+}
+
 /**
  * Idoneità al settore giovanile (art. 16.1).
  *
@@ -588,6 +681,7 @@ const stato = {
   config: null,
   squadre: [],
   rose: new Map(),
+  societa: new Map(),
   registro: [],
   io: null,                // { ruolo: "commissioner" | "presidente", squadraId }
   vista: "lega",
@@ -615,6 +709,19 @@ function riprendiIo() {
 const rosaDi = (squadraId) => stato.rose.get(squadraId)?.contratti ?? [];
 
 const squadraDi = (id) => stato.squadre.find((s) => s.id === id) ?? null;
+
+/** Il conto societario di una squadra. Una squadra appena iscritta ha la
+ *  dotazione dell'art. 14, nessuno stadio e la capienza base del vivaio. */
+function societaDi(squadraId) {
+  const salvata = stato.societa.get(squadraId);
+  return {
+    capitale: salvata?.capitale ?? aQuarti(REGOLE.capitale.dotazione),
+    stadio: salvata?.stadio ?? 0,
+    capienzaGiovanile: salvata?.capienzaGiovanile ?? REGOLE.capitale.giovanile[0].capienza,
+    osservatori: salvata?.osservatori ?? [],
+    movimenti: salvata?.movimenti ?? [],
+  };
+}
 
 /** La squadra su cui sto lavorando: la mia, o quella che il commissioner ha scelto. */
 function squadraCorrente() {
@@ -664,6 +771,38 @@ async function scriviRosa(squadraId, contratti) {
   await db.collection("rose").doc(squadraId).set({ contratti, aggiornata: new Date().toISOString() });
 }
 
+/**
+ * Muove il Capitale e lascia la traccia di com'è cambiato.
+ *
+ * Ogni movimento porta il saldo che c'era prima e quello dopo: un conto in cui
+ * si legge solo il totale corrente non permette a nessuno di ricostruire dove
+ * sono finiti i soldi, ed è esattamente la discussione che il registro deve
+ * evitare (art. 14).
+ */
+async function muoviCapitale(squadraId, quanto, causale) {
+  if (!db) throw new Error("Il database non è disponibile.");
+  const societa = societaDi(squadraId);
+  const dopo = societa.capitale + quanto;
+  if (dopo < 0) throw new Error("Il Capitale non basta.");
+
+  const movimenti = [
+    { quando: new Date().toISOString(), causale, quanto, saldo: dopo },
+    ...societa.movimenti,
+  ].slice(0, 60);
+
+  await db.collection("societa").doc(squadraId).set({ ...societa, capitale: dopo, movimenti });
+  await annota("capitale",
+    `${squadraDi(squadraId)?.nome ?? "—"}: ${quanto < 0 ? "−" : "+"}${soldi(Math.abs(quanto))} — ${causale}`,
+    squadraId);
+  return dopo;
+}
+
+/** Cambia una voce del conto societario (stadio, vivaio, osservatori). */
+async function scriviSocieta(squadraId, modifiche) {
+  if (!db) throw new Error("Il database non è disponibile.");
+  await db.collection("societa").doc(squadraId).set({ ...societaDi(squadraId), ...modifiche });
+}
+
 async function scriviSquadra(squadra) {
   if (!db) throw new Error("Il database non è disponibile.");
   const { id, ...corpo } = squadra;
@@ -691,6 +830,11 @@ function ascolta() {
 
   db.collection("rose").onSnapshot((istantanea) => {
     stato.rose = new Map(istantanea.docs.map((d) => [d.id, d.data()]));
+    disegna();
+  });
+
+  db.collection("societa").onSnapshot((istantanea) => {
+    stato.societa = new Map(istantanea.docs.map((d) => [d.id, d.data()]));
     disegna();
   });
 
@@ -823,6 +967,7 @@ function vistaApplicazione() {
     { id: "lega", nome: "Lega" },
     { id: "rosa", nome: "Rosa" },
     { id: "listone", nome: "Listone" },
+    { id: "societa", nome: "Società" },
     { id: "registro", nome: "Registro" },
   ];
   if (sonoCommissioner()) pagine.push({ id: "gestione", nome: "Gestione" });
@@ -832,6 +977,7 @@ function vistaApplicazione() {
     stato.vista === "lega" ? paginaLega()
     : stato.vista === "rosa" ? paginaRosa()
     : stato.vista === "listone" ? paginaListone()
+    : stato.vista === "societa" ? paginaSocieta()
     : stato.vista === "registro" ? paginaRegistro()
     : paginaGestione();
 
@@ -1181,6 +1327,167 @@ function foglioFirma(giocatoreId) {
     </div></div>`;
 }
 
+/* ── Pagina: la società ───────────────────────────────────── */
+
+function paginaSocieta() {
+  const squadra = squadraCorrente();
+  if (!squadra) return `<h1>Società</h1><div class="vuoto riquadro" style="margin-top:16px">Nessuna squadra da mostrare.</div>`;
+
+  const s = societaDi(squadra.id);
+  const posso = possoToccare(squadra.id);
+  const conto = contoStadio(s.stadio);
+  const vivaio = giovanileDa(s.capienzaGiovanile);
+  const ampliamento = costoAmpliamento(s.capienzaGiovanile);
+  const manutenzione = manutenzioneAnnua(s);
+
+  const selettore = sonoCommissioner()
+    ? `<label class="campo" style="margin-bottom:14px"><span>Squadra su cui lavori</span>
+        <select id="scegli-squadra">
+          ${stato.squadre.map((x) => `<option value="${pulito(x.id)}" ${x.id === squadra.id ? "selected" : ""}>${pulito(x.nome)}</option>`).join("")}
+        </select></label>`
+    : "";
+
+  /* ── Lo stadio ── */
+  const prossimo = s.stadio < 5 ? costoSalto(s.stadio, s.stadio + 1) : null;
+  const scalaStadi = REGOLE.capitale.stadi.map((livello) => {
+    const c = contoStadio(livello.livello);
+    const attuale = livello.livello === s.stadio;
+    const salto = costoSalto(s.stadio, livello.livello);
+    const raggiungibile = livello.livello > s.stadio;
+    return `<tr style="${attuale ? "background:var(--campo-chiaro)" : ""}">
+      <td><b>${livello.livello} · ${pulito(livello.nome)}</b>${attuale ? ` <span class="targhetta ok">il tuo</span>` : ""}</td>
+      <td class="n num">${soldi(aQuarti(livello.costruzione))}</td>
+      <td class="n num">${soldi(aQuarti(livello.manutenzione))}</td>
+      <td class="n num">${soldi(aQuarti(c.incasso))}</td>
+      <td class="n num" style="color:var(--ok)">+${soldi(aQuarti(c.netto))}</td>
+      <td class="n num">${c.rientro.toFixed(1)}</td>
+      <td>${raggiungibile && posso
+        ? `<button class="bottone piccolo" data-stadio="${livello.livello}"
+             ${s.capitale < aQuarti(salto.costo) ? "disabled" : ""}>
+             ${salto.ricostruzione ? "Ricostruisci" : "Costruisci"} · ${soldi(aQuarti(salto.costo))}</button>`
+        : ""}</td>
+    </tr>`;
+  }).join("");
+
+  /* ── Gli osservatori ── */
+  const reteOsservatori = REGOLE.capitale.osservatori.map((o) => {
+    const attivo = s.osservatori.includes(o.campionato);
+    return `<button class="scelta" data-osservatore="${pulito(o.campionato)}"
+              aria-pressed="${attivo}" ${!posso || attivo || s.capitale < aQuarti(o.costo) ? "disabled" : ""}>
+        <b>${pulito(o.campionato)}${attivo ? " — attivo" : ""}</b>
+        <small>${pulito(o.paese)} · ${soldi(aQuarti(o.costo))} per una stagione</small>
+      </button>`;
+  }).join("");
+
+  /* ── I movimenti ── */
+  const movimenti = s.movimenti.length
+    ? s.movimenti.map((m) => `<div class="voce">
+        <span class="corpo">
+          <span class="nome">${pulito(m.causale)}</span>
+          <span class="dettaglio">${new Date(m.quando).toLocaleDateString("it-IT", { day: "numeric", month: "short", year: "numeric" })}</span>
+        </span>
+        <span class="coda">
+          <span class="prezzo num" style="color:${m.quanto < 0 ? "var(--allarme)" : "var(--ok)"}">
+            ${m.quanto < 0 ? "−" : "+"}${soldi(Math.abs(m.quanto))}</span>
+          <span style="font-size:12px;color:var(--inchiostro-lieve)" class="num">saldo ${soldi(m.saldo)}</span>
+        </span>
+      </div>`).join("")
+    : `<div class="vuoto riquadro">Nessun movimento: il Capitale è ancora quello di partenza.</div>`;
+
+  return `
+    <p class="occhiello">${pulito(squadra.nome)}</p>
+    <h1 style="margin:6px 0 16px">Società</h1>
+    ${selettore}
+
+    <div class="tetto" style="margin-bottom:14px">
+      <div style="flex:1 1 190px">
+        <div class="occhiello" style="color:inherit;opacity:.6">Capitale</div>
+        <div class="cifra num">${soldi(s.capitale)}</div>
+        <div class="sotto">${manutenzione > 0 ? `${soldi(manutenzione)} di mantenimento all'anno` : "nessun costo fisso"}</div>
+      </div>
+      <div style="flex:1 1 160px">
+        <div class="occhiello" style="color:inherit;opacity:.6">Stadio</div>
+        <div class="cifra num" style="font-size:28px">${conto ? pulito(conto.nome) : "nessuno"}</div>
+        <div class="sotto">${conto ? `+${soldi(aQuarti(conto.netto))} l'anno · ${conto.fantapunti} fantapunti in casa` : "si gioca in trasferta da sempre"}</div>
+      </div>
+    </div>
+
+    <div class="avviso neutro" style="margin-bottom:18px">
+      Il <b>Capitale</b> non è spazio salariale e non ci si trasforma (art. 14): il tetto limita gli
+      ingaggi, il Capitale è denaro che si accumula e si investe in stadio, settore giovanile e
+      osservatori. ${posso ? "" : "Stai guardando la società di un'altra squadra."}
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Stadio</h2>
+        ${prossimo ? `<span class="conteggio">prossimo livello ${soldi(aQuarti(prossimo.costo))}</span>` : `<span class="conteggio">al massimo</span>`}</div>
+      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+        Si sale un livello alla volta pagando la differenza; per saltarne uno si demolisce e si
+        ricostruisce da zero. Entra in funzione dalla ${REGOLE.capitale.operativoDallaGiornata}ª giornata,
+        e da lì incassa a ogni gara in casa (${REGOLE.capitale.gareInCasa} a stagione).
+      </p>
+      <div class="riquadro scorre">
+        <table class="tabellina">
+          <thead><tr>
+            <th>Livello</th><th style="text-align:right">Costruzione</th><th style="text-align:right">Manut.</th>
+            <th style="text-align:right">Incasso</th><th style="text-align:right">Netto</th>
+            <th style="text-align:right">Rientro</th><th></th>
+          </tr></thead>
+          <tbody>${scalaStadi}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Settore giovanile</h2>
+        <span class="conteggio">${s.capienzaGiovanile} posti</span></div>
+      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+        I giovani non percepiscono ingaggio e non occupano spazio salariale: costano Capitale.
+        ${vivaio.mantenimento > 0 ? `Oggi il vivaio costa ${soldi(aQuarti(vivaio.mantenimento))} l'anno.` : ""}
+      </p>
+      <div class="riquadro">
+        ${ampliamento
+          ? `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+              <div><b>Portare la capienza a ${ampliamento.capienza}</b>
+                <div style="font-size:13px;color:var(--inchiostro-med)">
+                  ${soldi(aQuarti(ampliamento.costo))} adesso · ${soldi(aQuarti(ampliamento.mantenimento))} l'anno</div></div>
+              ${posso ? `<button class="bottone" id="amplia-vivaio" ${s.capitale < aQuarti(ampliamento.costo) ? "disabled" : ""}>
+                ${s.capitale < aQuarti(ampliamento.costo) ? "Capitale insufficiente" : "Amplia"}</button>` : ""}
+            </div>`
+          : `<p style="font-size:13.5px;color:var(--inchiostro-med)">Il settore giovanile è alla capienza massima: ${s.capienzaGiovanile} posti.</p>`}
+      </div>
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Rete osservatori</h2>
+        <span class="conteggio">${s.osservatori.length} attivi</span></div>
+      <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+        Un osservatore dà il diritto di <b>pareggiare l'offerta più alta</b> su un giocatore che da
+        quel campionato arriva in Serie A. Non è un acquisto esclusivo né uno sconto, e dura una stagione.
+      </p>
+      <div class="scelte">${reteOsservatori}</div>
+    </div>
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Movimenti</h2></div>
+      ${s.movimenti.length ? `<div class="elenco">${movimenti}</div>` : movimenti}
+      ${sonoCommissioner() ? `
+        <div class="riquadro" style="margin-top:12px">
+          <h3 style="margin-bottom:8px">Accredita o addebita</h3>
+          <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+            Premi delle competizioni, sponsor, manutenzione di inizio stagione: le voci che non
+            nascono da un pulsante le mette il commissioner, e restano scritte qui.</p>
+          <form id="modulo-capitale" class="moduli">
+            <label class="campo"><span>Causale</span>
+              <input type="text" id="cap-causale" placeholder="es. premio secondo posto" required></label>
+            <label class="campo"><span>Importo in milioni — negativo per addebitare</span>
+              <input type="number" id="cap-importo" step="0.25" placeholder="es. 12 oppure −3" required></label>
+            <button class="bottone largo" type="submit">Registra il movimento</button>
+          </form>
+        </div>` : ""}
+    </div>`;
+}
+
 /* ── Pagina: il registro ──────────────────────────────────── */
 
 function paginaRegistro() {
@@ -1240,11 +1547,28 @@ function paginaGestione() {
       ${stato.squadre.length ? `<div class="elenco" style="margin-bottom:12px">${righe}</div>` : ""}
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="bottone" id="aggiungi-squadra">Aggiungi una squadra</button>
-        ${mancano > 0 && stato.squadre.length === 0
-          ? `<button class="bottone primario" id="crea-dieci">Crea dieci squadre segnaposto</button>` : ""}
         ${stato.squadre.some((s) => s.pin !== CODICE_PREDEFINITO)
           ? `<button class="bottone" id="codice-uguale">Rimetti ${CODICE_PREDEFINITO} a tutti</button>` : ""}
       </div>
+
+      ${stato.squadre.length === 0 ? `
+        <div class="riquadro" style="margin-top:14px">
+          <h3 style="margin-bottom:6px">Iscrivi tutte le squadre in una volta</h3>
+          <p style="font-size:13px;color:var(--inchiostro-med);margin-bottom:10px">
+            Una riga per squadra: <b>nome della squadra, presidente</b>. Il presidente si può
+            lasciare fuori e aggiungerlo dopo. Ognuna nasce con la dotazione di
+            ${REGOLE.capitale.dotazione} M (art. 14) e con il codice ${CODICE_PREDEFINITO}.
+          </p>
+          <form id="modulo-iscrizioni" class="moduli">
+            <textarea id="elenco-squadre" rows="10" spellcheck="false"
+              placeholder="Real Marasca, Giulio&#10;Atletico Sorata, Marta&#10;Borgo United, Ivan"
+              style="width:100%;padding:11px 13px;font:inherit;font-size:14px;line-height:1.7;
+                     color:var(--inchiostro);background:var(--carta-alta);
+                     border:1px solid var(--bordo-forte);border-radius:var(--raggio-s);resize:vertical"></textarea>
+            <button class="bottone primario largo" type="submit">Iscrivi le squadre</button>
+            <div id="esito-iscrizioni"></div>
+          </form>
+        </div>` : ""}
     </div>
 
     <div class="sezione">
@@ -1462,7 +1786,85 @@ function dopoIlDisegno() {
     await annota("rosa", `${contratto.nome} liberato da ${squadra.nome}`, squadra.id);
   });
 
+  agganciaSocieta();
   agganciaGestione();
+}
+
+/* ── Gli effetti della società ────────────────────────────── */
+
+function agganciaSocieta() {
+  su("[data-stadio]", "click", async (e) => {
+    const bottone = e.currentTarget;
+    const livello = Number(bottone.dataset.stadio);
+    const squadra = squadraCorrente();
+    const s = societaDi(squadra.id);
+    const salto = costoSalto(s.stadio, livello);
+    const arrivo = stadioAl(livello);
+
+    const domanda = salto.ricostruzione
+      ? `Saltare al livello ${livello} vuol dire demolire e ricostruire da zero: ${soldi(aQuarti(salto.costo))}. Procedo?`
+      : `Costruire lo stadio ${arrivo.nome} per ${soldi(aQuarti(salto.costo))}?`;
+    if (!confirm(domanda)) return;
+
+    bottone.disabled = true;
+    try {
+      await scriviSocieta(squadra.id, { stadio: livello });
+      await muoviCapitale(squadra.id, -aQuarti(salto.costo),
+        `${salto.ricostruzione ? "Ricostruzione" : "Costruzione"} stadio ${arrivo.nome}`);
+    } catch (errore) {
+      alert(errore.message ?? "Non è riuscito.");
+      bottone.disabled = false;
+    }
+  });
+
+  su("#amplia-vivaio", "click", async (e) => {
+    const squadra = squadraCorrente();
+    const s = societaDi(squadra.id);
+    const ampliamento = costoAmpliamento(s.capienzaGiovanile);
+    if (!ampliamento) return;
+    if (!confirm(`Portare il settore giovanile a ${ampliamento.capienza} posti per ${soldi(aQuarti(ampliamento.costo))}? Poi costerà ${soldi(aQuarti(ampliamento.mantenimento))} l'anno.`)) return;
+
+    e.currentTarget.disabled = true;
+    try {
+      await scriviSocieta(squadra.id, { capienzaGiovanile: ampliamento.capienza });
+      await muoviCapitale(squadra.id, -aQuarti(ampliamento.costo),
+        `Settore giovanile a ${ampliamento.capienza} posti`);
+    } catch (errore) {
+      alert(errore.message ?? "Non è riuscito.");
+    }
+  });
+
+  su("[data-osservatore]", "click", async (e) => {
+    const campionato = e.currentTarget.dataset.osservatore;
+    const squadra = squadraCorrente();
+    const s = societaDi(squadra.id);
+    const scelto = REGOLE.capitale.osservatori.find((o) => o.campionato === campionato);
+    if (!scelto || s.osservatori.includes(campionato)) return;
+    if (!confirm(`Mandare un osservatore in ${campionato} per una stagione? Costa ${soldi(aQuarti(scelto.costo))}.`)) return;
+
+    e.currentTarget.disabled = true;
+    try {
+      await scriviSocieta(squadra.id, { osservatori: [...s.osservatori, campionato] });
+      await muoviCapitale(squadra.id, -aQuarti(scelto.costo), `Osservatore su ${campionato}`);
+    } catch (errore) {
+      alert(errore.message ?? "Non è riuscito.");
+    }
+  });
+
+  const moduloCapitale = radice.querySelector("#modulo-capitale");
+  if (moduloCapitale) moduloCapitale.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const causale = radice.querySelector("#cap-causale").value.trim();
+    /* Il meno lungo «−» si scrive facilmente col telefono e non è un meno. */
+    const scritto = radice.querySelector("#cap-importo").value.replace("−", "-").replace(",", ".");
+    const importo = Number(scritto);
+    if (!causale || !Number.isFinite(importo) || importo === 0) { alert("Servono una causale e un importo diverso da zero."); return; }
+    try {
+      await muoviCapitale(squadraCorrente().id, aQuarti(importo), causale);
+    } catch (errore) {
+      alert(errore.message ?? "Non è riuscito.");
+    }
+  });
 }
 
 /** I risultati della ricerca dentro la pagina Rosa. Non passa dal
@@ -1534,22 +1936,50 @@ function agganciaGestione() {
   su("#aggiungi-squadra", "click", () => apriFoglio({ tipo: "squadra", squadraId: null }));
   su("[data-modifica]", "click", (e) => apriFoglio({ tipo: "squadra", squadraId: e.currentTarget.dataset.modifica }));
 
-  su("#crea-dieci", "click", async (e) => {
-    e.currentTarget.disabled = true;
-    const colori = ["#2C7A52", "#1B4A76", "#7C2620", "#6A4708", "#4A2A6B", "#1F6B6B", "#8A3B6B", "#3E5C1E", "#8A4B12", "#2E3B7A"];
-    for (let i = 0; i < 10; i++) {
-      const numero = i + 1;
-      await scriviSquadra({
-        id: "s" + numero,
-        nome: "Squadra " + numero,
-        sigla: "S" + numero,
-        presidente: "",
-        pin: CODICE_PREDEFINITO,
-        colore: colori[i],
-        ordine: numero,
-      });
+  /* I colori delle maglie: dieci tinte distinguibili a colpo d'occhio nella
+     schermata d'ingresso, dove le squadre si riconoscono dalla sigla colorata. */
+  const COLORI = ["#2C7A52", "#1B4A76", "#7C2620", "#6A4708", "#4A2A6B",
+                  "#1F6B6B", "#8A3B6B", "#3E5C1E", "#8A4B12", "#2E3B7A"];
+
+  /** La sigla si ricava dal nome: iniziali se ci sono più parole, prime tre
+   *  lettere se è una sola. Si corregge a mano dalla scheda della squadra. */
+  function siglaDa(nome) {
+    const parole = nome.split(/[\s'']+/).filter(Boolean);
+    if (parole.length >= 2) return parole.slice(0, 3).map((p) => p[0]).join("").toUpperCase();
+    return nome.slice(0, 3).toUpperCase();
+  }
+
+  const moduloIscrizioni = radice.querySelector("#modulo-iscrizioni");
+  if (moduloIscrizioni) moduloIscrizioni.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const esito = radice.querySelector("#esito-iscrizioni");
+    const righe = radice.querySelector("#elenco-squadre").value
+      .split("\n").map((r) => r.trim()).filter(Boolean);
+
+    if (!righe.length) {
+      esito.innerHTML = `<div class="avviso errore">Scrivi almeno una squadra, una per riga.</div>`;
+      return;
     }
-    await annota("lega", "Dieci squadre segnaposto iscritte", null);
+    const nomi = righe.map((r) => r.split(",")[0].trim());
+    if (new Set(nomi.map((n) => n.toLowerCase())).size !== nomi.length) {
+      esito.innerHTML = `<div class="avviso errore">Ci sono due squadre con lo stesso nome: nella lega i nomi sono unici.</div>`;
+      return;
+    }
+
+    e.submitter && (e.submitter.disabled = true);
+    for (const [indice, riga] of righe.entries()) {
+      const [nome, presidente] = riga.split(",").map((x) => (x ?? "").trim());
+      const id = "s" + (indice + 1);
+      await scriviSquadra({
+        id, nome, sigla: siglaDa(nome), presidente: presidente ?? "",
+        pin: CODICE_PREDEFINITO, colore: COLORI[indice % COLORI.length], ordine: indice + 1,
+      });
+      /* La dotazione dell'art. 14 nasce con la squadra, e si vede nel registro:
+         un capitale che compare senza una riga che lo spieghi è un capitale su
+         cui prima o poi qualcuno discute. */
+      await scriviSocieta(id, { capitale: aQuarti(REGOLE.capitale.dotazione) });
+      await annota("lega", `${nome} iscritta con ${soldi(aQuarti(REGOLE.capitale.dotazione))} di dotazione`, id);
+    }
   });
 
   su("#codice-uguale", "click", async (e) => {
@@ -1575,7 +2005,12 @@ function agganciaGestione() {
     };
     if (!/^[0-9]{4}$/.test(squadra.pin)) { alert("Il codice è di quattro cifre."); return; }
     await scriviSquadra(squadra);
-    await annota("lega", nuova ? `${squadra.nome} iscritta alla lega` : `${squadra.nome} aggiornata`, id);
+    if (nuova) {
+      await scriviSocieta(id, { capitale: aQuarti(REGOLE.capitale.dotazione) });
+      await annota("lega", `${squadra.nome} iscritta con ${soldi(aQuarti(REGOLE.capitale.dotazione))} di dotazione`, id);
+    } else {
+      await annota("lega", `${squadra.nome} aggiornata`, id);
+    }
     chiudiFoglio();
   });
 
@@ -1585,6 +2020,7 @@ function agganciaGestione() {
     if (!confirm(`Ritirare ${squadra.nome} dalla lega?`)) return;
     await db.collection("squadre").doc(id).delete();
     await db.collection("rose").doc(id).delete().catch(() => {});
+    await db.collection("societa").doc(id).delete().catch(() => {});
     await annota("lega", `${squadra.nome} ritirata dalla lega`, null);
     chiudiFoglio();
   });
@@ -1602,6 +2038,7 @@ function agganciaGestione() {
     if (!confirm("Cancello squadre, rose e registro. Il listone resta. Procedo?")) return;
     for (const s of stato.squadre) {
       await db.collection("rose").doc(s.id).delete().catch(() => {});
+      await db.collection("societa").doc(s.id).delete().catch(() => {});
       await db.collection("squadre").doc(s.id).delete().catch(() => {});
     }
     const vecchie = await db.collection("registro").limit(500).get();

@@ -58,11 +58,20 @@ lega parte davvero.
 
 ## Cosa c'è e cosa manca
 
-C'è: ingresso dei dieci presidenti e del commissioner, listone filtrabile per
-ruolo, età e idoneità primavera, composizione della rosa con tipo di contratto e
-ingaggio, tetto salariale con riserva per completare la rosa, slot pluriennali,
-minimi di ruolo, pannello del commissioner, registro delle operazioni.
+C'è: ingresso dei dieci presidenti e del commissioner, iscrizione delle squadre
+coi nomi veri, listone filtrabile per ruolo, età e idoneità primavera,
+composizione della rosa con tipo di contratto e ingaggio, tetto salariale con
+riserva per completare la rosa, slot pluriennali, minimi di ruolo, l'economia
+societaria (Capitale, stadio a cinque livelli, settore giovanile, rete
+osservatori, movimenti col saldo), pannello del commissioner, registro delle
+operazioni.
 
-Manca ancora: l'asta di settembre, il mercato a buste chiuse, gli scambi e
-l'economia societaria (stadio, settore giovanile, osservatori). Il regolamento
-consolidato di tutte queste parti è in `dynasty/docs/REGOLAMENTO.md`.
+**Non ci sono segnaposto.** La lega nasce vuota e il commissioner iscrive le
+dieci squadre con i nomi veri, incollando un elenco: una riga per squadra, nome
+e presidente. Ognuna nasce con la dotazione dell'art. 14, e la riga che lo dice
+finisce nel registro — un capitale che compare senza una traccia che lo spieghi
+è un capitale su cui prima o poi qualcuno discute.
+
+Manca ancora: l'asta di settembre, il mercato a buste chiuse e gli scambi. Il
+regolamento consolidato di tutte queste parti è in
+`dynasty/docs/REGOLAMENTO.md`.

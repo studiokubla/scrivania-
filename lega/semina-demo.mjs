@@ -165,12 +165,93 @@ SQUADRE.forEach(([nome], i) => {
   else console.log(`  ${nome.padEnd(18)} ${c.length} giocatori · ${String(speso).replace(".", ",").padStart(5)} M · ${slot} slot`);
 });
 
+/* ── Le società ───────────────────────────────────────────────
+   Dieci conti che raccontano dieci strategie diverse: chi ha costruito
+   subito e ha il conto asciutto, chi ha tenuto i soldi e non ha ancora
+   uno stadio, chi ha investito sul vivaio invece che sul cemento. Un
+   capitale identico per tutti mostrerebbe la pagina, non il gioco. */
+const STRATEGIE = [
+  { stadio: 2, vivaio: 3,  osservatori: [],                                storia: "Tutto sul cemento: stadio Rinnovato e cassa quasi vuota." },
+  { stadio: 1, vivaio: 7,  osservatori: ["Brasileirão", "Primera División"], storia: "Stadio piccolo, vivaio grande e occhi in Sudamerica." },
+  { stadio: 0, vivaio: 3,  osservatori: [],                                storia: "Non ha speso niente: sessanta milioni in cassa e tutto da decidere." },
+  { stadio: 1, vivaio: 3,  osservatori: ["Ligue 1"],                       storia: "Il Comunale e un osservatore in Francia." },
+  { stadio: 0, vivaio: 9,  osservatori: ["Eredivisie", "Primeira Liga"],    storia: "Nessuno stadio: nove posti di vivaio e due campionati sorvegliati." },
+  { stadio: 1, vivaio: 5,  osservatori: ["Serie B"],                       storia: "Un po' di tutto, niente in eccesso." },
+  { stadio: 1, vivaio: 3,  osservatori: [],                                storia: "Ha costruito e si è fermata lì." },
+  { stadio: 0, vivaio: 5,  osservatori: ["Premier League"],                storia: "Aspetta a costruire e guarda in Inghilterra." },
+  { stadio: 0, vivaio: 3,  osservatori: ["Altri"],                         storia: "Un solo osservatore, il resto in cassa." },
+  { stadio: 0, vivaio: 3,  osservatori: [],                                storia: "Il capitale intatto, per adesso." },
+];
+
+const STADI = [
+  { livello: 1, nome: "Comunale", costruzione: 30 },
+  { livello: 2, nome: "Rinnovato", costruzione: 60 },
+  { livello: 3, nome: "Moderno", costruzione: 100 },
+  { livello: 4, nome: "Grande impianto", costruzione: 150 },
+  { livello: 5, nome: "Cattedrale", costruzione: 210 },
+];
+const VIVAI = [
+  { capienza: 3, investimento: 0 }, { capienza: 5, investimento: 5 },
+  { capienza: 7, investimento: 7 }, { capienza: 9, investimento: 9 },
+  { capienza: 11, investimento: 10 },
+];
+const COSTO_OSSERVATORE = {
+  "Premier League": 10, "La Liga": 9, "Bundesliga": 9, "Ligue 1": 8, "Eredivisie": 8,
+  "Primeira Liga": 8, "Serie B": 7, "Brasileirão": 6, "Primera División": 6, "Altri": 6,
+};
+
+const societa = {};
+STRATEGIE.forEach((strategia, i) => {
+  const id = "s" + (i + 1);
+  let capitale = aQuarti(40);            // art. 14
+  const movimenti = [];
+  let quando = Date.parse("2026-08-20T10:00:00Z");
+  const spendi = (quanto, causale) => {
+    capitale -= aQuarti(quanto);
+    movimenti.unshift({ quando: new Date(quando += 3600000).toISOString(), causale, quanto: -aQuarti(quanto), saldo: capitale });
+  };
+  const incassa = (quanto, causale) => {
+    capitale += aQuarti(quanto);
+    movimenti.unshift({ quando: new Date(quando += 3600000).toISOString(), causale, quanto: aQuarti(quanto), saldo: capitale });
+  };
+
+  /* Il premio della stagione scorsa arriva prima degli investimenti: è con
+     quello che si costruisce, ed è la ragione per cui i conti tornano. */
+  const premio = [30, 24, 20, 17, 14, 12, 10, 8, 6, 4][i];
+  incassa(premio, `Premio ${i + 1}º posto 2025/26`);
+
+  /* Lo stadio si sale un livello alla volta, pagando la differenza. */
+  for (let l = 1; l <= strategia.stadio; l++) {
+    const costo = STADI[l - 1].costruzione - (l > 1 ? STADI[l - 2].costruzione : 0);
+    spendi(costo, `${l === 1 ? "Costruzione" : "Ampliamento"} stadio ${STADI[l - 1].nome}`);
+  }
+  /* Il vivaio, un gradino alla volta. */
+  const gradino = VIVAI.findIndex((v) => v.capienza === strategia.vivaio);
+  for (let g = 1; g <= gradino; g++) {
+    spendi(VIVAI[g].investimento - VIVAI[g - 1].investimento, `Settore giovanile a ${VIVAI[g].capienza} posti`);
+  }
+  for (const campionato of strategia.osservatori) {
+    spendi(COSTO_OSSERVATORE[campionato], `Osservatore su ${campionato}`);
+  }
+
+  if (capitale < 0) throw new Error(`${id}: capitale negativo (${capitale / 4} M) — la strategia non sta in piedi`);
+  societa[id] = { capitale, stadio: strategia.stadio, capienzaGiovanile: strategia.vivaio,
+                  osservatori: strategia.osservatori, movimenti: movimenti.slice(0, 60) };
+});
+
+console.log("\n  Società:");
+STRATEGIE.forEach((s, i) => {
+  const c = societa["s" + (i + 1)];
+  console.log(`  ${SQUADRE[i][0].padEnd(18)} capitale ${String(c.capitale / 4).padStart(5)} M · stadio ${c.stadio || "—"} · vivaio ${c.capienzaGiovanile} · ${c.osservatori.length} osservatori`);
+});
+
 const dati = {
   "lega/config": { nome: "Lega dimostrativa", stagione: listone.stagione, pinCommissioner: "1234", fondata: new Date(quandoBase).toISOString() },
 };
 SQUADRE.forEach(([nome, sigla, presidente, colore], i) => {
   dati["squadre/s" + (i + 1)] = { nome, sigla, presidente, pin: "1234", colore, ordine: i + 1 };
   dati["rose/s" + (i + 1)] = rose["s" + (i + 1)];
+  dati["societa/s" + (i + 1)] = societa["s" + (i + 1)];
 });
 registro.reverse().forEach((v, i) => { dati["registro/r" + String(i).padStart(3, "0")] = v; });
 
