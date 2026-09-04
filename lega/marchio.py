@@ -1,75 +1,55 @@
 """
-Il marchio della lega, secondo tentativo — su un'idea diversa.
+Il marchio: una corona di picchi dentro una coppa, in sagoma piena.
 
-Le lame curve e affilate del primo tentativo si leggevano come foglie, e
-nessuna quantità di ritocchi le avrebbe fatte leggere come metallo: il
-problema era l'idea, non i numeri.
+L'impianto è quello dei marchi delle leghe esport — una macchia sola,
+spigoli netti, niente contorni e niente sfumature dentro la forma. Il
+bordo di sopra è una linea spezzata di picchi di altezze diverse; quello
+di sotto è la curva della coppa. Fra i due, una fessura verticale che
+stacca il picco più alto dal resto: è il taglio che fa leggere la forma
+come costruita e non come disegnata a mano.
 
-Qui il disegno nasce da una lettera. Una D coricata — l'asta in alto, la
-pancia sotto — è già la sagoma di un calice; con un fusto e un piede
-sotto diventa una coppa, e continua a essere la D di Dynasty. Dentro, una
-stella a quattro punte: il titolo vinto.
-
-Tutto sta su cerchi e rette, niente curve a mano: è quello che lo fa
-sembrare un oggetto e non una pianta, e quello che lo tiene leggibile a
-sedici pixel.
+Tutti i vertici stanno in due liste. Cambiare il profilo è cambiare
+numeri, non ridisegnare.
 """
 
-LARGO, ALTO = 320, 348
-ASSE = LARGO / 2
+LARGO, ALTO = 264, 320
 
-# ── La coppa: due profili concentrici, il secondo buca il primo ───────
-SPALLA = 38        # quanto in alto comincia la bocca della coppa
-SPESSORE = 26      # lo spessore del metallo
-MEZZA_BOCCA = 116  # metà larghezza della bocca
-FONDO = 122        # da dove parte la curva del fondo
-PROFONDITA = 134   # quanto scende il fondo sotto quella quota
+SPALLA = 238        # dove i fianchi smettono di essere dritti
+FONDO = 304         # il punto più basso della coppa
+SINISTRA, DESTRA = 14, 248
+
+# I vertici del bordo di sopra, da sinistra a destra: (x, y). Le y piccole
+# sono i picchi, quelle grandi le valli. Sono pochi di proposito: con
+# cinque punte strette la sagoma diventa un ciuffo d'erba, e la prima
+# prova lo era.
+CRESTA = [
+    (SINISTRA, 112),
+    (56, 78),           # la spalla di sinistra, tagliata di sbieco
+    (80, 218),          # valle, fin quasi a metà corpo
+    (114, 26),          # il picco alto
+    (146, 212),         # valle
+    (174, 124),         # il picco medio
+    # La fenditura che stacca il picco sottile: due punti ravvicinati in
+    # fondo invece di una valle a V. Provata prima come un cuneo a parte,
+    # tagliava la sagoma nel punto sbagliato — qui è la cresta stessa che
+    # scende, gira di dieci pixel e risale, ed è tutto un pezzo solo.
+    (197, 274), (208, 268),
+    (228, 8),           # il picco sottile, il più alto di tutti
+    (DESTRA, 150),
+]
 
 
-def coppa():
-    x1, x2 = ASSE - MEZZA_BOCCA, ASSE + MEZZA_BOCCA
-    i1, i2 = x1 + SPESSORE, x2 - SPESSORE
-    rx, ry = MEZZA_BOCCA, PROFONDITA
-    irx, iry = rx - SPESSORE, ry - SPESSORE
+def marchio():
+    cresta = " ".join(f"L{x},{y}" for x, y in CRESTA[1:])
     return (
-        f"M{x1},{SPALLA} L{x2},{SPALLA} L{x2},{FONDO} "
-        f"A{rx},{ry} 0 0 1 {x1},{FONDO} Z "
-        f"M{i1},{SPALLA + SPESSORE} L{i2},{SPALLA + SPESSORE} L{i2},{FONDO} "
-        f"A{irx},{iry} 0 0 1 {i1},{FONDO} Z"
+        f"M{SINISTRA},{CRESTA[0][1]} {cresta} "
+        f"L{DESTRA},{SPALLA} "
+        # il fondo non è un semicerchio: scende prima e risale a destra,
+        # come il fondo di una coppa vista un po' di lato.
+        f"C{DESTRA},{FONDO - 4} {DESTRA - 30},{FONDO} {LARGO * 0.46:.0f},{FONDO} "
+        f"C{SINISTRA + 30},{FONDO} {SINISTRA},{FONDO - 12} {SINISTRA},{SPALLA} Z"
     )
-
-
-def stella():
-    """La stella dentro la coppa: quattro punte, i lati incavati.
-
-    I bracci sono lunghi diversi — più alto e più basso che larghi — così
-    non è la stellina generica: sta dentro una coppa e ne segue la forma."""
-    cx, cy = ASSE, (SPALLA + SPESSORE + FONDO + PROFONDITA) / 2
-    alto, largo, gola = 56, 43, 13
-    return (
-        f"M{cx},{cy - alto} "
-        f"C{cx + gola},{cy - gola * 2} {cx + largo - gola * 2},{cy - gola} {cx + largo},{cy} "
-        f"C{cx + largo - gola * 2},{cy + gola} {cx + gola},{cy + gola * 2} {cx},{cy + alto} "
-        f"C{cx - gola},{cy + gola * 2} {cx - largo + gola * 2},{cy + gola} {cx - largo},{cy} "
-        f"C{cx - largo + gola * 2},{cy - gola} {cx - gola},{cy - gola * 2} {cx},{cy - alto} Z"
-    )
-
-
-def piede():
-    """Fusto, collarino e piede. Il piede è pieno: sotto una coppa a
-    contorno serve qualcosa di solido, o il marchio galleggia."""
-    gambo = FONDO + PROFONDITA - 6
-    return [
-        f"M{ASSE - 19},{gambo} L{ASSE + 19},{gambo} L{ASSE + 19},294 L{ASSE - 19},294 Z",
-        f"M{ASSE - 37},294 L{ASSE + 37},294 L{ASSE + 45},311 L{ASSE - 45},311 Z",
-        f"M{ASSE - 72},318 L{ASSE + 72},318 L{ASSE + 90},346 L{ASSE - 90},346 Z",
-    ]
-
-
-def pezzi():
-    return [coppa(), stella()] + piede()
 
 
 if __name__ == "__main__":
-    # La riga da incollare in `app.html` al posto di quella che c'è.
-    print("const COPPA = `" + "".join(f'<path d="{d}"/>' for d in pezzi()) + "`;")
+    print("const SEGNO = `" + f'<path d="{marchio()}"/>' + "`;")

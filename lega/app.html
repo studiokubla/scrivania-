@@ -1,7 +1,7 @@
 <title>Dynasty League</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Archivo:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Archivo:wdth,wght@62..125,400..900&display=swap">
 
 <style>
 /* ─────────────────────────────────────────────────────────────
@@ -188,26 +188,39 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-/* La coppa. Il bagliore è un `drop-shadow` sulla forma e non un'ombra
-   sul riquadro: segue il profilo delle lame invece di disegnare un
+/* Il segno. Il bagliore è un `drop-shadow` sulla forma e non un'ombra
+   sul riquadro: segue il profilo dei picchi invece di disegnare un
    rettangolo sfocato dietro. */
-.coppa {
-  height: 26px; width: auto; flex: none;
-  fill: url(#lastra-marchio); fill-rule: evenodd;
-  filter: drop-shadow(0 0 7px rgba(210, 247, 106, .42));
+.segno {
+  height: 25px; width: auto; flex: none;
+  fill: url(#lastra-marchio);
+  filter: drop-shadow(0 0 7px rgba(210, 247, 106, .40));
 }
-.coppa.alta { height: 122px; filter: drop-shadow(0 0 12px rgba(210,247,106,.45)) drop-shadow(0 0 38px rgba(150,220,60,.3)); }
+.segno.alto {
+  /* Alto quanto le tre righe insieme, come nei marchi da cui viene:
+     un segno più basso del logotipo sembra un'icona appiccicata. */
+  height: clamp(76px, 21vw, 100px);
+  filter: drop-shadow(0 0 12px rgba(210,247,106,.42)) drop-shadow(0 0 40px rgba(150,220,60,.28));
+}
 
-.marchio-grande { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.nome-marchio {
-  font-family: var(--display); font-size: 15px; font-weight: 600;
-  letter-spacing: .42em; text-indent: .42em; color: var(--luce); margin-top: 4px;
+/* Il marchio intero: segno a sinistra, logotipo a destra, allineati
+   sull'altezza delle due righe grandi — non sul centro del segno, che
+   con una sagoma dai picchi irregolari finirebbe sempre storto. */
+.marchio-grande { display: flex; align-items: center; gap: clamp(12px, 3.4vw, 18px); }
+.logotipo { display: block; text-transform: uppercase; color: var(--luce); }
+.riga-occhio {
+  display: block; font-family: var(--numeri); font-weight: 700;
+  font-variation-settings: "wdth" 78;
+  font-size: clamp(10px, 2.7vw, 13px); letter-spacing: .06em;
+  color: var(--lime); margin-bottom: 2px;
 }
-.nome-marchio-forte {
-  font-family: var(--display); font-size: 34px; font-weight: 800;
-  letter-spacing: -.02em; line-height: 1;
-  background: linear-gradient(180deg, #FFFFFF, var(--lime));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+/* Il logotipo vero. Archivo è un carattere a larghezza variabile: a 66
+   è un condensato pesante, che è esattamente quel che serve qui, e non
+   costa un font in più da scaricare. */
+.riga-forte {
+  display: block; font-family: var(--numeri); font-weight: 800;
+  font-variation-settings: "wdth" 66;
+  font-size: clamp(30px, 8.4vw, 42px); line-height: .87; letter-spacing: -.005em;
 }
 .testata .spinta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .chi-sono { font-size: 12px; color: var(--luce-fioca); text-align: right; line-height: 1.25; }
@@ -751,32 +764,39 @@ const REGOLE = {
 /**
  * IL MARCHIO
  *
- * Una coppa, e dentro una stella a quattro punte.
+ * Una corona di picchi dentro una coppa, in sagoma piena: una macchia
+ * sola, spigoli netti, niente contorni e niente sfumature dentro la
+ * forma. Il bordo di sopra è una spezzata di picchi di altezze diverse;
+ * quello di sotto è la curva della coppa. Fra il picco medio e quello
+ * più alto la cresta non fa una valle a V ma scende, gira di dieci pixel
+ * e risale: è la fenditura che fa leggere la sagoma come costruita.
  *
- * Nasce da una lettera: una D coricata — l'asta in alto, la pancia sotto
- * — è già la sagoma di un calice, e con un fusto e un piede diventa una
- * coppa restando la D di Dynasty. Sta tutta su cerchi e rette: è quello
- * che la fa leggere come un oggetto, dopo un primo tentativo a lame
- * curve che si leggeva come una pianta.
+ * Accanto, il logotipo: una riga piccola e due grandi in un grottesco
+ * condensato pesante. Archivo ha un asse di larghezza — `wdth` — e a 66
+ * diventa il carattere giusto senza caricarne un altro.
  *
- * Un SVG disegnato qui dentro: niente da scaricare, nitido su qualunque
- * schermo, e pesa meno di un kilobyte. I percorsi si rigenerano da
- * `lega/marchio.py`, che stampa la riga da incollare qui sotto.
+ * Un SVG scritto qui dentro: niente da scaricare, nitido a qualunque
+ * ingrandimento, e pesa mezzo kilobyte. Si rigenera da `lega/marchio.py`,
+ * che stampa la riga da incollare qui sotto: i vertici stanno tutti in
+ * una lista, e spostare un picco è cambiare due numeri.
  */
-const COPPA = `<path d="M44.0,38 L276.0,38 L276.0,122 A116,134 0 0 1 44.0,122 Z M70.0,64 L250.0,64 L250.0,122 A90,108 0 0 1 70.0,122 Z"/><path d="M160.0,104.0 C173.0,134.0 177.0,147.0 203.0,160.0 C177.0,173.0 173.0,186.0 160.0,216.0 C147.0,186.0 143.0,173.0 117.0,160.0 C143.0,147.0 147.0,134.0 160.0,104.0 Z"/><path d="M141.0,250 L179.0,250 L179.0,294 L141.0,294 Z"/><path d="M123.0,294 L197.0,294 L205.0,311 L115.0,311 Z"/><path d="M88.0,318 L232.0,318 L250.0,346 L70.0,346 Z"/>`;
+const SEGNO = `<path d="M14,112 L56,78 L80,218 L114,26 L146,212 L174,124 L197,274 L208,268 L228,8 L248,150 L248,238 C248,300 218,304 121,304 C44,304 14,292 14,238 Z"/>`;
 
-/** La coppa. Lo stesso disegno a ogni misura: sta in piedi anche a
- *  ventiquattro pixel, ed è il motivo per cui è fatta così. */
-function coppa(classe = "") {
-  return `<svg class="coppa ${classe}" viewBox="0 0 320 348" aria-hidden="true">${COPPA}</svg>`;
+/** Il solo segno. Lo stesso disegno a ogni misura: sta in piedi anche a
+ *  ventiquattro pixel, ed è il motivo per cui è fatto così. */
+function segno(classe = "") {
+  return `<svg class="segno ${classe}" viewBox="0 0 264 320" aria-hidden="true">${SEGNO}</svg>`;
 }
 
-/** Coppa e nome: il marchio intero, per le schermate d'ingresso. */
+/** Segno e logotipo affiancati: il marchio intero, per le schermate
+ *  d'ingresso. */
 function marchio() {
   return `<div class="marchio-grande">
-    ${coppa("alta")}
-    <span class="nome-marchio">Dynasty</span>
-    <span class="nome-marchio-forte">League</span>
+    ${segno("alto")}
+    <span class="logotipo">
+      <span class="riga-occhio">Fantacalcio Mantra</span>
+      <span class="riga-forte">Dynasty<br>League</span>
+    </span>
   </div>`;
 }
 
@@ -1817,7 +1837,7 @@ function vistaApplicazione() {
   return `
     <div class="guscio">
       <header class="testata">
-        <span class="marchio">${coppa()}${pulito(stato.config.nome)}</span>
+        <span class="marchio">${segno()}${pulito(stato.config.nome)}</span>
         <span class="spinta">
           <span class="chi-sono">
             <b>${sonoCommissioner() ? "Commissioner" : pulito(mia?.nome ?? "—")}</b>
