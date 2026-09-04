@@ -3,9 +3,16 @@ import { redirect } from "next/navigation";
 import { LoginForm } from "./form";
 import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/auth";
+import { databaseRaggiungibile } from "@/lib/salute";
+
+export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
-  if (await getSession()) redirect("/lega");
+  // Prima il database, poi la sessione: senza `AUTH_SECRET` la chiave di
+  // firma sta nel database, quindi leggere la sessione per prima farebbe
+  // esplodere la pagina proprio nel caso che questa pagina deve spiegare.
+  const database = await databaseRaggiungibile();
+  if (database.ok && (await getSession())) redirect("/lega");
 
   return (
     <main
@@ -28,7 +35,28 @@ export default async function LoginPage() {
         </div>
 
         <div className="carta" style={{ padding: 20 }}>
-          <LoginForm />
+          {database.ok ? (
+            <LoginForm />
+          ) : (
+            <div style={{ display: "grid", gap: 10 }}>
+              <div className="avviso avviso-errore" role="alert">
+                La lega non è raggiungibile: il database non risponde.
+              </div>
+              <p className="didascalia" style={{ margin: 0 }}>
+                Non è la tua password. L&apos;applicazione è online, ma non trova i suoi dati:
+                succede quando la connessione al database cambia o scade. Va rimessa la variabile{" "}
+                <code>DATABASE_URL</code> nelle impostazioni del progetto, poi ripubblicato.
+              </p>
+              <details className="piega">
+                <summary>
+                  <span>Dettaglio tecnico</span>
+                </summary>
+                <p className="didascalia" style={{ margin: "8px 0 0", wordBreak: "break-word" }}>
+                  {database.dettaglio}
+                </p>
+              </details>
+            </div>
+          )}
         </div>
       </div>
     </main>

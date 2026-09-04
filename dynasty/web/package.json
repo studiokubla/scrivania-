@@ -19,6 +19,7 @@
     "verifica:iscrizioni": "node scripts/verifica-iscrizioni.mjs",
     "verifica:asta-dal-vivo": "node scripts/verifica-asta-dal-vivo.mjs",
     "verifica:componi-rosa": "node scripts/verifica-componi-rosa.mjs",
+    "verifica:database-assente": "node scripts/verifica-database-assente.mjs",
     "build:local": "prisma generate && next build",
     "listone:json": "node scripts/listone-json.mjs",
     "presentazione": "node scripts/presentazione.mjs"

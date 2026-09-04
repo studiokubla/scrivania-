@@ -24,7 +24,17 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     return { error: parsed.error.issues[0]?.message ?? "Dati non validi" };
   }
 
-  const session = await authenticate(parsed.data.email, parsed.data.password);
+  // Un database irraggiungibile non è una password sbagliata, e dirlo
+  // sarebbe un inganno: chi entra andrebbe a cercare l'errore nelle proprie
+  // credenziali. La pagina lo segnala già prima del modulo, ma il database
+  // può cadere anche fra il caricamento e l'invio.
+  let session;
+  try {
+    session = await authenticate(parsed.data.email, parsed.data.password);
+  } catch {
+    return { error: "La lega non è raggiungibile: il database non risponde. Non è la tua password." };
+  }
+
   // Messaggio unico: distinguere "utente inesistente" da "password errata"
   // direbbe a un estraneo quali indirizzi sono registrati nella lega.
   if (!session) return { error: "Indirizzo o password non corretti." };
