@@ -2355,7 +2355,7 @@ function paginaRosa() {
       const posti = giovanileDa(societaDi(squadra.id).capienzaGiovanile).capienza;
       if (!giovani.length && !posso) return "";
       return `<div class="sezione">
-        <div class="intestazione-sezione"><h2>Vivaio</h2>
+        <div class="intestazione-sezione"><h2>Squadra primavera</h2>
           <span class="conteggio">${giovani.length} su ${posti}</span></div>
         <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
           Non percepiscono ingaggio e non occupano tetto, slot né posti in rosa: costano
@@ -2378,7 +2378,7 @@ function paginaRosa() {
             </span>` : ""}
           </div>`;
         }).join("")}</div>`
-        : `<div class="vuoto riquadro">Vivaio vuoto. Nel listone, il filtro <b>Primavera</b>
+        : `<div class="vuoto riquadro">Nessun primavera. Nel listone, il filtro <b>Primavera</b>
              tiene chi ci può entrare: fino a ${REGOLE.primavera.etaMax} anni e non oltre
              ${REGOLE.primavera.quotazioneMax} M.</div>`}
       </div>`;
@@ -2500,7 +2500,7 @@ function disegnaFoglio() {
   if (foglioAperto?.tipo === "busta") return foglioBusta(foglioAperto.trattativaId, foglioAperto.giocatoreId);
   if (foglioAperto?.tipo === "scambio") return foglioScambio();
   if (foglioAperto?.tipo === "verdetto") return foglioVerdetto();
-  if (foglioAperto?.tipo === "svincolo") return foglioSvincolo(foglioAperto.giocatoreId);
+  if (foglioAperto?.tipo === "uscita") return foglioUscita(foglioAperto.giocatoreId);
   if (foglioAperto?.tipo === "offerta") return foglioOfferta();
   return "";
 }
@@ -2514,6 +2514,15 @@ function foglioFirma(giocatoreId, daDraft = null, daVivaio = false) {
   const conto = contoDi(squadra.id);
   const quantiTampone = contratti.filter((c) => c.tipo === "TAMPONE").length;
   const p = primavera(g);
+
+  /* La primavera sta fra i contratti anche se non è un contratto: è la
+     terza cosa che si può fare con un giocatore che si ha davanti, e
+     tenerla in un blocco separato in fondo al foglio voleva dire che
+     nessuno la trovava. Non ha ingaggio e non ha anni — e infatti
+     quando è scelta il foglio cambia faccia. */
+  const motiviVivaio = perchéNoVivaio(g, squadra.id);
+  const postiVivaio = giovanileDa(societaDi(squadra.id).capienzaGiovanile).capienza;
+  const primaveraPossibile = p.stato !== "no";
 
   const tipi = Object.entries(REGOLE.contratti).map(([id, regola]) => {
     /* Un tipo che dipende dall'età si spegne da solo quando l'età non si
@@ -2531,9 +2540,15 @@ function foglioFirma(giocatoreId, daDraft = null, daVivaio = false) {
         <b>${regola.nome}${impossibile ? ` — ${impossibile}` : ""}</b>
         <small>${regola.nota}</small>
       </button>`;
-  }).join("");
+  }).join("") + (daDraft || !primaveraPossibile ? "" : `
+    <button type="button" class="scelta" data-tipo="PRIMAVERA"
+            aria-pressed="${bozza.tipo === "PRIMAVERA"}" ${motiviVivaio.length ? "disabled" : ""}>
+      <b>Primavera${motiviVivaio.length ? ` — ${pulito(motiviVivaio[0].replace(/\.$/, "").toLowerCase())}` : ""}</b>
+      <small>Nella squadra primavera, non in rosa. Nessun ingaggio, nessuno slot.
+        ${vivaioDi(squadra.id).length} su ${postiVivaio} posti.</small>
+    </button>`);
 
-  const regolaScelta = REGOLE.contratti[bozza.tipo];
+  const regolaScelta = REGOLE.contratti[bozza.tipo] ?? { anni: [1] };
   const sceltaAnni = regolaScelta.anni.length > 1
     ? `<label class="campo"><span>Per quanti anni</span>
         <div class="filtri" style="margin:0">
@@ -2554,7 +2569,7 @@ function foglioFirma(giocatoreId, daDraft = null, daVivaio = false) {
     preventivo = `<div class="avviso neutro"><b>Quanto pesa negli anni</b><br>${anni.join(" &nbsp;·&nbsp; ")}</div>`;
   }
 
-  const motivi = Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0
+  const motivi = bozza.tipo !== "PRIMAVERA" && Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0
     ? perchéNo({ giocatore: g, tipo: bozza.tipo, ingaggio: ingaggioQuarti, ingaggioScritto: Number(bozza.ingaggio),
                  anni: bozza.anni, conto, contrattiTampone: quantiTampone })
     : [];
@@ -2575,7 +2590,7 @@ function foglioFirma(giocatoreId, daDraft = null, daVivaio = false) {
       </div>
 
       <form id="modulo-firma" class="moduli">
-        <label class="campo"><span>${daDraft
+        <label class="campo" ${bozza.tipo === "PRIMAVERA" ? "hidden" : ""}><span>${daDraft
             ? `Quanto lo paghi — al draft è la quotazione, e non si tratta`
             : `Quanto lo paghi — a passi di 0,25 M`}</span>
           <input type="number" id="ingaggio" step="0.25" min="0.25" max="${REGOLE.tetto}"
@@ -2585,38 +2600,33 @@ function foglioFirma(giocatoreId, daDraft = null, daVivaio = false) {
         <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">Che contratto</span>
           <div class="scelte">${tipi}</div></div>
 
-        ${sceltaAnni}
-        ${preventivo}
-        ${motivi.length ? `<div class="avviso errore">${motivi.map(pulito).join("<br>")}</div>` : ""}
+        ${bozza.tipo === "PRIMAVERA" ? "" : sceltaAnni}
+        ${bozza.tipo === "PRIMAVERA" ? "" : preventivo}
+        ${bozza.tipo === "PRIMAVERA" ? `<div class="avviso bene">
+          Non percepisce ingaggio, non occupa tetto né slot né posti in rosa: costa solo i posti
+          del settore giovanile, che si comprano con il Capitale. Finché è lì nessun altro lo può
+          prendere, e quando sarà pronto lo tesseri tu a ${g.quotazione} M.
+        </div>` : ""}
+        ${bozza.tipo === "PRIMAVERA"
+          ? (motiviVivaio.length ? `<div class="avviso errore">${motiviVivaio.map(pulito).join("<br>")}</div>` : "")
+          : (motivi.length ? `<div class="avviso errore">${motivi.map(pulito).join("<br>")}</div>` : "")}
 
-        <button class="bottone primario largo" type="submit"
-          ${motivi.length || !Number.isFinite(ingaggioQuarti) || ingaggioQuarti <= 0 ? "disabled" : ""}>
-          ${daDraft ? `Scegli con la ${daDraft.numero}ª` : "Metti in rosa"}${
-            Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0 ? ` per ${soldi(ingaggioQuarti)}` : ""}
-        </button>
-        <p style="font-size:12px;color:var(--luce-media);text-align:center">
-          Dopo la firma restano ${soldi(Math.max(0, conto.spazio - (Number.isFinite(ingaggioQuarti) ? ingaggioQuarti : 0)))} di spazio.
-        </p>
+        ${bozza.tipo === "PRIMAVERA" ? `
+          <button class="bottone primario largo" type="button" data-in-vivaio="${pulito(g.id)}"
+            ${motiviVivaio.length ? "disabled" : ""}>Mettilo in primavera</button>
+          <p style="font-size:12px;color:var(--luce-media);text-align:center">
+            Il tuo tetto non si muove: resta a ${soldi(conto.spazio)} di spazio.</p>
+        ` : `
+          <button class="bottone primario largo" type="submit"
+            ${motivi.length || !Number.isFinite(ingaggioQuarti) || ingaggioQuarti <= 0 ? "disabled" : ""}>
+            ${daDraft ? `Scegli con la ${daDraft.numero}ª` : "Metti in rosa"}${
+              Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0 ? ` per ${soldi(ingaggioQuarti)}` : ""}
+          </button>
+          <p style="font-size:12px;color:var(--luce-media);text-align:center">
+            Dopo la firma restano ${soldi(Math.max(0, conto.spazio - (Number.isFinite(ingaggioQuarti) ? ingaggioQuarti : 0)))} di spazio.
+          </p>`}
       </form>
 
-      ${(() => {
-        /* La strada del vivaio, per chi è idoneo: non è una firma, è un
-           posto tenuto. Sta fuori dal modulo perché non ha niente a che
-           vedere con l'ingaggio scritto sopra. */
-        if (daDraft || daVivaio || p.stato === "no") return "";
-        const motivi = perchéNoVivaio(g, squadra.id);
-        const posti = giovanileDa(societaDi(squadra.id).capienzaGiovanile).capienza;
-        return `<div style="border-top:1px solid var(--bordo);margin-top:16px;padding-top:16px">
-          <b style="font-size:14px">Oppure: mettilo in vivaio</b>
-          <p style="font-size:12.5px;color:var(--luce-media);margin:5px 0 10px">
-            Niente ingaggio, niente tetto, niente slot — e nessun altro può prenderlo.
-            Quando sarà pronto lo tesseri tu a ${g.quotazione} M.
-            Hai ${vivaioDi(squadra.id).length} giovani su ${posti} posti.
-          </p>
-          ${motivi.length ? `<div class="avviso attenzione">${motivi.map(pulito).join("<br>")}</div>`
-            : `<button class="bottone largo" data-in-vivaio="${pulito(g.id)}">Mettilo in vivaio</button>`}
-        </div>`;
-      })()}
     </div></div>`;
 }
 
@@ -2698,19 +2708,65 @@ function foglioOfferta() {
   </div></div>`;
 }
 
-/* ── Il foglio dello svincolo ─────────────────────────────────────
-   Due strade, con i numeri di tutt'e due sotto gli occhi: senza vederli
-   affiancati la scelta è un salto nel buio, e questa è la decisione più
-   costosa che un presidente prende in tutta la stagione. */
+/* ── Il foglio dell'uscita dalla rosa ─────────────────────────────
+   Un giocatore esce in tre modi, e al tetto salariale succedono tre cose
+   diverse: svincolato pesa lo stesso, scambiato dipende da cosa entra,
+   partito per l'estero si libera tutto. Erano in tre posti diversi
+   dell'applicazione — e due dei tre nemmeno raggiungibili dal presidente:
+   qui stanno dove si guarda, cioè sul giocatore. */
 
-function foglioSvincolo(giocatoreId) {
+/* Dove sta la scelta dentro il foglio: prima cos'è successo, poi — se
+   è uno svincolo — con quale delle due strade. */
+let stradaUscita = null;
+
+function foglioUscita(giocatoreId) {
   const squadra = squadraCorrente();
   if (!squadra) return "";
   const c = rosaDi(squadra.id).find((x) => x.giocatoreId === giocatoreId);
   if (!c) return "";
-  const { secco, spalmato } = modiSvincolo(c);
   const conto = contoDi(squadra.id);
+  const { secco, spalmato } = modiSvincolo(c);
 
+  const testa = `<div class="foglio-testa">
+      <div><h2>${stradaUscita === "svincolo" ? `Svincoli ${pulito(c.nome)}?` : `Cosa è successo a ${pulito(c.nome)}?`}</h2>
+        <p style="font-size:13px;color:var(--luce-media)">
+          ${soldi(c.ingaggio)} · ${pulito(REGOLE.contratti[c.tipo]?.nome ?? c.tipo)}${
+            c.anni > 1 ? ` · ${c.anni} anni` : ""}</p></div>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>`;
+
+  /* ── Le tre strade ── */
+  if (stradaUscita !== "svincolo") {
+    const via = (attributo, titolo, spiega, effetto, colore) => `
+      <button class="scelta" ${attributo} style="padding:14px 15px">
+        <b style="font-size:15px">${titolo}</b>
+        <small style="margin-top:6px">${spiega}</small>
+        <small style="margin-top:7px;color:${colore};font-weight:600">${effetto}</small>
+      </button>`;
+
+    return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
+      ${testa}
+      <div class="moduli">
+        <p style="font-size:13px;color:var(--luce-media)">
+          Un giocatore può uscire dalla rosa in tre modi diversi, e al tetto salariale
+          succedono tre cose diverse. Scegli quello vero: è da qui che dipende il tuo bilancio.
+        </p>
+        <div class="scelte" style="grid-template-columns:1fr">
+          ${via(`data-uscita="svincolo"`, "L'ho svincolato",
+            "Lo taglio io. Va in waiver per " + REGOLE.mercato.oreWaiver + " ore e le altre squadre possono reclamarlo.",
+            "Il tetto NON si libera: l'ingaggio resta a pesare.", "var(--allarme)")}
+          ${via(`data-uscita="scambio"`, "L'ho scambiato",
+            "Apre la proposta di scambio con lui già dentro. Il tetto cambia secondo quello che entra e quello che esce.",
+            "Il tetto si muove con lo scambio.", "var(--avviso)")}
+          ${via(`data-uscita="estero"`, "È andato all'estero",
+            "Ha lasciato la Serie A: non è più nel listone e non lo può prendere nessuno.",
+            "Il tetto si libera subito, tutto: " + soldi(c.ingaggio) + ".", "var(--ok)")}
+        </div>
+      </div>
+    </div></div>`;
+  }
+
+  /* ── Lo svincolo: le due strade, con i numeri affiancati ── */
   const strada = (m, titolo, spiega) => `
     <button class="scelta" data-svincola="${m.modo}" style="padding:14px 15px">
       <b style="font-size:15px">${titolo}</b>
@@ -2724,14 +2780,9 @@ function foglioSvincolo(giocatoreId) {
     </button>`;
 
   return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
-    <div class="foglio-testa">
-      <div><h2>Svincoli ${pulito(c.nome)}?</h2>
-        <p style="font-size:13px;color:var(--luce-media)">
-          ${soldi(c.ingaggio)} · ${pulito(REGOLE.contratti[c.tipo]?.nome ?? c.tipo)}${
-            c.anni > 1 ? ` · ${c.anni} anni` : ""}</p></div>
-      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
-    </div>
+    ${testa}
     <div class="moduli">
+      <button class="bottone piccolo" data-uscita="indietro" style="align-self:flex-start">← Non era uno svincolo</button>
       <div class="scelte" style="grid-template-columns:1fr">
         ${strada(secco, "Paga e chiudi",
           "L'ingaggio resta intero sul tetto fino a giugno, poi non se ne parla più.")}
@@ -3272,6 +3323,9 @@ function foglioScambio() {
     </div>
 
     <form id="modulo-scambio" class="moduli">
+      ${bozzaScambio.cedeDa.length && !con ? `<div class="avviso neutro">
+        Stai proponendo <b>${pulito(rosaDi(mia.id).filter((c) => bozzaScambio.cedeDa.includes(c.giocatoreId))
+          .map((c) => c.nome).join(", "))}</b>. Scegli con chi.</div>` : ""}
       <label class="campo"><span>Con quale squadra</span>
         <select id="scambio-con">
           <option value="">Scegli…</option>
@@ -4025,8 +4079,10 @@ function dopoIlDisegno() {
   su("[data-tipo]", "click", (e) => {
     const tipo = e.currentTarget.dataset.tipo;
     bozza.tipo = tipo;
-    const anni = REGOLE.contratti[tipo].anni;
-    if (!anni.includes(bozza.anni)) bozza.anni = anni[0];
+    /* «Primavera» non è un contratto e non ha anni: sta fra i contratti
+       perché è lì che la si cerca, non perché lo sia. */
+    const anni = REGOLE.contratti[tipo]?.anni;
+    if (anni && !anni.includes(bozza.anni)) bozza.anni = anni[0];
     disegna();
   });
   su("[data-anni]", "click", (e) => { bozza.anni = Number(e.currentTarget.dataset.anni); disegna(); });
@@ -4101,7 +4157,46 @@ function dopoIlDisegno() {
   /* Togliere dalla rosa: la scelta fra le due strade sta nel foglio, con i
      numeri di tutt'e due sotto gli occhi. */
   su("[data-togli]", "click", (e) => {
-    apriFoglio({ tipo: "svincolo", giocatoreId: e.currentTarget.dataset.togli });
+    stradaUscita = null;
+    apriFoglio({ tipo: "uscita", giocatoreId: e.currentTarget.dataset.togli });
+  });
+
+  su("[data-uscita]", "click", async (e) => {
+    const dove = e.currentTarget.dataset.uscita;
+    const id = foglioAperto?.giocatoreId;
+    const squadra = squadraCorrente();
+    const c = rosaDi(squadra?.id ?? "").find((x) => x.giocatoreId === id);
+    if (!c) return;
+
+    if (dove === "svincolo" || dove === "indietro") {
+      stradaUscita = dove === "svincolo" ? "svincolo" : null;
+      disegna();
+      return;
+    }
+
+    if (dove === "scambio") {
+      /* Non si toglie niente: si apre la proposta con lui già dentro. Il
+         tetto lo muoverà lo scambio quando l'altra squadra accetta. */
+      bozzaScambio = { conChi: null, cedeDa: [id], cedeA: [], scelteDa: [], scelteA: [],
+                       capitaleDa: "", capitaleA: "" };
+      apriFoglio({ tipo: "scambio" });
+      return;
+    }
+
+    if (dove === "estero") {
+      if (!confirm(
+        `${c.nome} ha lasciato la Serie A?\n\n` +
+        `Non è uno svincolo: i suoi ${soldi(c.ingaggio)} tornano liberi oggi stesso, ` +
+        `insieme al posto in rosa. Non va in waiver — non è più nel listone di nessuno.\n\n` +
+        `Se invece l'hai svincolato tu, torna indietro e scegli la prima strada.`
+      )) return;
+      chiudiFoglio();
+      await scriviRosa(squadra.id,
+        rosaDi(squadra.id).filter((x) => x.giocatoreId !== id),
+        pesiMortiDi(squadra.id).filter((x) => x.giocatoreId !== id));
+      await annota("lega",
+        `${c.nome} lascia la Serie A: ${squadra.nome} libera ${soldi(c.ingaggio)} subito`, squadra.id);
+    }
   });
 
   su("[data-svincola]", "click", async (e) => {
