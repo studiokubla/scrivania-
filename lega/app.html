@@ -3453,25 +3453,45 @@ function tuttaLaLega() {
 /**
  * Fa scaricare il backup.
  *
- * Un `<a download>` è la strada normale, ma in certi contenitori — un
- * artifact, una pagina dentro un'altra — i download sono spenti e non
- * lo dicono: il tasto sembra funzionare e non succede niente. Perciò la
- * funzione riferisce se ci è riuscita, e chi la chiama offre la seconda
- * strada: il testo negli appunti.
+ * Due strade, perché l'applicazione gira in due posti diversi. Sul sito
+ * e nella demo il download lo fa la pagina, con un `<a download>`.
+ * Dentro un artifact no: lì la pagina non ha il permesso di consegnare
+ * un file, lo chiede alla piattaforma — che mostra una conferma a chi
+ * guarda — e un `<a download>` non fallirebbe, semplicemente non
+ * farebbe niente, che è il modo peggiore di non funzionare.
+ *
+ * In tutti i casi la funzione riferisce com'è andata, e chi la chiama
+ * tiene pronta la terza strada: il testo negli appunti.
  */
-function scaricaBackup() {
+async function scaricaBackup() {
   const testo = JSON.stringify(tuttaLaLega(), null, 1);
   const nome = `dynasty-${spoglia(stato.config?.nome ?? "lega").replace(/ /g, "-")}-${
     STAGIONE.replace("/", "-")}-${new Date().toISOString().slice(0, 10)}.json`;
+  const comune = { nome, peso: testo.length, testo };
+
+  const consegna = typeof claude !== "undefined" && claude?.use
+    ? await claude.use("downloads").catch(() => null)
+    : null;
+  if (consegna) {
+    try {
+      await consegna.save({ filename: nome, data: testo });
+      return { ...comune, riuscito: true, rifiutato: false };
+    } catch (errore) {
+      /* «declined» è il lettore che ha detto no: non è un guasto, e
+         proporgli la casella di testo sarebbe insistere. */
+      return { ...comune, riuscito: false, rifiutato: errore?.code === "declined" };
+    }
+  }
+
   try {
     const url = URL.createObjectURL(new Blob([testo], { type: "application/json" }));
     const a = document.createElement("a");
     a.href = url; a.download = nome;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    return { riuscito: true, nome, peso: testo.length, testo };
+    return { ...comune, riuscito: true, rifiutato: false };
   } catch {
-    return { riuscito: false, nome, peso: testo.length, testo };
+    return { ...comune, riuscito: false, rifiutato: false };
   }
 }
 
@@ -5737,9 +5757,12 @@ function agganciaGestione() {
       `${chi} lascia la Serie A: ${squadra?.nome} libera ${soldi(quanto)} subito`, squadraId);
   });
 
-  su("#fai-backup", "click", () => {
+  su("#fai-backup", "click", async (e) => {
     const esito = radice.querySelector("#esito-backup");
-    const b = scaricaBackup();
+    e.currentTarget.disabled = true;
+    esito.innerHTML = `<div class="avviso neutro">Preparo il file…</div>`;
+    const b = await scaricaBackup();
+    e.currentTarget.disabled = false;
     const peso = b.peso >= 1048576
       ? `${(b.peso / 1048576).toFixed(1)} MB`
       : `${Math.max(1, Math.round(b.peso / 1024))} kB`;
@@ -5747,7 +5770,10 @@ function agganciaGestione() {
     esito.innerHTML = b.riuscito
       ? `<div class="avviso bene"><b>${pulito(b.nome)}</b> · ${peso} — è nei tuoi download.
            <button class="bottone piccolo" id="mostra-backup" style="margin-left:8px">Mostralo qui</button></div>`
-      : `<div class="avviso attenzione">Qui dentro i download sono spenti e il file non si salva da sé.
+      : b.rifiutato
+      ? `<div class="avviso neutro">Salvataggio annullato. Il file era pronto: ${peso}.
+           <button class="bottone piccolo" id="mostra-backup" style="margin-left:8px">Mostralo qui</button></div>`
+      : `<div class="avviso attenzione">Qui dentro il file non si salva da sé.
            <button class="bottone piccolo" id="mostra-backup" style="margin-left:8px">Mostra il backup</button></div>`;
 
     /* L'ascoltatore si attacca a mano: questo pezzo di pagina è nato adesso e
@@ -5800,7 +5826,22 @@ function agganciaGestione() {
        disegno, guardando lo stato. */
     stato.chiusuraInCorso = true;
     dillo("neutro", "Salvo il backup…");
-    const backup = scaricaBackup();
+    const backup = await scaricaBackup();
+
+    /* Se il backup non è finito da nessuna parte, la rete non c'è. Si può
+       andare avanti lo stesso — magari il backup è stato fatto ieri — ma
+       va detto e va confermato, non dato per scontato. */
+    if (!backup.riuscito && !confirm(
+      "Il backup non è stato salvato.\n\n" +
+      "La chiusura riscrive ogni contratto della lega e non si torna indietro.\n\n" +
+      "Chiudo lo stesso la stagione?"
+    )) {
+      stato.chiusuraInCorso = false;
+      dillo("attenzione",
+        `Non ho chiuso niente. Prendi prima il backup dal riquadro qui sopra — se il file
+         non si scarica, il tasto <b>Mostra il backup</b> te lo dà da copiare.`);
+      return;
+    }
 
     const guai = [];
     let liberati = 0, rinnovati = 0;
@@ -5872,8 +5913,9 @@ function agganciaGestione() {
         `${rinnovati} contratti rinnovati · ${conti.scaduti} scaduti che liberano ${soldi(liberati)} · ` +
         `${soldi(conti.mantenimento)} di mantenimento addebitato.` +
         (guai.length ? `<br><br>${guai.map(pulito).join("<br>")}` : "") +
-        (backup.riuscito ? `<br><br>Il backup della ${pulito(chiusa)} è nei tuoi download: <b>${pulito(backup.nome)}</b>.`
-                         : `<br><br>Il backup non si è potuto scaricare: prendilo dal riquadro Backup qui sopra.`) +
+        (backup.riuscito
+          ? `<br><br>Il backup della ${pulito(chiusa)} è nei tuoi download: <b>${pulito(backup.nome)}</b>.`
+          : `<br><br>Il backup non è stato salvato: rifallo dal riquadro Backup qui sopra — quello che scarichi ora è già la ${pulito(prossima)}.`) +
         `<br><br>Ora carica il listone della ${pulito(prossima)} dal riquadro Quotazioni, e apri il draft.`);
     } catch (errore) {
       dillo("errore",
