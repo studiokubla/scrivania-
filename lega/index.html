@@ -688,6 +688,38 @@ label.campo > span { display: block; font-size: 12px; font-weight: 600; color: v
   background: linear-gradient(var(--lime-fioco), var(--lime-fioco)), var(--superficie-piena);
 }
 
+/* ── La conversazione col commissioner ────────────────────────
+   Due voci, riconoscibili dal lato in cui stanno e dal colore: la tua a
+   destra su lime, la sua a sinistra su vetro. È la convenzione che tutti
+   conoscono, e su una cosa che si legge di fretta la convenzione vale
+   più dell'originalità. */
+
+/* Cresce nella pagina invece di scorrere dentro sé stessa: due barre di
+   scorrimento annidate, su un telefono, sono una trappola — si finisce
+   per muovere quella sbagliata. */
+.conversazione { display: flex; flex-direction: column; gap: 10px; padding: 2px; }
+.detto {
+  max-width: 88%; padding: 12px 15px; border-radius: var(--raggio-s);
+  font-size: 14px; line-height: 1.55;
+}
+.detto.mio {
+  align-self: flex-end;
+  background: linear-gradient(145deg, var(--lime), var(--lime-caldo));
+  color: #0B0E0B; font-weight: 600;
+  border-bottom-right-radius: 6px;
+}
+.detto.suo {
+  align-self: flex-start;
+  background: var(--lucido), var(--vetro);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--bordo);
+  border-bottom-left-radius: 6px;
+}
+.detto.suo b { color: var(--luce); }
+.detto.suo ul { margin: 6px 0 0; padding-left: 18px; }
+.detto.suo li { margin-bottom: 3px; }
+.detto.suo p { margin: 0; }
+
 /* ── L'albo d'oro ─────────────────────────────────────────────
    L'unica parte che guarda indietro invece che avanti, e l'unica dove
    un po' di solennità è nel posto giusto: qui si legge chi ha vinto, e
@@ -2309,6 +2341,7 @@ function vistaApplicazione() {
     { id: "listone", nome: "Listone" },
     { id: "mercato", nome: "Mercato" },
     { id: "draft", nome: "Draft" },
+    { id: "commissioner", nome: "Commissioner" },
     { id: "societa", nome: "Società" },
     { id: "albo", nome: "Albo d'oro" },
     { id: "registro", nome: "Registro" },
@@ -2322,6 +2355,7 @@ function vistaApplicazione() {
     : stato.vista === "listone" ? paginaListone()
     : stato.vista === "mercato" ? paginaMercato()
     : stato.vista === "draft" ? paginaDraft()
+    : stato.vista === "commissioner" ? paginaCommissioner()
     : stato.vista === "societa" ? paginaSocieta()
     : stato.vista === "albo" ? paginaAlbo()
     : stato.vista === "registro" ? paginaRegistro()
@@ -3524,6 +3558,382 @@ function foglioScambio() {
   </div></div>`;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   IL COMMISSIONER
+
+   Un assistente a cui chiedere com'è messa la squadra, chi è un
+   giocatore, cosa dice il regolamento, chi è arrivato e chi è partito.
+
+   Non chiama nessun modello e non esce dalla pagina: le risposte le
+   calcola dalle stesse funzioni che disegnano il resto dell'app. È una
+   scelta, non una rinuncia — in una lega si litiga sui numeri, e un
+   assistente che sullo spazio salariale risponde «più o meno tredici
+   milioni» fa più danno che comodo. Qui quando dice 13,75 M è 13,75 M,
+   perché è lo stesso conto che vedi nella pagina Rosa.
+
+   Il prezzo è che capisce le domande per parole chiave e non per senso
+   compiuto. Se un giorno servirà anche quello, il posto dove innestare
+   un modello è `rispondi()`: prende una frase e restituisce del testo,
+   e tutto il resto — le pagine, la conversazione — non se ne accorge.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* La conversazione sta in memoria e non nel database: è una cosa fra te
+   e lo schermo, e non ha senso che gli altri nove la leggano. */
+let conversazione = [];
+
+/** Senza accenti, senza punteggiatura, minuscolo: come si confronta. */
+const spoglia = (testo) => String(testo).toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+
+/* Parole che nel listone somigliano a un cognome ma nella domanda sono
+   tutt'altro: senza questa lista «chi ha più spazio in rosa» andrebbe a
+   cercare un giocatore che si chiama Rosa. */
+const NON_SONO_NOMI = new Set([
+  "rosa", "roma", "milan", "como", "lecce", "parma", "torino", "genoa", "lazio",
+  "posso", "quanto", "quanti", "quale", "quali", "chi", "cosa", "come", "dove",
+  "spazio", "tetto", "soldi", "conto", "regola", "regole", "regolamento", "contratto",
+  "contratti", "mercato", "scambio", "scambi", "draft", "primavera", "vivaio",
+  "stadio", "capitale", "squadra", "squadre", "giocatore", "giocatori", "anni",
+  "stagione", "estero", "serie", "sono", "essere", "avere", "fare", "dire",
+]);
+
+/** I giocatori nominati nella domanda. */
+function giocatoriCitati(domanda) {
+  const parole = spoglia(domanda).split(" ").filter((w) => w.length >= 4 && !NON_SONO_NOMI.has(w));
+  if (!parole.length) return [];
+  const trovati = new Map();
+  for (const g of LISTONE) {
+    const nome = spoglia(g.nome);
+    for (const w of parole) {
+      /* Il cognome comincia con quello che hai scritto, o coincide con una
+         delle sue parti: «lautaro» trova «Martinez L.» solo se lo scrivi
+         come sta nel listone, e va bene così — meglio non trovare nulla
+         che trovare il giocatore sbagliato. */
+      if (nome.startsWith(w) || nome.split(" ").includes(w)) { trovati.set(g.id, g); break; }
+    }
+  }
+  return [...trovati.values()].slice(0, 6);
+}
+
+/** Le squadre della lega nominate nella domanda. */
+function squadreCitate(domanda) {
+  const d = spoglia(domanda);
+  return stato.squadre.filter((s) => {
+    const nome = spoglia(s.nome);
+    return d.includes(nome) || nome.split(" ").some((w) => w.length >= 4 && d.includes(w));
+  });
+}
+
+/* ── Le risposte ──────────────────────────────────────────────── */
+
+/** Il conto di una squadra, detto per esteso. */
+function dettoIlConto(squadra) {
+  const c = contoDi(squadra.id);
+  const soc = societaDi(squadra.id);
+  const giovani = vivaioDi(squadra.id).length;
+  const scadenze = rosaDi(squadra.id).filter(inScadenza).length;
+  return `<b>${pulito(squadra.nome)}</b><ul>
+    <li>Spazio salariale: <b>${soldi(c.spazio)}</b>${c.sforato ? " — <b>sei oltre il tetto</b>" : ""}
+      (${soldi(c.speso)} spesi su ${REGOLE.tetto} M)</li>
+    ${c.pesoMorto > 0 ? `<li>Di cui ${soldi(c.pesoMorto)} di svincolati che pesano ancora</li>` : ""}
+    <li>In rosa: <b>${c.numero}</b> su un minimo di ${REGOLE.rosaMin} e un massimo di ${REGOLE.rosaMax}${
+      c.postiDaRiempire ? ` — ne mancano ${c.postiDaRiempire}` : ""}</li>
+    <li>Slot pluriennali: ${c.slotUsati} usati, <b>${c.slotLiberi}</b> liberi</li>
+    ${scadenze ? `<li>In scadenza: ${scadenze} ${scadenze === 1 ? "giocatore" : "giocatori"}</li>` : ""}
+    ${giovani ? `<li>In primavera: ${giovani}</li>` : ""}
+    <li>Capitale: <b>${soldi(soc.capitale)}</b> · stadio ${
+      soc.stadio ? pulito(REGOLE.capitale.stadi[soc.stadio - 1].nome) : "nessuno"} · vivaio da ${soc.capienzaGiovanile} posti</li>
+  </ul>`;
+}
+
+/** La scheda di un giocatore: chi è, di chi è, quanto costa. */
+function dettoIlGiocatore(g) {
+  const p = primavera(g);
+  const diChi = tesserati().get(g.id);
+  const squadra = diChi ? squadraDi(diChi) : null;
+  const contratto = squadra ? rosaDi(squadra.id).find((c) => c.giocatoreId === g.id) : null;
+  const inPrimavera = squadra && !contratto;
+  return `<b>${pulito(g.nome)}</b> — ${pulito(g.squadra)}<ul>
+    <li>${(g.mantra ?? []).map((r) => pulito(RUOLI_MANTRA[r]?.nome ?? r)).join(", ") || pulito(NOME_RUOLO[g.ruolo] ?? g.ruolo)}</li>
+    <li>Quotato <b>${g.quotazione} M</b>${g.eta != null ? ` · ${g.eta} anni al ${REGOLE.etaAl}` : " · età non nel listone"}</li>
+    ${p.stato !== "no" ? `<li>Primavera: ${p.stato === "si" ? "sì" : `forse — ${pulito(p.motivo)}`}</li>`
+      : `<li>Non è da primavera: ${pulito(p.motivo)}</li>`}
+    <li>${squadra
+      ? inPrimavera
+        ? `È nella <b>primavera di ${pulito(squadra.nome)}</b>: nessun altro lo può prendere.`
+        : `È di <b>${pulito(squadra.nome)}</b> a ${soldi(contratto.ingaggio)} × ${contratto.anni} ${
+            contratto.anni === 1 ? "anno" : "anni"} (${pulito(REGOLE.contratti[contratto.tipo]?.nome ?? contratto.tipo)})${
+            inScadenza(contratto) ? " — <b>in scadenza</b>" : ""}`
+      : "<b>È libero.</b>"}</li>
+  </ul>`;
+}
+
+/* ── Il regolamento, per argomento ──────────────────────────── */
+
+const REGOLAMENTO = [
+  { chiavi: ["tetto", "salariale", "budget", "monte"], titolo: "Il tetto salariale", testo: () => `
+    Ogni squadra ha <b>${REGOLE.tetto} M</b> di tetto. Ci stanno dentro gli ingaggi di tutti i
+    tesserati e anche quelli degli svincolati, che continuano a pesare. I giovani in primavera no:
+    quelli costano Capitale, non tetto. Gli importi si muovono a passi di ${REGOLE.passo} M.` },
+
+  { chiavi: ["rosa", "quanti giocatori", "minimo", "massimo"], titolo: "Quanti in rosa", testo: () => `
+    Da <b>${REGOLE.rosaMin}</b> a <b>${REGOLE.rosaMax}</b> giocatori. <b>Nessun minimo per ruolo</b>:
+    in questa lega si può stare anche con un portiere solo, purché il numero totale torni.
+    Chi non ha ancora la rosa minima deve tenere da parte ${REGOLE.riservaPerSlotMancante} M per
+    ogni posto che gli manca, o si ritrova senza soldi per completarla.` },
+
+  { chiavi: ["contratto", "contratti", "annuale", "standard", "rookie", "veteran", "tampone", "durata"],
+    titolo: "I contratti", testo: () => `
+    <ul>${Object.entries(REGOLE.contratti).map(([, r]) => `<li><b>${r.nome}</b> — ${r.nota}</li>`).join("")}
+    <li><b>Primavera</b> — non è un contratto: il giovane sta nella squadra primavera, senza ingaggio
+      e senza occupare tetto, slot o posti in rosa.</li></ul>
+    I pluriennali occupano uno dei <b>${REGOLE.slotPluriennali} slot</b>; annuali e tamponi no.` },
+
+  { chiavi: ["slot", "pluriennal"], titolo: "Gli slot pluriennali", testo: () => `
+    Sono <b>${REGOLE.slotPluriennali}</b> per squadra. Ogni contratto di più di un anno — Standard,
+    Rookie, Veteran — ne occupa uno. Annuale e Tampone no. Quando sono finiti si può firmare solo
+    a un anno, finché uno non si libera.` },
+
+  { chiavi: ["svincol", "tagliare", "togliere", "peso morto"], titolo: "Lo svincolo", testo: () => `
+    Chi svincola <b>non libera il tetto</b>: l'ingaggio resta a pesare fino a fine stagione. È la
+    regola che rende una firma una decisione.<br><br>
+    Sui pluriennali si può <b>spalmare</b>: l'ingaggio si divide sugli anni che restavano, con un
+    quarto di penale. Liberi spazio adesso e te lo porti dietro.<br><br>
+    Chi viene svincolato resta ${REGOLE.mercato.oreWaiver} ore in waiver: in quel tempo le altre
+    squadre possono reclamarlo.` },
+
+  { chiavi: ["estero", "lascia", "lasciato", "partito", "partiti", "trasferito"],
+    titolo: "Chi lascia la Serie A", testo: () => `
+    <b>Non è uno svincolo.</b> Chi taglia sceglie e se la paga; chi si vede portare via un giocatore
+    da un trasferimento all'estero non ha scelto niente. L'ingaggio si libera <b>subito</b>, insieme
+    al posto in rosa, e se ne va anche l'eventuale peso morto che quel giocatore aveva lasciato.
+    Non va in waiver: è fuori dal listone.` },
+
+  { chiavi: ["primavera", "vivaio", "giovani", "giovanile", "prelazione"],
+    titolo: "La primavera e la prelazione", testo: () => `
+    Ci entra chi ha fino a <b>${REGOLE.primavera.etaMax} anni</b> ed è quotato non oltre
+    <b>${REGOLE.primavera.quotazioneMax} M</b> (e non più di ${REGOLE.primavera.presenzeMax} presenze).
+    Non percepisce ingaggio e non occupa tetto, slot né posti in rosa: costa i posti del settore
+    giovanile, che si comprano con il Capitale.<br><br>
+    <b>Finché è lì nessun altro lo può prendere.</b> Quando è pronto lo tesseri tu alla sua
+    quotazione, con un Rookie — o con un annuale se gli slot sono finiti.` },
+
+  { chiavi: ["scambio", "scambi", "scambiare", "trade"], titolo: "Gli scambi", testo: () => `
+    I giocatori viaggiano con il loro contratto. Si scambiano anche <b>Capitale</b> e <b>scelte al
+    draft</b>, mai spazio salariale. Chi riceve la proposta ha
+    ${REGOLE.mercato.oreAccettazioneScambio} ore per rispondere; il commissioner ne ha
+    ${REGOLE.mercato.oreAnnullamentoScambio} per annullare uno scambio già fatto.
+    Le due rose devono restare valide: il tetto vale anche dopo.` },
+
+  { chiavi: ["mercato", "offerta", "offerte", "busta", "waiver", "free agency", "svincolati"],
+    titolo: "Il mercato durante l'anno", testo: () => `
+    L'asta si fa al tavolo a settembre. Durante l'anno: <b>${REGOLE.mercato.offertePerStagione} offerte</b>
+    a stagione sui giocatori liberi (${REGOLE.mercato.oreFreeAgency} ore a busta chiusa), e i tagliati
+    restano ${REGOLE.mercato.oreWaiver} ore in waiver.<br><br>
+    Si può anche offrire a un <b>giocatore in scadenza di un'altra squadra</b>
+    (${REGOLE.offerteScadenza.perStagione} volte a stagione): l'offerta la vede solo il commissioner,
+    che la riferisce alla proprietaria. Se pareggia se lo tiene, se tace
+    ${REGOLE.offerteScadenza.oreRisposta} ore a fine stagione il giocatore cambia squadra.` },
+
+  { chiavi: ["draft", "scelte", "scelta"], titolo: "Il draft", testo: () => `
+    Chi arriva ultimo sceglie per primo: l'ordine è l'inverso della classifica combinata di Apertura
+    e Clausura. ${REGOLE.draft.giri} giri, <b>a serpentina</b> — al secondo giro si va al contrario.
+    Al draft l'ingaggio è la quotazione del giocatore e non si tratta; il contratto lo scegli tu.<br><br>
+    Le <b>scelte si scambiano</b>, anche quelle delle stagioni che verranno.` },
+
+  { chiavi: ["stadio", "capitale", "societa", "osservator", "incasso"],
+    titolo: "La società: Capitale, stadio, osservatori", testo: () => `
+    Il Capitale <b>non è spazio salariale</b> e non ci si trasforma: il tetto limita gli ingaggi, il
+    Capitale è denaro che si accumula e si investe. Ogni squadra parte con
+    ${REGOLE.capitale.dotazione} M.<br><br>
+    <b>Stadio</b>: cinque livelli, da ${REGOLE.capitale.stadi[0].costruzione} a
+    ${REGOLE.capitale.stadi[4].costruzione} M. Dà un incasso a gara casalinga e un bonus di
+    fantapunti in casa, da +${REGOLE.capitale.stadi[0].fantapunti} a
+    +${REGOLE.capitale.stadi[4].fantapunti}. Diventa operativo dalla ${REGOLE.capitale.operativoDallaGiornata}ª giornata.<br><br>
+    <b>Osservatori</b>: uno su un campionato dà il diritto di pareggiare l'offerta più alta sui
+    giocatori che da lì arrivano in Serie A. Dura una stagione.` },
+
+  { chiavi: ["competizion", "premi", "coppa", "campionato", "apertura", "clausura", "trofe"],
+    titolo: "Le competizioni", testo: () => `
+    <ul>${REGOLE.competizioni.map((c) => `<li><b>${c.nome}</b> — ${c.formato}. Primo premio:
+      ${c.capitale[0]} M di Capitale${c.denaro?.[0] ? ` e ${c.denaro[0]} €` : ""}.</li>`).join("")}</ul>` },
+
+  { chiavi: ["eta", "quando si conta", "compleanno"], titolo: "L'età", testo: () => `
+    L'età che conta è quella al <b>${REGOLE.etaAl}</b>, ed è quella che il listone stampa. Vale per
+    Rookie (fino a ${REGOLE.contratti.ROOKIE.etaMax}), Veteran (da ${REGOLE.contratti.VETERAN.etaMin})
+    e primavera (fino a ${REGOLE.primavera.etaMax}).` },
+];
+
+/* ── Il motore ────────────────────────────────────────────────── */
+
+/**
+ * Da una domanda a una risposta.
+ *
+ * L'ordine conta: prima le cose che la domanda nomina — un giocatore, una
+ * squadra — poi gli argomenti. Chi scrive «quanto prende Dybala» vuole
+ * sapere di Dybala, non una lezione sui contratti.
+ */
+function rispondi(domanda) {
+  const d = spoglia(domanda);
+  const mia = squadraCorrente();
+  if (!d) return "Scrivi pure: com'è messa la tua squadra, chi è un giocatore, cosa dice il regolamento.";
+
+  const chiede = (...parole) => parole.some((w) => d.includes(spoglia(w)));
+
+  /* ── Chi è arrivato e chi è partito ── */
+  if (chiede("arrivat", "nuovi giocatori", "chi e arrivato", "dall estero", "nuovo nel listone")) {
+    const nuovi = stato.aggiornamentoListone?.nuovi ?? [];
+    const partiti = stato.registro.filter((r) => /lascia la Serie A/.test(r.dettaglio ?? ""));
+    return `<b>Movimenti da e per l'estero</b>
+      <p style="margin-top:8px">${nuovi.length
+        ? `Nell'ultimo aggiornamento del listone sono comparsi <b>${nuovi.length}</b> giocatori nuovi:
+           ${nuovi.slice(0, 12).map((n) => pulito(n.nome)).join(", ")}${nuovi.length > 12 ? ", e altri" : ""}.
+           Li trovi nel listone come tutti gli altri.`
+        : `Il listone non è ancora stato aggiornato con file nuovi, quindi non risulta arrivato nessuno.
+           Gli arrivi si vedono quando il commissioner carica le quotazioni aggiornate da Gestione.`}</p>
+      <p style="margin-top:8px">${partiti.length
+        ? `Hanno lasciato la Serie A: <ul>${partiti.slice(0, 8).map((r) =>
+            `<li>${pulito(r.dettaglio)}</li>`).join("")}</ul>`
+        : "Non risulta che nessuno abbia lasciato la Serie A."}</p>`;
+  }
+
+  /* ── Un giocatore per nome ── */
+  const giocatori = giocatoriCitati(domanda);
+  if (giocatori.length === 1) return dettoIlGiocatore(giocatori[0]);
+  if (giocatori.length > 1 && giocatori.length <= 6) {
+    return `Ne trovo più d'uno: ${giocatori.map((g) => `<b>${pulito(g.nome)}</b> (${pulito(g.squadra)})`).join(", ")}.
+      Scrivi il cognome come sta nel listone e ti dico tutto di lui.`;
+  }
+
+  /* ── Una squadra della lega ── */
+  const squadre = squadreCitate(domanda);
+  if (squadre.length === 1 && !chiede("regolament")) {
+    const s = squadre[0];
+    if (chiede("rosa", "chi ha", "giocatori")) {
+      const r = rosaDi(s.id);
+      return `<b>La rosa di ${pulito(s.nome)}</b> — ${r.length} giocatori
+        <ul>${r.map((c) => `<li>${pulito(c.nome)} · ${pulito(c.ruolo)} · ${soldi(c.ingaggio)} × ${c.anni}</li>`).join("") || "<li>vuota</li>"}</ul>`;
+    }
+    return dettoIlConto(s);
+  }
+
+  /* ── Chi sta meglio ── */
+  /* Prima del conto proprio: «chi ha più spazio» contiene la parola
+     «spazio», e nell'ordine inverso non ci arriverebbe mai. */
+  if (chiede("chi ha piu spazio", "classifica", "come stanno le altre", "tutte le squadre")) {
+    const righe = [...stato.squadre]
+      .map((s) => ({ s, c: contoDi(s.id) }))
+      .sort((a, b) => b.c.spazio - a.c.spazio);
+    return `<b>Spazio salariale, dalla più libera</b><ul>${righe.map(({ s, c }) =>
+      `<li>${pulito(s.nome)}: <b>${soldi(c.spazio)}</b> · ${c.numero} in rosa · ${c.slotLiberi} slot</li>`).join("")}</ul>`;
+  }
+
+  /* ── La mia situazione ── */
+  if (chiede("quanto posso", "quanto ho", "spazio", "situazione", "come sono messo", "come siamo messi",
+             "il mio conto", "budget", "soldi", "economic", "posso spendere")) {
+    if (!mia) return "Entra da una squadra e ti dico com'è messa. Da commissioner puoi chiedermi di una squadra per nome.";
+    return dettoIlConto(mia);
+  }
+
+  /* ── Chi va in scadenza ── */
+  if (chiede("scadenza", "scadono", "in scadenza")) {
+    const dentro = mia ? rosaDi(mia.id).filter(inScadenza) : [];
+    const fuori = mia ? inScadenzaAltrui(mia.id) : [];
+    return `<b>Contratti in scadenza</b>
+      <p style="margin-top:8px">${mia
+        ? dentro.length
+          ? `Tuoi: <ul>${dentro.map((c) => `<li>${pulito(c.nome)} · ${soldi(c.ingaggio)}</li>`).join("")}</ul>`
+          : "Non hai nessuno in scadenza."
+        : "Entra da una squadra per vedere i tuoi."}</p>
+      <p>Nelle altre squadre ce ne sono <b>${fuori.length}</b>. A loro puoi presentare un'offerta dal
+        Mercato: la vede solo il commissioner, e se la proprietaria non pareggia a fine stagione è tuo.</p>`;
+  }
+
+  /* ── Cosa sta succedendo ── */
+  if (chiede("cosa succede", "novita", "ultime", "registro", "trattative aperte")) {
+    const aperte = stato.mercato.filter((m) => m.stato === "APERTA");
+    return `<b>A che punto siamo</b><ul>
+      <li>${aperte.length} ${aperte.length === 1 ? "trattativa aperta" : "trattative aperte"} nel mercato</li>
+      ${(() => { const n = stato.scambi.filter((s) => s.stato === "PROPOSTO").length;
+         return `<li>${n} ${n === 1 ? "scambio in attesa" : "scambi in attesa"} di risposta</li>`; })()}
+      ${(() => { const n = stato.offerte.filter((o) => ["SEGRETA", "RIFERITA"].includes(o.stato)).length;
+         return `<li>${n} ${n === 1 ? "offerta" : "offerte"} a giocatori in scadenza in corso</li>`; })()}
+      ${draftAperto() ? `<li>Draft ${pulito(draftAperto().stagione)} aperto: tocca a
+        ${pulito(squadraDi(turnoDi(draftAperto())?.diChi)?.nome ?? "—")}</li>` : ""}
+      </ul>
+      ${stato.registro.length ? `<p style="margin-top:8px">Le ultime tre cose successe:</p>
+        <ul>${stato.registro.slice(0, 3).map((r) => `<li>${pulito(r.dettaglio)}</li>`).join("")}</ul>` : ""}`;
+  }
+
+  /* ── Il regolamento, per argomento ── */
+  for (const voce of REGOLAMENTO) {
+    if (voce.chiavi.some((k) => d.includes(spoglia(k))))
+      return `<b>${voce.titolo}</b><div style="margin-top:6px">${voce.testo()}</div>`;
+  }
+
+  if (chiede("regolament", "regole", "cosa dice")) {
+    return `<b>Il regolamento, per argomenti</b>
+      <p style="margin-top:6px">Chiedimene uno e te lo racconto:</p>
+      <ul>${REGOLAMENTO.map((v) => `<li>${v.titolo}</li>`).join("")}</ul>`;
+  }
+
+  /* ── Non ho capito ── */
+  return `Non ho capito la domanda. Io so rispondere su queste cose:
+    <ul>
+      <li><b>La tua situazione</b> — «quanto posso spendere», «come sono messo»</li>
+      <li><b>Un giocatore</b> — scrivi il cognome: ti dico di chi è, quanto costa, se è da primavera</li>
+      <li><b>Una squadra</b> — scrivi il nome: tetto, rosa, slot, Capitale</li>
+      <li><b>Chi è arrivato dall'estero</b> e chi ha lasciato la Serie A</li>
+      <li><b>Il regolamento</b> — contratti, tetto, svincoli, primavera, scambi, draft, stadio</li>
+      <li><b>Cosa succede adesso</b> — trattative, scambi, draft, ultime mosse</li>
+    </ul>`;
+}
+
+/* ── Pagina: il commissioner ──────────────────────────────────── */
+
+const DOMANDE_PRONTE = [
+  "Quanto posso spendere?",
+  "Chi ha più spazio?",
+  "Chi è in scadenza?",
+  "Chi è arrivato dall'estero?",
+  "Come funziona lo svincolo?",
+  "Cosa succede adesso?",
+];
+
+function paginaCommissioner() {
+  const scambio = conversazione.map((riga) => riga.da === "io"
+    ? `<div class="detto mio">${pulito(riga.testo)}</div>`
+    : `<div class="detto suo">${riga.testo}</div>`).join("");
+
+  return `
+    <h1>Il <span class="acceso">commissioner</span></h1>
+    <p style="color:var(--luce-media);margin:6px 0 14px;font-size:13.5px;max-width:60ch">
+      Chiedigli com'è messa la tua squadra, chi è un giocatore, cosa dice il regolamento, chi è
+      arrivato e chi è partito. Risponde con i numeri veri della lega, non a memoria.
+    </p>
+
+    <div class="filtri scorrevoli">
+      ${DOMANDE_PRONTE.map((q) => `<button class="pillola" data-chiedi="${pulito(q)}">${pulito(q)}</button>`).join("")}
+    </div>
+
+    <div class="conversazione" id="conversazione">
+      ${conversazione.length ? scambio : `<div class="detto suo">
+        Ciao. Sono il commissioner: tengo i conti e conosco il regolamento a memoria.<br><br>
+        Prova a chiedermi <b>quanto puoi spendere</b>, oppure scrivi il cognome di un giocatore e
+        ti dico di chi è e quanto costa.</div>`}
+    </div>
+
+    <form id="modulo-chiedi" class="moduli" style="margin-top:14px">
+      <label class="campo"><span class="occhiello">La tua domanda</span>
+        <input type="text" id="domanda" placeholder="es. quanto posso spendere?"
+               autocomplete="off" required></label>
+      <button class="bottone primario largo" type="submit">Chiedi</button>
+      ${conversazione.length ? `<button class="bottone piccolo" type="button" id="pulisci-chat"
+        style="align-self:center">Ricomincia da capo</button>` : ""}
+    </form>`;
+}
+
 /* ── Pagina: il draft ─────────────────────────────────────────────
    La griglia dei turni, e sotto il listone quando tocca a te. Chi non ha
    il turno vede lo stesso tutto: metà del gusto di un draft è guardare
@@ -4399,12 +4809,41 @@ function dopoIlDisegno() {
       squadra.id);
   });
 
+  agganciaCommissioner();
   agganciaOfferte();
   agganciaDraft();
   agganciaAlbo();
   agganciaMercato();
   agganciaSocieta();
   agganciaGestione();
+}
+
+/* ── Il commissioner, i comandi ───────────────────────────────────── */
+
+function agganciaCommissioner() {
+  const chiedi = async (testo) => {
+    const domanda = String(testo).trim();
+    if (!domanda) return;
+    conversazione.push({ da: "io", testo: domanda });
+    conversazione.push({ da: "lui", testo: rispondi(domanda) });
+    disegna();
+    /* Alla risposta nuova, che altrimenti nasce sotto il bordo dello
+       schermo e sembra che non sia successo niente. */
+    radice.querySelector(".detto.suo:last-of-type")?.scrollIntoView({ block: "start", behavior: "smooth" });
+  };
+
+  su("[data-chiedi]", "click", (e) => chiedi(e.currentTarget.dataset.chiedi));
+
+  const modulo = radice.querySelector("#modulo-chiedi");
+  if (modulo) modulo.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const campo = radice.querySelector("#domanda");
+    const testo = campo.value;
+    campo.value = "";
+    chiedi(testo);
+  });
+
+  su("#pulisci-chat", "click", () => { conversazione = []; disegna(); });
 }
 
 /* ── Le offerte ai giocatori in scadenza, i comandi ───────────────── */
