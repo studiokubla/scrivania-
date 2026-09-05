@@ -800,6 +800,48 @@ const REGOLE = {
   primavera: { etaMax: 20, quotazioneMax: 3, presenzeMax: 5 },  // art. 16.1
 
   /**
+   * Lo svincolo.
+   *
+   * Chi taglia un giocatore se ne tiene l'ingaggio fino a fine stagione: è la
+   * regola che rende una firma una decisione e non una casella da svuotare.
+   * Su un pluriennale però quella è una strada sola, e una strada sola non è
+   * una scelta: chi ha sbagliato un contratto da quattro anni non ha nessuna
+   * mossa, e resta fermo a guardare.
+   *
+   * Da qui la seconda strada, presa dal football americano. Si spalma:
+   * l'ingaggio si divide sugli anni che restavano, maggiorato di un quarto.
+   * Liberi spazio adesso, e te lo porti dietro fino alla fine — che è
+   * esattamente il tipo di decisione difficile che una lega dynasty vuole
+   * avere. La penale è quel che impedisce che diventi la scelta ovvia.
+   */
+  svincolo: { penaleSpalmatura: 1.25 },
+
+  /**
+   * IL DRAFT
+   *
+   * La cosa che mancava. In una lega a dieci, da marzo in poi cinque squadre
+   * non hanno più niente da giocarsi: senza un motivo per restare, quelle
+   * cinque persone smettono di aprire l'applicazione, e una lega si sfalda
+   * sempre da lì. Il draft è il motivo — chi arriva ultimo sceglie per primo.
+   *
+   * Le scelte sono oggetti: si posseggono, si scambiano, e valgono anche per
+   * le stagioni che verranno. È quello che rende viva la seconda metà della
+   * stagione anche per chi è fuori dai giochi, perché una squadra che non
+   * vincerà ha comunque qualcosa da vendere a una che ci prova.
+   *
+   * A serpentina: chi sceglie ultimo al primo giro sceglie primo al secondo.
+   * Senza, il primo della fila prende i tre migliori e il draft è già finito.
+   */
+  draft: {
+    giri: 3,
+    serpente: true,
+    /* Al draft l'ingaggio non si tratta: è la quotazione del listone. Un
+       draft in cui si contratta è un'asta, e l'asta la lega la fa già al
+       tavolo, a settembre. */
+    ingaggioAllaQuotazione: true,
+  },
+
+  /**
    * Le competizioni della lega (artt. 19-20).
    *
    * I premi in Capitale entrano nel conto societario e cambiano quello che una
@@ -840,13 +882,20 @@ const REGOLE = {
 
     /* Art. 15.2 — la manutenzione è il 10% della costruzione e l'incasso è per
        gara casalinga: a ogni livello il saldo annuo è positivo. Lo stadio è un
-       investimento lento, non una tassa. */
+       investimento lento, non una tassa.
+
+       I fantapunti in casa salgono di 0,3 per livello e non di 0,5: a mezzo
+       punto a gara la Cattedrale valeva quarantasette punti a stagione, in una
+       lega dove le squadre si separano per tre punti a giornata. E il vantaggio
+       si compra col Capitale, che è il premio di chi ha già vinto — vince,
+       incassa, costruisce, vince di più. Il freno va messo qui, dove il
+       Capitale tocca il campo. */
     stadi: [
       { livello: 1, nome: "Comunale",        costruzione: 30,  manutenzione: 3,  incassoPerGara: 0.5, fantapunti: 0.5 },
-      { livello: 2, nome: "Rinnovato",       costruzione: 60,  manutenzione: 6,  incassoPerGara: 0.9, fantapunti: 1.0 },
-      { livello: 3, nome: "Moderno",         costruzione: 100, manutenzione: 10, incassoPerGara: 1.4, fantapunti: 1.5 },
-      { livello: 4, nome: "Grande impianto", costruzione: 150, manutenzione: 15, incassoPerGara: 2.0, fantapunti: 2.0 },
-      { livello: 5, nome: "Cattedrale",      costruzione: 210, manutenzione: 21, incassoPerGara: 2.7, fantapunti: 2.5 },
+      { livello: 2, nome: "Rinnovato",       costruzione: 60,  manutenzione: 6,  incassoPerGara: 0.9, fantapunti: 0.8 },
+      { livello: 3, nome: "Moderno",         costruzione: 100, manutenzione: 10, incassoPerGara: 1.4, fantapunti: 1.1 },
+      { livello: 4, nome: "Grande impianto", costruzione: 150, manutenzione: 15, incassoPerGara: 2.0, fantapunti: 1.4 },
+      { livello: 5, nome: "Cattedrale",      costruzione: 210, manutenzione: 21, incassoPerGara: 2.7, fantapunti: 1.7 },
     ],
 
     /* Art. 16.2 — la capienza del settore giovanile. I giovani non percepiscono
@@ -1303,6 +1352,7 @@ const stato = {
   societa: new Map(),
   mercato: [],
   scambi: [],
+  draft: new Map(),
   albo: [],
   aggiornamentoListone: null,
   esitoQuotazioni: null,   // il risultato dell'ultimo import, che deve sopravvivere al ridisegno
@@ -1331,6 +1381,130 @@ function riprendiIo() {
 
 /** La rosa di una squadra, sempre un array (anche se il documento non c'è). */
 const rosaDi = (squadraId) => stato.rose.get(squadraId)?.contratti ?? [];
+
+/**
+ * Quanto pesa e per quanto un giocatore svincolato.
+ *
+ * `secco` è la regola di sempre: l'ingaggio intero, questa stagione e basta.
+ * `spalmato` esiste solo per i pluriennali e divide l'ingaggio sugli anni che
+ * restavano, con un quarto di penale. Gli importi si arrotondano al quarto di
+ * milione per eccesso, come tutto il resto della lega.
+ */
+function modiSvincolo(contratto) {
+  const secco = { modo: "secco", ingaggio: contratto.ingaggio, anni: 1,
+                  totale: contratto.ingaggio };
+  const residui = Number(contratto.anni) || 1;
+  if (residui < 2) return { secco, spalmato: null };
+  const totale = Math.ceil(contratto.ingaggio * REGOLE.svincolo.penaleSpalmatura);
+  const spalmato = { modo: "spalmato", ingaggio: Math.ceil(totale / residui),
+                     anni: residui, totale };
+  return { secco, spalmato };
+}
+
+/* ── Il draft ─────────────────────────────────────────────────────
+   Un documento per stagione, con dentro le sue scelte. Le scelte sono
+   un array e non una collezione a parte: sono trenta, si leggono e si
+   riscrivono sempre insieme, e trenta documenti per una cosa che si
+   guarda tutta in un colpo sono trenta documenti di troppo. */
+
+/** «2027/28» → «2027-28», che è un identificativo e non un percorso. */
+const idDraft = (stagione) => String(stagione).replace("/", "-");
+
+/** I draft dal più recente al più vecchio. */
+const draftDellaLega = () =>
+  [...stato.draft.values()].sort((a, b) => String(b.stagione).localeCompare(String(a.stagione)));
+
+/** Quello su cui si sta scegliendo adesso, se c'è. */
+const draftAperto = () => draftDellaLega().find((d) => d.stato === "APERTO") ?? null;
+
+/**
+ * A chi tocca. È la prima scelta non ancora usata in ordine di numero — e
+ * `null` quando sono finite, che è anche il modo in cui il draft sa di
+ * essere finito.
+ */
+function turnoDi(draft) {
+  if (!draft || draft.stato !== "APERTO") return null;
+  return [...(draft.scelte ?? [])]
+    .filter((x) => x.numero != null && !x.giocatoreId)
+    .sort((a, b) => a.numero - b.numero)[0] ?? null;
+}
+
+/**
+ * Il turno di draft che è mio adesso, se lo è.
+ *
+ * Vale solo mentre si guarda la pagina del draft: altrove la firma è
+ * quella normale, con l'ingaggio libero, e un turno che si porta dietro
+ * il prezzo bloccato in tutte le pagine sarebbe una trappola.
+ */
+function mioTurnoAlDraft() {
+  if (stato.vista !== "draft") return null;
+  const mia = squadraCorrente();
+  if (!mia || !possoToccare(mia.id)) return null;
+  const d = draftAperto();
+  const t = turnoDi(d);
+  return t && t.diChi === mia.id ? { draft: d.id, numero: t.numero, stagione: d.stagione } : null;
+}
+
+/** Le scelte che una squadra possiede, in tutti i draft non ancora chiusi. */
+function sceltePosseduteDa(squadraId) {
+  const fuori = [];
+  for (const d of draftDellaLega()) {
+    if (d.stato === "CHIUSO") continue;
+    for (const x of d.scelte ?? []) {
+      if (x.diChi === squadraId && !x.giocatoreId) fuori.push({ ...x, draft: d.id, stagione: d.stagione });
+    }
+  }
+  return fuori.sort((a, b) =>
+    String(a.stagione).localeCompare(String(b.stagione)) || a.giro - b.giro || (a.numero ?? 99) - (b.numero ?? 99));
+}
+
+/** Le scelte di uno scambio, come targhette da mettere nel riepilogo. */
+function nomiScelte(chiavi) {
+  if (!chiavi?.length) return "";
+  return chiavi.map((chiave) => {
+    const [draftId, giro, origine] = String(chiave).split("|");
+    const d = stato.draft.get(draftId);
+    const suo = squadraDi(origine);
+    return `<br><span class="targhetta ok">${giro}º giro ${pulito(d?.stagione ?? draftId)}${
+      suo ? ` · ${pulito(suo.nome)}` : ""}</span>`;
+  }).join("");
+}
+
+/** Come si chiama una scelta quando se ne parla: «1º giro 2027/28 (da Torre Nera)». */
+function nomeScelta(x) {
+  const origine = squadraDi(x.origine);
+  const suo = x.origine === x.diChi;
+  return `${x.giro}º giro ${x.stagione}${x.numero != null ? ` · n. ${x.numero}` : ""}` +
+         (suo || !origine ? "" : ` (da ${origine.nome})`);
+}
+
+/**
+ * L'ordine del draft: l'inverso della classifica.
+ *
+ * Si somma il piazzamento in Apertura e in Clausura dell'ultima stagione
+ * che ha entrambi i verdetti, e si va dal peggiore al migliore. Se l'albo
+ * è vuoto — la prima stagione lo è sempre — resta l'ordine d'iscrizione,
+ * che è arbitrario ma almeno è scritto da qualche parte.
+ */
+function ordineInverso() {
+  const perStagione = new Map();
+  for (const v of stato.albo ?? []) {
+    if (!["APERTURA", "CLAUSURA"].includes(v.competizione)) continue;
+    if (!perStagione.has(v.stagione)) perStagione.set(v.stagione, []);
+    perStagione.get(v.stagione).push(v);
+  }
+  const complete = [...perStagione.entries()]
+    .filter(([, v]) => v.length >= 2)
+    .sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+
+  if (!complete.length) return stato.squadre.map((s) => s.id);
+
+  const punti = new Map(stato.squadre.map((s) => [s.id, 0]));
+  for (const v of complete[0][1])
+    v.classifica.forEach((riga, i) => punti.set(riga.squadraId, (punti.get(riga.squadraId) ?? 0) + i + 1));
+  /* Somma alta = piazzamenti bassi = si sceglie prima. */
+  return [...punti.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
+}
 
 /** Gli ingaggi di chi è stato svincolato: pesano sul tetto fino a fine stagione. */
 const pesiMortiDi = (squadraId) => stato.rose.get(squadraId)?.pesiMorti ?? [];
@@ -1634,6 +1808,11 @@ function ascolta() {
     disegna();
   });
 
+  db.collection("draft").onSnapshot((istantanea) => {
+    stato.draft = new Map(istantanea.docs.map((d) => [d.id, { id: d.id, ...d.data() }]));
+    disegna();
+  });
+
   db.collection("albo").onSnapshot((istantanea) => {
     stato.albo = istantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
     disegna();
@@ -1931,6 +2110,7 @@ function vistaApplicazione() {
     { id: "rosa", nome: "Rosa" },
     { id: "listone", nome: "Listone" },
     { id: "mercato", nome: "Mercato" },
+    { id: "draft", nome: "Draft" },
     { id: "societa", nome: "Società" },
     { id: "albo", nome: "Albo d'oro" },
     { id: "registro", nome: "Registro" },
@@ -1943,6 +2123,7 @@ function vistaApplicazione() {
     : stato.vista === "rosa" ? paginaRosa()
     : stato.vista === "listone" ? paginaListone()
     : stato.vista === "mercato" ? paginaMercato()
+    : stato.vista === "draft" ? paginaDraft()
     : stato.vista === "societa" ? paginaSocieta()
     : stato.vista === "albo" ? paginaAlbo()
     : stato.vista === "registro" ? paginaRegistro()
@@ -2139,7 +2320,8 @@ function paginaRosa() {
         <span class="ruolo ${pulito(x.ruolo)}" style="opacity:.55">${pulito(x.ruolo)}</span>
         <span class="corpo">
           <span class="nome" style="color:var(--luce-media)">${pulito(x.nome)}</span>
-          <span class="dettaglio">svincolato il ${new Date(x.svincolato).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}</span>
+          <span class="dettaglio">svincolato il ${new Date(x.svincolato).toLocaleDateString("it-IT", { day: "numeric", month: "long" })}${
+            (x.anni ?? 1) > 1 ? ` · <span class="targhetta forse">ancora ${x.anni} stagioni</span>` : ""}</span>
         </span>
         <span class="coda"><span class="prezzo num" style="color:var(--allarme)">${soldi(x.ingaggio)}</span></span>
       </div>`).join("")}</div>
@@ -2236,16 +2418,17 @@ function paginaListone() {
 let bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
 
 function disegnaFoglio() {
-  if (foglioAperto?.tipo === "firma") return foglioFirma(foglioAperto.giocatoreId);
+  if (foglioAperto?.tipo === "firma") return foglioFirma(foglioAperto.giocatoreId, foglioAperto.daDraft);
   if (foglioAperto?.tipo === "squadra") return foglioSquadra(foglioAperto.squadraId);
   if (foglioAperto?.tipo === "codice") return foglioCodice(foglioAperto.chi);
   if (foglioAperto?.tipo === "busta") return foglioBusta(foglioAperto.trattativaId, foglioAperto.giocatoreId);
   if (foglioAperto?.tipo === "scambio") return foglioScambio();
   if (foglioAperto?.tipo === "verdetto") return foglioVerdetto();
+  if (foglioAperto?.tipo === "svincolo") return foglioSvincolo(foglioAperto.giocatoreId);
   return "";
 }
 
-function foglioFirma(giocatoreId) {
+function foglioFirma(giocatoreId, daDraft = null) {
   const g = PER_ID.get(giocatoreId);
   const squadra = squadraCorrente();
   if (!g || !squadra) return "";
@@ -2315,9 +2498,12 @@ function foglioFirma(giocatoreId) {
       </div>
 
       <form id="modulo-firma" class="moduli">
-        <label class="campo"><span>Quanto lo paghi — a passi di 0,25 M</span>
+        <label class="campo"><span>${daDraft
+            ? `Quanto lo paghi — al draft è la quotazione, e non si tratta`
+            : `Quanto lo paghi — a passi di 0,25 M`}</span>
           <input type="number" id="ingaggio" step="0.25" min="0.25" max="${REGOLE.tetto}"
-                 value="${pulito(bozza.ingaggio)}" placeholder="es. 3,5" inputmode="decimal" required></label>
+                 value="${pulito(bozza.ingaggio)}" placeholder="es. 3,5" inputmode="decimal"
+                 ${daDraft ? "readonly" : ""} required></label>
 
         <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">Che contratto</span>
           <div class="scelte">${tipi}</div></div>
@@ -2328,13 +2514,65 @@ function foglioFirma(giocatoreId) {
 
         <button class="bottone primario largo" type="submit"
           ${motivi.length || !Number.isFinite(ingaggioQuarti) || ingaggioQuarti <= 0 ? "disabled" : ""}>
-          Metti in rosa${Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0 ? ` per ${soldi(ingaggioQuarti)}` : ""}
+          ${daDraft ? `Scegli con la ${daDraft.numero}ª` : "Metti in rosa"}${
+            Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0 ? ` per ${soldi(ingaggioQuarti)}` : ""}
         </button>
         <p style="font-size:12px;color:var(--luce-media);text-align:center">
           Dopo la firma restano ${soldi(Math.max(0, conto.spazio - (Number.isFinite(ingaggioQuarti) ? ingaggioQuarti : 0)))} di spazio.
         </p>
       </form>
     </div></div>`;
+}
+
+/* ── Il foglio dello svincolo ─────────────────────────────────────
+   Due strade, con i numeri di tutt'e due sotto gli occhi: senza vederli
+   affiancati la scelta è un salto nel buio, e questa è la decisione più
+   costosa che un presidente prende in tutta la stagione. */
+
+function foglioSvincolo(giocatoreId) {
+  const squadra = squadraCorrente();
+  if (!squadra) return "";
+  const c = rosaDi(squadra.id).find((x) => x.giocatoreId === giocatoreId);
+  if (!c) return "";
+  const { secco, spalmato } = modiSvincolo(c);
+  const conto = contoDi(squadra.id);
+
+  const strada = (m, titolo, spiega) => `
+    <button class="scelta" data-svincola="${m.modo}" style="padding:14px 15px">
+      <b style="font-size:15px">${titolo}</b>
+      <small style="margin-top:6px">${spiega}</small>
+      <span class="num" style="display:block;margin-top:9px;font-weight:700;font-size:19px;
+            font-family:var(--display);color:${m.modo === "secco" ? "var(--allarme)" : "var(--avviso)"}">
+        ${soldi(m.ingaggio)}<span style="font-size:12px;font-weight:600;opacity:.7">
+        ${m.anni > 1 ? ` all'anno · ${m.anni} anni` : " · solo quest'anno"}</span></span>
+      <small style="margin-top:4px">Spazio libero subito:
+        <b style="color:var(--luce)">${soldi(conto.spazio + c.ingaggio - m.ingaggio)}</b></small>
+    </button>`;
+
+  return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
+    <div class="foglio-testa">
+      <div><h2>Svincoli ${pulito(c.nome)}?</h2>
+        <p style="font-size:13px;color:var(--luce-media)">
+          ${soldi(c.ingaggio)} · ${pulito(REGOLE.contratti[c.tipo]?.nome ?? c.tipo)}${
+            c.anni > 1 ? ` · ${c.anni} anni` : ""}</p></div>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>
+    <div class="moduli">
+      <div class="scelte" style="grid-template-columns:1fr">
+        ${strada(secco, "Paga e chiudi",
+          "L'ingaggio resta intero sul tetto fino a giugno, poi non se ne parla più.")}
+        ${spalmato ? strada(spalmato,
+          "Spalma sugli anni residui",
+          `L'ingaggio si divide sui ${spalmato.anni} anni che restavano, con un quarto di
+           penale: ${soldi(spalmato.totale)} in tutto invece di ${soldi(c.ingaggio)}.
+           Liberi spazio adesso e te lo porti dietro.`) : ""}
+      </div>
+      ${!spalmato ? `<div class="avviso neutro">È un contratto annuale: non c'è niente da
+        spalmare, l'ingaggio resta sul tetto fino a fine stagione.</div>` : ""}
+      <div class="avviso attenzione">Dopo lo svincolo va in waiver per
+        ${REGOLE.mercato.oreWaiver} ore: in quel tempo le altre squadre possono reclamarlo.</div>
+    </div>
+  </div></div>`;
 }
 
 /* ── Pagina: il mercato ───────────────────────────────────── */
@@ -2401,9 +2639,11 @@ function paginaMercato() {
       </div>
       <div class="scorre"><table class="tabellina" style="margin-bottom:6px">
         <tr><td style="width:50%"><span class="occhiello">dà</span><br>${nomi(s.cedeDa, s.da)}
-          ${s.capitaleDa ? `<br><span class="targhetta neutra">${soldi(s.capitaleDa)} di Capitale</span>` : ""}</td>
+          ${s.capitaleDa ? `<br><span class="targhetta neutra">${soldi(s.capitaleDa)} di Capitale</span>` : ""}
+          ${nomiScelte(s.scelteDa)}</td>
         <td><span class="occhiello">riceve</span><br>${nomi(s.cedeA, s.a)}
-          ${s.capitaleA ? `<br><span class="targhetta neutra">${soldi(s.capitaleA)} di Capitale</span>` : ""}</td></tr>
+          ${s.capitaleA ? `<br><span class="targhetta neutra">${soldi(s.capitaleA)} di Capitale</span>` : ""}
+          ${nomiScelte(s.scelteA)}</td></tr>
       </table></div>
       ${tocca ? `<div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="bottone primario piccolo" data-accetta="${pulito(s.id)}">Accetta</button>
@@ -2706,13 +2946,25 @@ function foglioBusta(trattativaId, giocatoreId) {
 
 /* ── Il foglio dello scambio ──────────────────────────────── */
 
-let bozzaScambio = { conChi: null, cedeDa: [], cedeA: [], capitaleDa: "", capitaleA: "" };
+let bozzaScambio = { conChi: null, cedeDa: [], cedeA: [], scelteDa: [], scelteA: [], capitaleDa: "", capitaleA: "" };
 
 function foglioScambio() {
   const mia = squadraCorrente();
   if (!mia) return "";
   const altre = stato.squadre.filter((s) => s.id !== mia.id);
   const con = bozzaScambio.conChi ? squadraDi(bozzaScambio.conChi) : null;
+
+  const listaScelte = (squadraId, selezionati, attributo) => {
+    const scelte = sceltePosseduteDa(squadraId);
+    return scelte.length
+      ? `<div class="scelte">${scelte.map((x) => `
+          <button type="button" class="scelta" ${attributo}="${pulito(x.draft + "|" + x.giro + "|" + x.origine)}"
+            aria-pressed="${selezionati.includes(x.draft + "|" + x.giro + "|" + x.origine)}">
+            <b>${pulito(nomeScelta(x))}</b>
+            <small>${x.numero != null ? `numero ${x.numero}` : "numero non ancora sorteggiato"}</small>
+          </button>`).join("")}</div>`
+      : `<p style="font-size:13px;color:var(--luce-media)">Nessuna scelta da dare.</p>`;
+  };
 
   const listaGiocatori = (squadraId, selezionati, attributo) =>
     rosaDi(squadraId).length
@@ -2738,7 +2990,8 @@ function foglioScambio() {
     <div class="foglio-testa">
       <div><h2>Proponi uno scambio</h2>
         <p style="font-size:13px;color:var(--luce-media)">
-          I giocatori viaggiano con il loro contratto. Si scambia anche Capitale, mai spazio
+          I giocatori viaggiano con il loro contratto. Si scambiano anche Capitale e scelte
+          al draft, mai spazio
           salariale (art. 11.1).</p></div>
       <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
     </div>
@@ -2759,6 +3012,14 @@ function foglioScambio() {
           Ricevi — dalla rosa di ${pulito(con.nome)}</span>
           <div class="scelte">${listaGiocatori(con.id, bozzaScambio.cedeA, "data-cede-a")}</div></div>
 
+        ${sceltePosseduteDa(mia.id).length || sceltePosseduteDa(con.id).length ? `
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">
+          Scelte al draft che dai</span>
+          ${listaScelte(mia.id, bozzaScambio.scelteDa ?? [], "data-scelta-da")}</div>
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">
+          Scelte al draft che ricevi</span>
+          ${listaScelte(con.id, bozzaScambio.scelteA ?? [], "data-scelta-a")}</div>` : ""}
+
         <div class="scelte">
           <label class="campo"><span>Capitale che dai</span>
             <input type="number" id="cap-da" step="0.25" min="0" value="${pulito(bozzaScambio.capitaleDa)}" placeholder="0"></label>
@@ -2775,6 +3036,150 @@ function foglioScambio() {
       ` : ""}
     </form>
   </div></div>`;
+}
+
+/* ── Pagina: il draft ─────────────────────────────────────────────
+   La griglia dei turni, e sotto il listone quando tocca a te. Chi non ha
+   il turno vede lo stesso tutto: metà del gusto di un draft è guardare
+   gli altri scegliere. */
+
+function paginaDraft() {
+  const posso = sonoCommissioner();
+  const mia = squadraCorrente();
+  const draft = draftAperto() ?? draftDellaLega()[0] ?? null;
+  const mie = mia ? sceltePosseduteDa(mia.id) : [];
+
+  const cassetto = mie.length ? `
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Le tue scelte</h2>
+        <span class="conteggio">${mie.length}</span></div>
+      <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
+        Si scambiano come i giocatori, e valgono anche per le stagioni che verranno:
+        una squadra fuori dai giochi ha sempre qualcosa da vendere a una che ci prova.</p>
+      <div class="elenco">${mie.map((x) => `<div class="voce">
+        <span class="ruolo C" style="font-size:13px">${x.giro}</span>
+        <span class="corpo"><span class="nome">${pulito(nomeScelta(x))}</span>
+          <span class="dettaglio">${quantoManca(x)}</span></span>
+      </div>`).join("")}</div>
+    </div>` : "";
+
+  if (!draft) {
+    return `
+      <h1>Il <span class="acceso">draft</span></h1>
+      <p style="color:var(--luce-media);margin:6px 0 18px;max-width:60ch">
+        Chi arriva ultimo sceglie per primo. È il modo di tenere in gioco anche chi
+        a marzo non ha più niente da vincere — e le scelte si scambiano, quindi valgono
+        qualcosa tutto l'anno.</p>
+      ${posso ? modulodraft() : `<div class="vuoto riquadro">
+        Il commissioner non ha ancora preparato nessun draft.</div>`}`;
+  }
+
+  const turno = turnoDi(draft);
+  const perGiro = {};
+  for (const x of draft.scelte ?? []) (perGiro[x.giro] ??= []).push(x);
+
+  const griglia = Object.entries(perGiro).map(([giro, scelte]) => `
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>${giro}º giro</h2>
+        ${Number(giro) % 2 === 0 && draft.serpente
+          ? `<span class="targhetta neutra">al contrario</span>` : ""}</div>
+      <div class="elenco">
+        ${[...scelte].sort((a, b) => (a.numero ?? 99) - (b.numero ?? 99)).map((x) => {
+          const chi = squadraDi(x.diChi);
+          const suo = turno && x.numero === turno.numero;
+          return `<div class="voce" style="${suo ? "background:var(--lime-fioco)" : ""}">
+            <span class="ruolo ${x.giocatoreId ? "C" : "D"}" style="font-size:12px">${x.numero ?? "—"}</span>
+            <span class="corpo">
+              <span class="nome">${x.giocatoreId
+                ? pulito(x.nome)
+                : suo ? `<span style="color:var(--lime)">tocca a ${pulito(chi?.nome ?? "—")}</span>`
+                : `<span style="color:var(--luce-fioca)">—</span>`}</span>
+              <span class="dettaglio">${pulito(chi?.nome ?? "—")}${
+                x.origine !== x.diChi ? ` · scelta di ${pulito(squadraDi(x.origine)?.nome ?? "—")}` : ""}</span>
+            </span>
+            ${x.giocatoreId ? `<span class="coda"><span class="targhetta ok">preso</span></span>` : ""}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`).join("");
+
+  const mioTurno = turno && mia && turno.diChi === mia.id;
+
+  return `
+    <h1>Il <span class="acceso">draft</span> ${pulito(draft.stagione)}</h1>
+    <p style="color:var(--luce-media);margin:6px 0 16px;font-size:13.5px">
+      ${draft.stato === "APERTO"
+        ? turno
+          ? `Tocca a <b style="color:var(--luce)">${pulito(squadraDi(turno.diChi)?.nome ?? "—")}</b>,
+             scelta numero ${turno.numero} di ${draft.scelte.length}.`
+          : "Tutte le scelte sono state fatte."
+        : draft.stato === "PREPARATO"
+        ? "Le scelte esistono e si possono già scambiare. Il commissioner apre il draft quando la lega è pronta."
+        : "Draft chiuso."}
+      Ingaggio pari alla quotazione: qui non si contratta.
+    </p>
+
+    ${mioTurno ? `<div class="avviso bene" style="margin-bottom:14px">
+      <b>Tocca a te.</b> Scegli un giocatore libero qui sotto: entra in rosa alla sua quotazione,
+      e il contratto lo decidi tu fra quelli che l'età permette.</div>` : ""}
+
+    ${posso && draft.stato === "PREPARATO" ? `<div class="riquadro" style="margin-bottom:16px">
+      <b>Apri il draft</b>
+      <p style="font-size:13px;color:var(--luce-media);margin:6px 0 12px">
+        Sorteggia i numeri secondo l'ordine scelto. Da quel momento le scelte si consumano
+        e l'ordine non si tocca più.</p>
+      <div class="filtri" style="margin:0 0 10px">
+        <button class="pillola" data-ordine="classifica" aria-pressed="true">Inverso alla classifica</button>
+        <button class="pillola" data-ordine="sorteggio" aria-pressed="false">A sorteggio</button>
+      </div>
+      <button class="bottone primario" id="apri-draft" data-draft="${pulito(draft.id)}">Apri il draft</button>
+    </div>` : ""}
+
+    ${posso && draft.stato === "APERTO" ? `<div class="riquadro" style="margin-bottom:16px">
+      <button class="bottone piccolo" id="passa-turno" data-draft="${pulito(draft.id)}"
+        ${turno ? "" : "disabled"}>Salta il turno di ${pulito(squadraDi(turno?.diChi)?.nome ?? "—")}</button>
+      <button class="bottone piccolo pericolo" id="chiudi-draft" data-draft="${pulito(draft.id)}">Chiudi il draft</button>
+    </div>` : ""}
+
+    ${cassetto}
+    ${griglia}
+
+    ${mioTurno ? `<div class="sezione">
+      <div class="intestazione-sezione"><h2>Scegli</h2></div>
+      ${bloccoListone()}
+    </div>` : ""}
+
+    ${posso ? `<div class="sezione">
+      <div class="intestazione-sezione"><h2>Un altro draft</h2></div>
+      ${modulodraft()}
+    </div>` : ""}`;
+}
+
+/** Quanto manca al turno di questa scelta, detto in turni e non in numeri. */
+function quantoManca(x) {
+  const d = stato.draft.get(x.draft);
+  if (!d || x.numero == null) return "numero non ancora sorteggiato";
+  if (x.giocatoreId) return "già usata";
+  if (d.stato !== "APERTO") return `sarà la numero ${x.numero}`;
+  const prima = (d.scelte ?? []).filter((y) => y.numero != null && y.numero < x.numero && !y.giocatoreId).length;
+  return prima === 0 ? "tocca a te adesso"
+       : prima === 1 ? "manca un turno"
+       : `mancano ${prima} turni`;
+}
+
+/** Il modulo con cui il commissioner prepara il draft di una stagione. */
+function modulodraft() {
+  const prossima = Number(String(STAGIONE).slice(0, 4)) + 1;
+  return `<form id="modulo-draft" class="moduli riquadro">
+    <label class="campo"><span>Per quale stagione</span>
+      <input type="number" id="draft-anno" value="${prossima}" min="2020" max="2099" required></label>
+    <label class="campo"><span>Quanti giri</span>
+      <input type="number" id="draft-giri" value="${REGOLE.draft.giri}" min="1" max="6" required></label>
+    <p style="font-size:12.5px;color:var(--luce-media)">
+      Nasce con le scelte già assegnate a chi le possiede — una per squadra per giro — e
+      senza numeri: quelli si sorteggiano all'apertura. Da subito si possono scambiare.</p>
+    <button class="bottone largo" type="submit">Prepara le scelte</button>
+  </form>`;
 }
 
 /* ── Pagina: l'albo d'oro ─────────────────────────────────── */
@@ -3069,7 +3474,8 @@ function paginaGestione() {
         <span class="conteggio">${soldi(stato.squadre.reduce((s, x) => s + contoDi(x.id).pesoMorto, 0))} da liberare</span></div>
       <div class="riquadro">
         <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
-          Gli ingaggi degli svincolati pesano sul tetto <b>fino a fine stagione</b>. Quando la
+          Gli ingaggi degli svincolati pesano sul tetto <b>fino a fine stagione</b>, e quelli
+          spalmati anche oltre: alla chiusura scalano di un anno invece di sparire. Quando la
           stagione è finita davvero, questo comando li cancella e restituisce lo spazio a tutti.
           Rose, contratti e Capitale non si toccano.
         </p>
@@ -3162,7 +3568,14 @@ const su = (selettore, evento, azione) => {
 
 function dopoIlDisegno() {
   /* Navigazione, uscita, identità */
-  su("[data-vista]", "click", (e) => { stato.vista = e.currentTarget.dataset.vista; disegna(); });
+  su("[data-vista]", "click", (e) => {
+    stato.vista = e.currentTarget.dataset.vista;
+    /* Al draft si sceglie fra chi è libero: accendere il filtro a mano ogni
+       volta è un passaggio che nessuno ricorda e che fa perdere il turno a
+       chi tocca un nome già preso. */
+    if (stato.vista === "draft") filtri.soloLiberi = true;
+    disegna();
+  });
 
   /* La barra in basso non ci sta in un telefono: scorre. Se però la voce
      attiva finisce fuori — e succede appena si va in Registro o in
@@ -3265,7 +3678,14 @@ function dopoIlDisegno() {
     if (tesserati().has(id)) return;
     if (!squadraCorrente() || !possoToccare(squadraCorrente().id)) return;
     bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
-    if (siamoAlMercato()) {
+    const turno = mioTurnoAlDraft();
+    if (turno) {
+      /* Al draft l'ingaggio non si tratta: è la quotazione, e nel foglio
+         il campo è di sola lettura. Resta da scegliere il contratto, che
+         è la parte in cui c'è ancora da pensare. */
+      bozza.ingaggio = String(PER_ID.get(id)?.quotazione ?? "");
+      apriFoglio({ tipo: "firma", giocatoreId: id, daDraft: turno });
+    } else if (siamoAlMercato()) {
       const aperta = trattativaAperta(id);
       apriFoglio({ tipo: "busta", trattativaId: aperta?.id ?? null, giocatoreId: id });
     } else {
@@ -3312,26 +3732,38 @@ function dopoIlDisegno() {
     await firma();
   });
 
-  /* Togliere dalla rosa */
-  su("[data-togli]", "click", async (e) => {
-    const id = e.currentTarget.dataset.togli;
+  /* Togliere dalla rosa: la scelta fra le due strade sta nel foglio, con i
+     numeri di tutt'e due sotto gli occhi. */
+  su("[data-togli]", "click", (e) => {
+    apriFoglio({ tipo: "svincolo", giocatoreId: e.currentTarget.dataset.togli });
+  });
+
+  su("[data-svincola]", "click", async (e) => {
+    const modo = e.currentTarget.dataset.svincola;
+    const id = foglioAperto?.giocatoreId;
     const squadra = squadraCorrente();
     const contratto = rosaDi(squadra.id).find((c) => c.giocatoreId === id);
     if (!contratto) return;
+    const scelto = modiSvincolo(contratto)[modo];
+    if (!scelto) return;
     if (!confirm(
       `Svincolare ${contratto.nome}?\n\n` +
-      `I suoi ${soldi(contratto.ingaggio)} restano sul tuo tetto fino a fine stagione: ` +
-      `svincolarlo libera il posto in rosa, non lo spazio salariale.\n\n` +
-      `Va in waiver per ${REGOLE.mercato.oreWaiver} ore, e in quel tempo le altre squadre possono reclamarlo.`
+      (scelto.anni > 1
+        ? `${soldi(scelto.ingaggio)} all'anno per ${scelto.anni} stagioni — ${soldi(scelto.totale)} in tutto.`
+        : `${soldi(scelto.ingaggio)} restano sul tuo tetto fino a fine stagione.`) +
+      `\n\nVa in waiver per ${REGOLE.mercato.oreWaiver} ore, e in quel tempo le altre squadre possono reclamarlo.`
     )) return;
+    chiudiFoglio();
 
     const restanti = rosaDi(squadra.id).filter((c) => c.giocatoreId !== id);
-    /* L'ingaggio non sparisce con il giocatore: resta a pesare sul tetto fino a
-       fine stagione. Un contratto firmato è una decisione che si porta fino in
-       fondo, non una casella da svuotare quando il giocatore delude. */
+    /* L'ingaggio non sparisce con il giocatore. Un contratto firmato è una
+       decisione che si porta fino in fondo, non una casella da svuotare quando
+       il giocatore delude: quel che si può scegliere è se pagarla tutta adesso
+       o dilazionarla, e la dilazione costa. */
     const pesi = [...pesiMortiDi(squadra.id), {
       giocatoreId: id, nome: contratto.nome, ruolo: contratto.ruolo,
-      ingaggio: contratto.ingaggio, svincolato: new Date().toISOString(),
+      ingaggio: scelto.ingaggio, anni: scelto.anni, modo: scelto.modo,
+      svincolato: new Date().toISOString(),
     }];
     await scriviRosa(squadra.id, restanti, pesi);
 
@@ -3344,14 +3776,141 @@ function dopoIlDisegno() {
       offerte: [], stato: "APERTA", tagliatoDa: squadra.id,
     });
     await annota("mercato",
-      `${contratto.nome} svincolato da ${squadra.nome}: ${soldi(contratto.ingaggio)} restano sul tetto fino a fine stagione`,
+      `${contratto.nome} svincolato da ${squadra.nome}: ${soldi(scelto.ingaggio)}` +
+      (scelto.anni > 1 ? ` all'anno per ${scelto.anni} stagioni` : " fino a fine stagione"),
       squadra.id);
   });
 
+  agganciaDraft();
   agganciaAlbo();
   agganciaMercato();
   agganciaSocieta();
   agganciaGestione();
+}
+
+/* ── Gli effetti del draft ────────────────────────────────── */
+
+/* Quale ordine ha scelto il commissioner nel modulo d'apertura. Sta fuori
+   dalla funzione perché il disegno la ricrea a ogni tocco. */
+let ordineDraft = "classifica";
+
+function agganciaDraft() {
+  su("[data-ordine]", "click", (e) => {
+    ordineDraft = e.currentTarget.dataset.ordine;
+    for (const b of radice.querySelectorAll("[data-ordine]"))
+      b.setAttribute("aria-pressed", String(b.dataset.ordine === ordineDraft));
+  });
+
+  const modulo = radice.querySelector("#modulo-draft");
+  if (modulo) modulo.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!sonoCommissioner()) return;
+    if (stato.squadre.length < 2) { alert("Prima iscrivi le squadre."); return; }
+    const anno = Number(radice.querySelector("#draft-anno").value);
+    const giri = Math.max(1, Math.min(6, Number(radice.querySelector("#draft-giri").value)));
+    const stagione = `${anno}/${String(anno + 1).slice(2)}`;
+    const id = idDraft(stagione);
+    if (stato.draft.has(id)) { alert(`Il draft ${stagione} esiste già.`); return; }
+
+    /* Le scelte nascono senza numero: chi le possiede si sa subito — serve
+       per scambiarle — ma in che ordine sceglierà si saprà solo all'apertura,
+       quando la classifica di quella stagione esiste davvero. */
+    const scelte = [];
+    for (let giro = 1; giro <= giri; giro++)
+      for (const sq of stato.squadre)
+        scelte.push({ giro, numero: null, origine: sq.id, diChi: sq.id,
+                      giocatoreId: null, nome: null, quando: null });
+
+    await db.doc(`draft/${id}`).set({
+      stagione, giri, serpente: REGOLE.draft.serpente, stato: "PREPARATO",
+      scelte, creato: new Date().toISOString(),
+    });
+    await annota("draft", `Preparato il draft ${stagione}: ${scelte.length} scelte in ${giri} giri`, null);
+  });
+
+  su("#apri-draft", "click", async (e) => {
+    if (!sonoCommissioner()) return;
+    const d = stato.draft.get(e.currentTarget.dataset.draft);
+    if (!d || d.stato !== "PREPARATO") return;
+
+    const ordine = ordineDraft === "sorteggio"
+      ? [...stato.squadre.map((x) => x.id)].sort(() => Math.random() - 0.5)
+      : ordineInverso();
+    const primo = squadraDi(ordine[0])?.nome ?? "—";
+    if (!confirm(`Apro il draft ${d.stagione}. Sceglie per primo ${primo}.\n\n` +
+                 `Da qui in poi l'ordine non si tocca più. Procedo?`)) return;
+
+    /* La serpentina: al secondo giro si va al contrario, al terzo di nuovo
+       dritto. Senza, chi ha la prima scelta si prende i tre migliori e il
+       draft è finito prima di cominciare. */
+    const posto = new Map(ordine.map((id, i) => [id, i]));
+    const scelte = (d.scelte ?? []).map((x) => ({ ...x }));
+    let numero = 0;
+    for (let giro = 1; giro <= d.giri; giro++) {
+      const alContrario = d.serpente && giro % 2 === 0;
+      const diQuestoGiro = scelte
+        .filter((x) => x.giro === giro)
+        .sort((a, b) => (posto.get(a.origine) ?? 0) - (posto.get(b.origine) ?? 0));
+      if (alContrario) diQuestoGiro.reverse();
+      for (const x of diQuestoGiro) x.numero = ++numero;
+    }
+    await db.doc(`draft/${d.id}`).update({
+      scelte, stato: "APERTO", ordine, apertoIl: new Date().toISOString(),
+    });
+    await annota("draft", `Draft ${d.stagione} aperto: sceglie per primo ${primo}`, ordine[0]);
+  });
+
+  su("#passa-turno", "click", async (e) => {
+    if (!sonoCommissioner()) return;
+    const d = stato.draft.get(e.currentTarget.dataset.draft);
+    const t = turnoDi(d);
+    if (!t) return;
+    const chi = squadraDi(t.diChi)?.nome ?? "—";
+    if (!confirm(`Salto il turno di ${chi}? La scelta si perde e si passa al prossimo.`)) return;
+    const scelte = d.scelte.map((x) => x.numero === t.numero
+      ? { ...x, giocatoreId: "SALTATA", nome: "turno saltato", quando: new Date().toISOString() } : x);
+    await db.doc(`draft/${d.id}`).update({ scelte });
+    await annota("draft", `${chi} salta la scelta numero ${t.numero}`, t.diChi);
+  });
+
+  su("#chiudi-draft", "click", async (e) => {
+    if (!sonoCommissioner()) return;
+    const d = stato.draft.get(e.currentTarget.dataset.draft);
+    if (!d) return;
+    if (!confirm(`Chiudo il draft ${d.stagione}? Le scelte non usate si perdono.`)) return;
+    await db.doc(`draft/${d.id}`).update({ stato: "CHIUSO", chiusoIl: new Date().toISOString() });
+    await annota("draft", `Draft ${d.stagione} chiuso`, null);
+  });
+}
+
+/**
+ * Passa delle scelte da una squadra all'altra.
+ *
+ * Prende tutti i passaggi insieme e non uno alla volta: uno scambio che
+ * muove scelte nei due sensi tocca lo stesso documento due volte, e la
+ * seconda scrittura partirebbe dallo stato di prima — cancellando la
+ * prima. Qui ogni draft si riscrive una volta sola.
+ *
+ * L'identificativo di una scelta è «draft|giro|origine»: non il numero,
+ * che al momento dello scambio spesso non esiste ancora, e non un codice
+ * inventato, che si perderebbe alla prima riscrittura dell'array.
+ */
+async function muoviScelte(passaggi) {
+  const destinazione = new Map();
+  for (const { chiavi, aChi } of passaggi)
+    for (const chiave of chiavi ?? []) destinazione.set(String(chiave), aChi);
+  if (!destinazione.size) return;
+
+  const perDraft = new Set([...destinazione.keys()].map((k) => k.split("|")[0]));
+  for (const draftId of perDraft) {
+    const d = stato.draft.get(draftId);
+    if (!d) continue;
+    const scelte = d.scelte.map((x) => {
+      const aChi = destinazione.get(`${draftId}|${x.giro}|${x.origine}`);
+      return aChi && !x.giocatoreId ? { ...x, diChi: aChi } : x;
+    });
+    await db.doc(`draft/${draftId}`).update({ scelte });
+  }
 }
 
 /* ── Gli effetti dell'albo ────────────────────────────────── */
@@ -3496,6 +4055,8 @@ function agganciaMercato() {
     elenco.includes(id) ? elenco.filter((x) => x !== id) : [...elenco, id];
   su("[data-cede-da]", "click", (e) => { bozzaScambio.cedeDa = scambia(bozzaScambio.cedeDa, e.currentTarget.dataset.cedeDa); disegna(); });
   su("[data-cede-a]", "click", (e) => { bozzaScambio.cedeA = scambia(bozzaScambio.cedeA, e.currentTarget.dataset.cedeA); disegna(); });
+  su("[data-scelta-da]", "click", (e) => { bozzaScambio.scelteDa = scambia(bozzaScambio.scelteDa ?? [], e.currentTarget.dataset.sceltaDa); disegna(); });
+  su("[data-scelta-a]", "click", (e) => { bozzaScambio.scelteA = scambia(bozzaScambio.scelteA ?? [], e.currentTarget.dataset.sceltaA); disegna(); });
 
   for (const [selettore, campo] of [["#cap-da", "capitaleDa"], ["#cap-a", "capitaleA"]]) {
     const elemento = radice.querySelector(selettore);
@@ -3511,6 +4072,7 @@ function agganciaMercato() {
     const proposta = {
       da: mia.id, a: con.id,
       cedeDa: bozzaScambio.cedeDa, cedeA: bozzaScambio.cedeA,
+      scelteDa: bozzaScambio.scelteDa ?? [], scelteA: bozzaScambio.scelteA ?? [],
       capitaleDa: bozzaScambio.capitaleDa ? aQuarti(bozzaScambio.capitaleDa) : 0,
       capitaleA: bozzaScambio.capitaleA ? aQuarti(bozzaScambio.capitaleA) : 0,
       proposto: new Date().toISOString(),
@@ -3542,10 +4104,19 @@ function agganciaMercato() {
     if (s.capitaleA) { await muoviCapitale(s.a, -s.capitaleA, `Scambio con ${squadraDi(s.da)?.nome ?? "—"}`);
                        await muoviCapitale(s.da, s.capitaleA, `Scambio con ${squadraDi(s.a)?.nome ?? "—"}`); }
 
+    /* Le scelte non si spostano di posto: cambia solo di chi sono. Una
+       scelta resta sempre «la prima del 2028 del Borgo United» — è quello
+       che la rende una cosa di cui si può parlare, e che negli anni si
+       ricorda. */
+    await muoviScelte([{ chiavi: s.scelteDa, aChi: s.a }, { chiavi: s.scelteA, aChi: s.da }]);
+
     await db.collection("scambi").doc(s.id).set({ ...s, stato: "ACCETTATO", chiusoIl: new Date().toISOString() });
-    const nomi = (p) => p.length ? p.map((c) => c.nome).join(", ") : "nessun giocatore";
+    const quante = (c) => c?.length ? `${c.length} ${c.length === 1 ? "scelta" : "scelte"} al draft` : "";
+    const nomi = (p, scelte) => [
+      p.length ? p.map((c) => c.nome).join(", ") : "", quante(scelte),
+    ].filter(Boolean).join(" + ") || "niente";
     await annota("scambio",
-      `${squadraDi(s.da)?.nome} ↔ ${squadraDi(s.a)?.nome}: ${nomi(pacchettoDa)} per ${nomi(pacchettoA)}`, s.a);
+      `${squadraDi(s.da)?.nome} ↔ ${squadraDi(s.a)?.nome}: ${nomi(pacchettoDa, s.scelteDa)} per ${nomi(pacchettoA, s.scelteA)}`, s.a);
   });
 
   su("[data-rifiuta]", "click", async (e) => {
@@ -3702,8 +4273,26 @@ async function firma() {
     firmato: new Date().toISOString(),
   };
   await scriviRosa(squadra.id, [...contratti, nuovo]);
-  await annota("contratto",
-    `${g.nome} a ${squadra.nome} per ${soldi(ingaggio)} × ${bozza.anni} ${bozza.anni === 1 ? "anno" : "anni"} (${REGOLE.contratti[bozza.tipo].nome})`,
+
+  /* Se la firma nasce da un turno di draft, quel turno si consuma: la
+     scelta porta il nome di chi è stato preso e non torna più libera. */
+  const daDraft = foglioAperto?.daDraft;
+  if (daDraft) {
+    const d = stato.draft.get(daDraft.draft);
+    if (d) {
+      const scelte = d.scelte.map((x) => x.numero === daDraft.numero
+        ? { ...x, giocatoreId: g.id, nome: g.nome, quando: new Date().toISOString() } : x);
+      const finite = scelte.every((x) => x.giocatoreId);
+      await db.doc(`draft/${d.id}`).update({
+        scelte, ...(finite ? { stato: "CHIUSO", chiusoIl: new Date().toISOString() } : {}),
+      });
+    }
+  }
+
+  await annota(daDraft ? "draft" : "contratto",
+    daDraft
+      ? `Draft ${daDraft.stagione}, scelta ${daDraft.numero}: ${g.nome} a ${squadra.nome} per ${soldi(ingaggio)}`
+      : `${g.nome} a ${squadra.nome} per ${soldi(ingaggio)} × ${bozza.anni} ${bozza.anni === 1 ? "anno" : "anni"} (${REGOLE.contratti[bozza.tipo].nome})`,
     squadra.id);
   chiudiFoglio();
 }
@@ -3869,14 +4458,33 @@ function agganciaGestione() {
   });
 
   su("#libera-pesi", "click", async (e) => {
-    const totale = stato.squadre.reduce((s, x) => s + contoDi(x.id).pesoMorto, 0);
-    if (!confirm(`Fine stagione: cancello gli ingaggi degli svincolati e restituisco ${soldi(totale)} di spazio alle squadre. Procedo?`)) return;
-    e.currentTarget.disabled = true;
+    /* Non si cancella tutto: chi ha spalmato se lo porta dietro. Scalano di
+       una stagione, e spariscono quando arrivano a zero — se sparissero
+       tutti insieme, la spalmatura sarebbe uno sconto e non una dilazione. */
+    let liberato = 0, restano = 0;
+    const dopo = new Map();
     for (const s of stato.squadre) {
-      if (!pesiMortiDi(s.id).length) continue;
-      await scriviRosa(s.id, rosaDi(s.id), []);
+      const pesi = pesiMortiDi(s.id);
+      if (!pesi.length) continue;
+      const tenuti = [];
+      for (const x of pesi) {
+        const anni = (Number(x.anni) || 1) - 1;
+        if (anni > 0) { tenuti.push({ ...x, anni }); restano += x.ingaggio; }
+        else liberato += x.ingaggio;
+      }
+      dopo.set(s.id, tenuti);
     }
-    await annota("lega", `Fine stagione: liberati ${soldi(totale)} di ingaggi svincolati`, null);
+    if (!dopo.size) return;
+    if (!confirm(
+      `Fine stagione: libero ${soldi(liberato)} di ingaggi svincolati.` +
+      (restano ? `\n\n${soldi(restano)} restano: sono gli svincoli spalmati, che scalano di una stagione.` : "") +
+      `\n\nProcedo?`
+    )) return;
+    e.currentTarget.disabled = true;
+    for (const [id, tenuti] of dopo) await scriviRosa(id, rosaDi(id), tenuti);
+    await annota("lega",
+      `Fine stagione: liberati ${soldi(liberato)} di ingaggi svincolati` +
+      (restano ? `, ${soldi(restano)} spalmati restano in carico` : ""), null);
   });
 
   su("#salva-lega", "click", async () => {
