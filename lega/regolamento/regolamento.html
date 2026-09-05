@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Dynasty League — il regolamento in quattro pagine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Archivo:wght@400;500;600;700&display=swap">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Il regolamento in quattro pagine.
+
+   Stessa lingua visiva dell'applicazione — verde, lime, un accento
+   solo — ma pensata per la stampa: niente `backdrop-filter`, che in
+   PDF non esiste, e ogni superficie è un velo pieno sopra il fondo.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --fondo:       #171C13;
+  --velo:        rgba(236, 246, 222, .075);
+  --velo-alto:   rgba(236, 246, 222, .13);
+  --bordo:       rgba(255, 255, 255, .15);
+  --bordo-forte: rgba(255, 255, 255, .27);
+  --luce:        #F6F9F1;
+  --luce-media:  #D3DAC8;
+  --luce-fioca:  #A9B499;
+  --lime:        #D2F76A;
+  --lime-caldo:  #B9EC45;
+  --lime-fioco:  rgba(210, 247, 106, .15);
+  --display: "Manrope", system-ui, sans-serif;
+  --numeri:  "Archivo", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #0B0E0A;
+  color: var(--luce);
+  font-family: var(--display);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+}
+
+/* Una pagina è una slide: 1280 × 720, sedici noni. */
+.slide {
+  position: relative;
+  width: 1280px; height: 720px;
+  overflow: hidden;
+  padding: 34px 56px 28px;
+  display: flex; flex-direction: column;
+  background: var(--fondo);
+  page-break-after: always; break-after: page;
+}
+.slide:last-child { page-break-after: auto; break-after: auto; }
+
+/* Le macchie verdi fuori fuoco dell'applicazione, e sopra una
+   vignettatura che spegne i bordi: il testo sta quasi tutto sulla
+   parte scura, e dove non ci sta ha un velo sotto. */
+.slide::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22s%22%20x%3D%22-35%25%22%20y%3D%22-35%25%22%20width%3D%22170%25%22%20height%3D%22170%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2288%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3Crect%20width%3D%221000%22%20height%3D%221000%22%20fill%3D%22%23171C13%22%2F%3E%3Cg%20filter%3D%22url%28%23s%29%22%3E%3Cellipse%20cx%3D%22820%22%20cy%3D%22250%22%20rx%3D%22250%22%20ry%3D%22215%22%20fill%3D%22%23D4F86F%22%20opacity%3D%22.72%22%2F%3E%3Cellipse%20cx%3D%22660%22%20cy%3D%22430%22%20rx%3D%22200%22%20ry%3D%22175%22%20fill%3D%22%236FCB55%22%20opacity%3D%22.38%22%2F%3E%3Cellipse%20cx%3D%22240%22%20cy%3D%2270%22%20rx%3D%22420%22%20ry%3D%22300%22%20fill%3D%22%23161C12%22%20opacity%3D%22.94%22%2F%3E%3Cellipse%20cx%3D%22640%22%20cy%3D%22700%22%20rx%3D%22230%22%20ry%3D%22250%22%20fill%3D%22%232FA089%22%20opacity%3D%22.46%22%2F%3E%3Cellipse%20cx%3D%22100%22%20cy%3D%22520%22%20rx%3D%22260%22%20ry%3D%22250%22%20fill%3D%22%237ACF57%22%20opacity%3D%22.32%22%2F%3E%3Cellipse%20cx%3D%22450%22%20cy%3D%22520%22%20rx%3D%22340%22%20ry%3D%22290%22%20fill%3D%22%23121810%22%20opacity%3D%22.70%22%2F%3E%3Cellipse%20cx%3D%22560%22%20cy%3D%22900%22%20rx%3D%22300%22%20ry%3D%22230%22%20fill%3D%22%23BFEE6A%22%20opacity%3D%22.40%22%2F%3E%3Cellipse%20cx%3D%22160%22%20cy%3D%22940%22%20rx%3D%22280%22%20ry%3D%22235%22%20fill%3D%22%23246045%22%20opacity%3D%22.62%22%2F%3E%3Cellipse%20cx%3D%22880%22%20cy%3D%22990%22%20rx%3D%22280%22%20ry%3D%22230%22%20fill%3D%22%2396DE5E%22%20opacity%3D%22.28%22%2F%3E%3Cellipse%20cx%3D%22500%22%20cy%3D%221030%22%20rx%3D%22440%22%20ry%3D%22240%22%20fill%3D%22%230B100A%22%20opacity%3D%22.85%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center / cover no-repeat, var(--fondo);
+}
+.slide::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background:
+    radial-gradient(120% 100% at 78% 8%, transparent 22%, rgba(10, 14, 9, .62) 78%),
+    linear-gradient(180deg, rgba(10, 14, 9, .30) 0%, rgba(10, 14, 9, .10) 38%, rgba(10, 14, 9, .72) 100%);
+}
+.slide > * { position: relative; z-index: 2; }
+
+/* ── Testata e piede di pagina ────────────────────────────── */
+
+.testa {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 12px; margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.11);
+}
+.testa .palla {
+  width: 24px; height: 24px; flex: none; display: block;
+  background: url("data:image/webp;base64,UklGRhAzAABXRUJQVlA4WAoAAAAwAAAAgwAAgwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBITBcAAA3ghu3/+cmRvuv6fH9V3elOx8lgx1zbxm3/bdu2bdu4bds2194dTzAzSafTnarf9309+FVnon0eERPAG1gVOY0qfmZ1reXi859mpp8R3NYmr2X77L25rW1bvHJDwl7B6ez7vFl5OMiraBivYsd93ozWNTvJz+PVzBOb/fhmozcawyTvYxhg2H2SDJO6mDcVvdGYJK/QkvvbVadJBnp33jzEG4fLaSXQiSRt+30ECPAEIiW3O/UmIdy4cWeWY2ACrYAUGQloEdEKBEbbfJHeFITzR25DmNliFoGJY6yRkJBkJCQDz/aX6k1AOHvrZ4+cigHWyiBJ7m8ASatZELCu3bmA3mjS+VtfuAdytbVmxalJJiQJsxJCBsA43PzsZfbGEg9PvfTSakWegAldhSWxBhMDWiXgIJzd+tSMvZFEH18vhMEqcBYBniTJaQIBMiuQgDCvPfSJGXvjCDzyyKdCrhQyJAEkkGAVQBKGgSUl3Xzwk3v0BhFYjz7500HAKhMhua8Z5sjVCTkCLQKSG9eenugNYeqjT35kuNLRzBEhwXildgWBYbEGAcKHenakN4BpD731k5fkydW24tVPTpMwMByJ9eTtzwW93gTh5ns+etdWAmmAmUlmsEZHyEBahSP3n23X8J1Pv1D2OgPx1vt/4p6QCTZLyNnGAFuUtQiTwH2D1gBJ5ixG8N3PPD9BrydTbr7vI/cIDBAwMEfkNAQJWnGaI2YG1EqS6Owtn3k+4vUrLbj1vp9+KYFWElqSAnlyapglIadlgoNkXN21tzz9AkCvF5Ttkff++EutEZw1YiDIKFe3IiS2QShJjIhTByGTzt7zsecjXqeCPvien3wZIWxltgKDVSmJGYAUCCE5LUcDRkIgbH3g488P0OtB0Efe9WMXwiiYmYljppZARZZyaETL0jgNhAgkHN/z3GeH7LUTWU+95SdezpAEMBNAMrGmCCRIXGupJFASZgAZp3J46rMvVPZaiW1vv/mRS2xlcqWESavWzIxk6aAQq4TDQWCWY2BAkkEG52//zHOQvSYCrHeef/wIrRE5DVi1RnNmlxB02vZVOm3VNmzbpruOFshpYAkdvuDuJyJ7LRDXe/vYgIQkhhgyC/YZFhnALDIBDBmAtR3WIAHEGq40knjy/KM72asnePbue59CHDGNEDAWzThCAsSKVjZz7xgXF7cvePsT4NkBaxHUAoKQEXzw2jOXxqsucP1dLzyHhJmcCqHuTQAGCThwfPq555/59J2pm9dunB2v3XnPNzzAeL5YA4MOAklI6ENnn96hV8nkgXc9ezvDDCFbgZazSyz2RYtw7Kd/y6ceufnYWx949No2sm33XvgpvvPhrbbzkTAwgMywWDdvfeIIvSpiN975iXsgZAvCWcBinFnuLMcuOlsYro//+q/8Qledc7y8fTxef1Bf+Mt/9J9+38G4nmzjMJ6QQEhee/STl9mrIKyHnvrYBYuRq81tspaNtah54VN//id+8VctjPmLT7ytSfZaIKTO//Dl3/6Qdb4R2JoMIMHIzh797L3h8xfWIzef3nWQRCAZbcWMYR5/4Ps/cfvD7/3hX/QYwuXv+q5tbE0krtntMPb7PveLn9hiXaORJIFISKLDg3dfos8LfWz73EBCi/tnWzSJL/3UD/zUrXe896lb/tQf+3u3sY9evHMx61Ajh3bXeNzn8vhXvv/vfrQF56xdgOR0TGjluj63Py/hqeOLw+kaMAlpkR3D7v7gD16+68mnbuK2Lv7g278e+h1f38i4TmIRjsdhfe8f/Bevj3gtY+TqbE0CtJ1xp1cm6/GX7iUCibOSK1vt5fGZjz7yxHbczvcOjOf/6j/7Dua3fM3lIkAIM5vIdf6D//e/eyvhGoMJzMocgQA6W3d7RZzfunfB/Y01zgLE9pw7t5+98eD2wOKom7rNf/lP3vzEw+ezloSTctrIcZbro3/w7z9zFmfbQMQaS65ObPHyK/Hs/HgUJDPW6KxMcIZe+tH9getz6zG7lDPdd3/k+W/+019xj23DKBALyqHL1veefeVasQ5WWsYahCDA7PgKDmfHOM3WLCCNTGaXiz/xheucWcNhbbak7e7v+ca/8MWumVWCBrAmZDLu/YmvfQrgsMDSOI0EGYH2+61D7AopAUiYkntc3Fl3z8Rcni0zbf3YxRc8ilggK4wry8l147su91nZNTIIHAGJ04SZ+2ymjLACA5C20lq3/9J6+z63zteZHvYO57P2WrfP/uX/flt7rZnNcUXMRnPu5r27v3QmZ0HnaygkA9LIINvvc8jMNK4U0jFnX3e+/8MX59tMa/OAy0Dz1sPf8LE/cyDBAUowwcxv+cAABK6lceUJ5ImZx6uW5qyEPDEA03Z97ni+1h5ruQ6tlWTOU2f7v/lfviiMDoLkfYYv+jv2XRKMMxJGMHAwZ2XWXLEBrJEAJBPL3PXpZz9wp5t5g5HLw4JBogc7vus7f8Wyxaw4dQAdevQfPO4wAokbwCoBkpAMYL+fwwohY8Wp4e785Xefz/GwVptsCzFpY262n/0tf+mHZXKUMRaOss7/prv7GC1mgWeDIfsiTMLS7uOCJCENHDGUHZ7xPIZtsR1wC1tk+OTdy/XUX/crX9om2moF2FaLr3778Zi034PDdfNgBM7KoFVCwgRskJixBnFWJ8DuPP3Ouy+udT5rsTGs0FlhD10c8Vuf/759ozUsZm3YwP7o33586aXPPP3ss8/fPVsPfOsXbZwPGDhrJAOJhB1YIEaLWQEmLVpTfO7hy2OH80HRIDTj2vV94KF/4H+/K4mha7tcPvXuLz37db/jJ3rw/Nbjjz9Wd37wu79ODkGSASaMQDDABgRacqU5rmno7r6A1lltquFsgnP9yT22/cu/838F50Cui+P5+7/7l+x3/vRfd/m+D9x84JGzbZvLg8/89u/6IjcLMa5MSgR2UEAIJBNaydju+uzxbMnWOhsVHddorPMn9jXoX/dnnoFt5+z8rd/x9R+6nMvLH/1v33fdjWbVbLie+TPf84iKQ0ImoRFQLK6WAISklezWR6/t5+eucySUZRQb9paBXLf+ll/OrRtvf+/XvP8w08z2sf/5A08ew0WznGj9hUe+cG0klBAgxNVznzCFAGPt4j728Uc9HtbqbM0C3VUWybXrMwLrF918yxOPtu8zJT37f77vXc7Ycckskf3lX/MPnB8CkAApyc/HWgRCWGtkcu7GWpttyopWYmbrMIDNg3//xeXxOIXA5f/1/neSlSFBefjJZ75l6VgihAR5H69AkgSsVYtxHY+PzuVyvDfrnBhshFbrsI/EousVsyh3/9RH3t8+21Zr73Aoj5ednf2WX9RazEYGhCRdEeuKgBCg5YBVi7seOh7YthKRPKUev8wADMPS5i/+v+9PLGw5x+WwmrMffOSda1w7xqmD4BUjV5rGlQ6yhgG9vbZ9uW0bUG7Dys0jN993ZFxlEkgy3///fXDH/VCaFrHY6/LPf+s1jFfscN/7YHmFAM5qHM4+def6zWsc1ixwrX1zbHr0G7/1U3tGYrFKhk//8g8/vsM2bsyixQisLtYf/eK3ATgSkM5Wr0zCDAkczWnL/fnt7HyxkSqLXe6946//1tuX+w7MosQkffHXf+kHUgRajCSMyvrYx7/+pBUSgGGvaFxlcmVrdAD64h+cDTmErdbeud/8jz96edyPmYSYA0l/4IUPHfY1LsxY09q1QLbv++CNaZUAScisKwDBZgmRIK0hTD78I8xyoThrPfSeX/rN+8U+g0FtzSplVv3AH/5iai2VdJAMZmA/f+b8McyANGyWQSAEsAqEAI1I85337lxesl2uHnj85uNPfstDM7MNZKSzGFbI8EO/4osfds5Aw5RsBbZPh/3yhqQDAqQRyJVCIAQCtSAzbjz1CeahJx556lueXC//uYuX9yFJQkcTg9m4/X993RNJW2kSmCGgce04IyQEQoDElQbOKsEAzLDZ8LvWu3/+redv37m42H/z//XZx/7p98loSJK1Ahyv/dz//8HlNi3SwdLBVsCBG4d7KxIwAAOwK4AwDAHCZtWy1s/+kuN+PHbcL37HH//Q/JH/5d1/65deO+RJi8QT5Oxnfcn/eKx1iat0lxBmqtlvvOfiLglymmHIfUMDkBIs174cQ07TT/0/n3znuN39Q7/2pV/8zW+/tUJGWoOQsP6e7Ve+jEVIclW41N5xCWRAAg4ryCsoJWhBpMViTEeZ5f6x/+89b2P2reVHfusPv/Xrvu5JR8c1rNLdNf7d+296uYCMNRgC5mG79tbjnmKhEYscFhAoA4gDYgGuJAzc/aH/9sMf3I7H2Vmt/dPf+5c+8m3f885Rklq7q5YP/m3P/c59LxgdSULwOD1ycyISGUQGkeI0ECzAANNacSrw/f/We991tuq41uC+deeZ3/mR//RaEGCL03jon/7e372vCsIgVKH1c2YIDFiDsRgAIe7fGjkNy4WdjC//2V/xfmZ3CeZuMXP32i1IAClMPPx7P/3/HIWgWrRmgwXbN+6MEnKaIcbpfaw1K0IQCAFivfB7vvfLr1XDWmsaFg7r5XmQqxuWJNDhH7v49bfDMgdn7cDigxe7BQYhziLylaUZQJiQgtlnft+9Lz+/Noy5BkJkTS8+fIV98tfeeMc73/Gw2Nb5P37rf33WVTihE4A/Z2aHxBDASK6+D5TcN2uxMvH2X/nKG5ebs0A0G1rDPP/4OmH/I8+89IlPfvrx7/iq910PHvy53/RvHZPAQGbZtW8ddpD7Jy3uP1e1HK/Kcc2cMbrzlrOPX6rSNq7BwsHLT75vR+vFX/fFHPfLH//9f+6Fn/23vGebm9/+d/29Gznq6LiYn3d3d9LwKkcn79MVOZgnCaGwhtW1b/9dZ4cudeHk2jlMweVPv/uccv+fvujhvTVeO3v2t/3yu+/81i977K/7e/7reBGJDms7zmPfvs9kEHiCo9x/ThLACCTdkSUtesvdzy6gFQYyBvG5m9cM/uxHPxjE6Ob29E//yb96cfiX/t7vvvnR5z/2uTt3X3jpcDh8wde+cHQGkQwkDD8PCRgRaoXN2mYx+vaHfrhZNMIiHCH69I1H0k//7x+OCYzQ5X7x8b/6vrf97d9w6+Frh8vLO3s356XLfXKkNAwEHF8RGEgkjghta1hx67v+yEtHGtEBM1rt97wZ82u+4olts511bNaC4zYHb//GP/NfPv7IA9dvPX6rfao4thhlxCQwu6qAQAhzxEhaK8D1dT/+6cOqMlZhMvrZ41P0wz/1wTPApCAFh+Z7/+3/5T2yWjQAsy9msQacFULgVeyAEK8wgWzTMR7+Ob9lYgzdF4wk3n7psfPP/fIvenJlQlKLwcA5+9S/9a++b6MFllyuhFoA6diC7jMQV0pgGY6wLU77+X/pky5zwLE1LfL4ybf7Qy+8f8uRYGUEWMnh6f/sb/iGgyFYu2GSgARrAK/awa4gCcyQ5JDReuLn/PK1uVtJQgr+yHv2//J9D2ytZAfEaDWOsY4f+b9/wbducdruCJiZpAHYVQ0YEHKaARkHE2b72/70R7ejuxTWAlf82Nt+27vfMzlrpWFc4TjA9Px/8qV/79oCPGZpZpKzAIz77pCA46y4OggP6Kx58N/4j18ud51atEgvnn7g/3j3JeBpEhA4q4rJi1//k//0Y5qXI4urDVsDkq8Iclz7yq7IlXWQOVhf8aHfdUecFsA2sLe+4Yfu3jCRcRmeGCgQw7r3w7feY+77ivDEZBZk8gqnzBwWASQQp2cJdvYPvPQbX04bpDbYt7/+Q59++jC5aiXGfePKcXHx+Lv25BJCgUww2sbM+3A0EwcyIU5D1uZg66m/7vH/YtZij2jR4V+/c/zzb5tAEJMM49QCYf7Z2WEf0gzk1FhjZvfbMwBr5XB/a50l4/k88Nf97H/sYp/D0DnHw8P/0+V+/JF3XrClawfIJAGbtdJj33GZdcmpnISQXGnebwaM0xAjIAM8A9lXZ9/6j/4bP7XcxuPyC/79OeKffdfYitEMuTJrJQuu/9OFLwOsSAQIOTVe8R5ACOQIkJC1HTg1vuYf/JV/6bh0Dl/zt+679UPvXDuGawCDQGKNrOSvP45clq1MIE0gBPCVHCGBSLAkIwEOIpDrQ//AD/6eZ9bM3/vhfWftx4ub+2Y4LVwTp7FIba0PfMtMXSIGJmlXCCSv/AidaFyZmQV5biuy9fa/+eb//Nwj/9ZLxyF8/nCTHGROjiCAs2JbbNf/5pdjXhYMzYQkEEA+z0vkysGEzAiQODcD8dp3/M2/7Rdc7sdY8bHHry/GteswAwQ5ttiUr75+3DsipMPKTEASoM+DYyeOtPaVAZjNCs5XuG8hH/r7Li8RYl6+USCnqxPDUYHlg7/weOwCEGwVmIlhJ34+l1wtzJrVFZAEci445lojEbA+9eTAFoIDBiLEsjn83BeOXDKSJFeunBWv+uVVgQE4gGFZni8pAQcE6Mc+4CIBpkWsIl3q4ttuXFy+DIJhgBg4+qodA5IAa41Alsxy92whGJgMNp97+HpWs+FAgqa63P7Vs2fuXoIEmrxy89XhEjIhwJG4cjZ2icP56GisWuV2uHYHlnhRZ8PWLNhozva3/Dv75eGFodhKToV0XJH56uyTmUFm2BXui12B85UAAdL6xw+/82MXa4tiJEVF9/f+g5eXF7MRMstODFat0cx8Vbgw48rAsBMYDcJ1tsKEkJ74ud/5I7/vxy8ZFskOra21rW//2Zd3Lw250gRDJ+XU7NXp0rATDAsCJNaA0XbuGEgib//Z3/oTv+NHO661wrRpnf+tX/Dyi+Q6toxVJmgpGYbxKh+H+44GxmkSQGB6boswxPXkd/2SF/7Hn7y3tmG2Fmw3/tEX73xuFQi5Ru7bCnnNL6ArLKwFcWpBBm1zOKCEOXK+vu4f+cRvn8/cvnPey3Pml/7dL37maGgCBiAkhHnia9ElVyaQZXZypQG1aK1tYbQyeeC7/8Zubc/ffv5zFzefevG5Zy1blBiACbBmxetw34EwTiWyk0wSoNaIay2WDuIhtptveeDBx9fnnn16djGZLa5eAUYrDF8rLgeM0wwwCMySBCKEWLAwGdtBIBFgViszkDQwObXXjAvCTkgCCci4MqnDDAg5y4AQpy3dFTAAE5BSklPD14yXjfuGEFJrwCBjuWtkJsnVLbIWcwIgp4YQcl977boA6MS4OkeJKyOBTIB0PKE1CCmArUlYkYCdyOt0Lrk6jAxWEJmQGWlYZrPlCa3ATAhTWruSGPJ6nguBMICEPDECMzMkATJLVmRmZgKIsxqFNAR6nTAXgHHfcAQyJEMH4zQWpZGGgZlgBiaOGBiv57kk7KokwJh7nrsCcg2nSch9jVMTwADM5NTw9cRcGFdnXO2+X+7n6yAjCQlgGCRXCplAnoDYCdjril7myjBrBdBLd2Yurj9yvoirMyTkSpOQV26GV7z+LwZCMuRkNu7M8aWLrj+5tjkJIZDwCgKMe+u8RUqYhG8ILneATAhose07c/HifuOWZoABGKcSpvv+8vFw7SAGkskbdr+EzDhttcq5MZcXH3nqhiAQArOuKIH2ONy48+L1c+TUzDcMXYwZ9+/gMeOS5x47W3GaJFcmGC/dZQ4erq1NrjZ748Dx0rhveJ3LoPH2vccWp8krTajPnm0HOJ855/7GG7qLuR9w7YlPdV5dHG/fuAYkJDkLEIJPPnE2i+0453W/N/5+2UkSXjt/+biRXLzw4IoVMKJBJtydB1vIWtduk28WcLwkCWk98VkD6/Y1sRatgFknMM8/NQuRB17ckXyzgMsjp9m1B+4FMRcXD5AkSVgr6e6DB0jcusub7uWRMH3oLsjUZx+UJIEkAdofWLGS9fKObzZw3CdjOx+AuLg841XcDxuK1oW8Kc9+DK8PBnHnqiTv035tCUJH3rxn310k2eVxQRKSV22bIG/+BUHMkVdxyc+gUbPPq/CGBVZQOCDOGQAAsFYAnQEqhACEAD4xEohCoiEhF7xNzCADBLYG3gLIGj18ir747zWa3/afwx+V3yc7ROlvNJ5z/2n3S/CD1K/qP/ie4B+qH+k/rPWa8wn7Ofth70n+x9Tv9i+4D5BP6b/iP/p2DX7o+wV+1Xpo/s98HX9j/33/n/33wHfzr/D//H2APQA/8HEx/1D6QPkn38fb/xp/cf1x/HfnP7v+Uf70++zmD669TL5H9yPx390/bv+8/t582/7PxP+HWoX+SfzP++fl1+UP1O/L9xhaP/i+oX7Z/Uv9P+cH+A9KnVi8G/8n+tfAD/Nv6h/qvy8+C/9/4MP3D/Rf8z3AP5v/Yv9x/g/3L/0P0xfz3/X/zn+g/bb2ofRH/R/yP+f+QX+W/07/Xf3b93/8z///qx9c37P+xt+qzevKfv3tW337O2fxyqXk1vz4vFnQFXlNKsN9hJgK4M78kdElXJP9uoClnYDjAH+pNYE8VDLJvJcmLX5LfTbmDGUxwFz6qIeeqdkqz0bxH+MxNfrPnwvlHNenEH37vCSsaHd/ZWUMUus8oKiwfvliq5GzYurWKaBEEUfJrCAAtVrC2Tmh45TRqW6zfxeuyYoVcPdqVgfGxjtrHj5NkTcBeVmkRDyDWyaTawcFgFw/zrM8aRbbRmkFuJPWNa0eze96bxQO6VeRW3TTJroAXwaY74dqDjrwzbBpOBHPRiY4HFevC0uJi4lCRWRbTngFKhGG+X4z3VQl16i4V/30AyEB2/ISLWAjnRSZe5hbeAGZafZJfV+zjW63M3AvjAqpP4WISUdHjE6fslfTpHgtfdNfy0UlEUaDqgLhkwx4A1oLvW64xdw//5vG9HdzDXxFaDYl/7RQsnwHHxp/WV0a7SkOJGKNI/8NBrWdFNIPWJRqY3PD1HnhTRwR71rL4+q7Kqnu9A+zjbBEQ243dJAAAP7/j7yx/jiE9/4JNAflt65yTR8cN2Zbt/4xNF6KASpdGF4BaRBC/Fy4/Ktv6V23p29Yfwn3REHWn8vLbj1NDxAXXsv57x0uqhwfEKm7JN/rAlERhBs8xVF/7IIPbJmc84lfu8iHKsqg2R5J1VKcpkHNx++z15yBImLTzXd2qDicrP/jYeWBECP4grzOf1YNHP/fCKzJAm3umJp3XwJZre6GDr1keCpFP/ldzSXl+nhbZG8L7StbxlNjdoPK/uaRCvkJMvoC9bYzeGew2x1UpMo0xwXqO5X+DUX83+EduYeEDPoDP3Xja5dnYiec2zsidjLbCJxRFiGSdE+UX2HmfAJe7Nq2fCW/+Y3UEbyL0YzATQAKkkq01KDJmi6LKLZs6xH5AkZGEKXELU1NI3y1lEU+qVIC2Z1D+N0ianw618sdXPmMKCZW/1Y9IR9VAWNq6yZVCCm4C5OWV51ZQXw8gZd2caVnPXrpjpgJMJIsnaZpFzWzKeQ3DEJ1F0rJVCw9epEHwkrk+LbvSEoEFx8WBDiGJ0B99JVwUPmpgk/wU2egbOufSBraO6iYG76t+n26+VbvaV4FJSUC1xLPuTOhvsYzprQK588jGXpJlmO0CmvmXG03WZOtRI0akUyT+B9uXsA9+T7RVee3fHymxNihNLfPYcrfoXfu1xWl0Fy+OK1+ffxXQKrBvw7AhGRMYxoqvWbodo1l005qICh7f8+IEvUqKoqueqJP+v3qxlTrla2jXNlppklhk/04pD14VK2Yik0mupZIPxpb1Zp3WI59glNyEmuLThutu04xVftACx/i+kjf/x/KL3r/BSFPemRQ/FP/tMRwoyKf2eVGCYTrzyPbf071SZSwVheizT/c1oqfgsPTft6NMv19z40gx8VLySpeNUq3fv04s242SiNQgIbFV9A0q1VwZ3dbonKSN5leXz4kRG52lwnqPtzaGZGXFlfWlnNfXiskm6I1QuS5K7Qc5kupaUNiU9ssoLFdVQbUPVt1hp52VtuBo4IVB43YTqwYh5ZaA26z18FUTrR1JwjAj2IrURGN0ix2G4a3FK1gzmutEKyl5loTaovd2CrJVSLX6Zq8BGOhP37qn+Ujdk1BnSap/6iqTrcRM1ZJf2U+vy4Gv9luokaBVlD4nl7RLCOHZkiaFY06Fl9rbvRT/ymFlIN3FZxCJkr3Slyib80dxf33v8lRIYeng/QZlFW/EB8luALJKlBrDF+D8P8WNE2r/r/XpKS2anv2eihb0X8iIqQ0rzVUp2Yf7V0IPj8T6pY2/1l3bvtI3mXXuZ1w+7UdktNtvnQWvkRI25hz3EYHsTZaxOeXLw0EU6t3Hzx+4PvET/2NTlSFSq/0pRykDwQFeB9+yBUL/4hvGQQEe2vYqjwsQuJyeHOs5am0HCaK4G8hqJbIh9YpqggIBH1KCIuXEqtgRThYHMLUs8fLC6brXz395DIqZeTQR8Q+3guEIGydIIfteeCzKQm4RmKMfNn3qtpy6+hQ//z5Seetl31W5CRhugdU5IqW4HQaY1nOY276o4HjPK2X3SRwwF/2SWBZili0Syh1nJgidTvNb13SPX/A6XR5vUERygxIFCjqdYP0WNL4XwAukNYrffrKZLTeHRFft5yXuFT0M0IrnxhJ678cWsgtfwx2o3g3wSpFj7px3v0EoGGr2SMSxoXiH3RqrlnUAarAigWIs+uzsC3OtUNcdcuOP69nRKJd0VAbVWAIye1QIofjH+uN0/g7xi9dZYN2cjdW+hGK0pOCB1Kb+wzr8utYEGDm98Cu+QvFQGF8nHA9Q2uxyTFPXBFwrPd5UEDraaNhkIsdeEqM1CUlSHdvODmAE+BIwcxjWfNh0jiiwiLaktIejkLcVQLsTPnVO//6QWhraBvn0L2CuamGyQbF1TVLhN3W2V2J/moaOccxwVyAPga8vQ2p5CL5YJVips1tEj3lN8VPE8hbgOnyFjoeJImw2cpp3GzCxxEO1TVYDAREC+z8evZeywesLS//LjzvjtHIcUhKIKAoXoPpY0ii0pV+NDhF5Ua07e9NSnYrDBg+w1nxjIvTC721mbka7l1VXyChLAktQ47ZIjcFhfhuZfTTOH01kaOff4PFWu8QkjTEoacMVD+fvhMtW8cKldG2ND5uWiPW/98SsPcEwFJgE3+llX1uEAzVqm8Rs8EWa3Df65JBc9/Lei24EJkVzLM3LxrosNdRsNfxDg4dm4Oqs3txEoPhtvV2zRAmTWJpI+w/DJRSSiNvokXmvBMMV72XU8PDMB+QQag8ICwryuNCWgyhYNeh74nhH5MrVvIgnhPEV0x2zRh/fCG1cOB1BySEFqbXi7R3Chghjvw/UR0P6GghywPUQa2yRAZ4mt9RRRUL7lQAgH749LG35dHNM1imOLU945bHdASiF+U/LLMcCLrYRs1LRUzqqpZYUNfCuDxQEy/T0IwyhNTbZ96JORzbYXOayAeDj2raupPkoO3dFcytFCdsnVKfzaq2dzl3WIU0umBPv4xsu/cRbjcXTV+gDKdm2YeuBYamGwOIAHwIge8AM2YPS+uaLjr8CAAAbSG8tSWdx4bfOwXbxFazTSy1n2SHAOBjACgqhZHh5912CjJ24IqXwqIOR7QieDmWofztm3wVXKqsoBno42nWOWVjsqyBdL5AWn30g4gp81G+vxGl0z74GK+/FkwlFmaRkwdi6Gu65tN5x5u9jX6tDcy+KwKNJarIOI0W9JMfxniFQueFyQ2BAdogPixNIZfcx2wsomXGu64KKZ1uYzqcFWuh04lb0kTt9bAzfhFA25VWR90o2oPqefKCkV0oW2yzRK8v2mKTCFJGt1GocDKwuA4DEg+InGbfw4UHBa68CPhg5d4Sx3b/LhSYoaAN2Ul58SOXhSiX8BMhjCA/UrEn0xGJYmMj4cf6O7///9iwnMHgEQ3cpKR1B0NdTUiKwatuFThTbwQivMwcr8uXg3b7HtWfXaajPUf/1iUX3Qw0Qn/gJTtKCWueMdb9jJNALIP9WTQdHwWCtCCZutW8y4LVDbxKnsfgwpgGe0tysytlCn5Ds597J0g/LQP+5EwiTDD5z8fC1zIfLJVKI8T/yQ7NftHsd6w8RUTDkLxfRtr1QdXzZbz1Y8p4as55gK8kK4VEX8NMnBvpSWeYiHbqY6z/XMUVjHktaUjOoICdoPFiGkfKJCN6Xno9eKsQlA9UFeG1ezxvdLXxon9Yv5HDJrTx+aMf07qoSyeeSO3NVNKZhMl7u06+KTiDh8PyrYE2gyFEmKuGNFAOIsm91+fYp82E2xhb6mhPjkDB1mgl8kzS7lHoAENQdTaW7CUsRcqmSfozD44j8keZgkEOajaypbaguY5FNxFIYmKam3uPwHI0DT3Q10YmwTCSiN26F/Y4i1+y3tFMqG2XqkajGLEGTfrih4zMBKOFTQo8agPRsVfUrKBfYJqI08I+1jBze9c2Q3wB14uJuUt8nFG58FnchMV9H92LxEophqUzU4F5XOtmZGPNLVda8xiT8yd/KrUI8295ny3r4R/C3Tbjc3cg+7/vlw4mIZddujFSQli6RrK8qiF2XuheA9IogKNh5MyufQAW1hyNaPMmgMLyFrS5Je+y7VzTbZoOyCEOeyhLlK3G3BF8bYZKJ7ENnSq4GQgGZtaTs2fB2ghOcUk5ssomhnWN1BiYt4xDD36YSj3d22i3495wXHKLg69pTNAUW3rsToHkAuLxiH1w9NrnwbB/GckycJq05dZDCmg/pb/paCmSuknHcVWbs97QglgJpFccmC5kNNmzZm9dFcOHB5AAeNqjQbhiOpDV2giz8WSnxjpTOJm7eoJ5hDEtYFEwsFpgMCjdU4NXnpMSKzsu1VrXX/ZS+fEFS2d0FWxyJwbrJ9kUj9bLdkdD1rv+VEgV1T1IhUOJoFRrUlKrM28jT9j8z4xwApZArB0vYEiD3BvvfHfixZPrlC/6m0XKAD4HF4En41yt8fapD/zyTXLyeZCqNZBhkH8AyF8E3QC+FZqpwCk/ud+M34Vmt6Kmme2IR0+eTDO7uXrE8VYUg74KQ/bPnaGDf/P+MxIFDXjX4/cwFR145vs2xhNhXxUau1SWs3zvrhJkWx7MNm9n8hjpIcXt6mabxGuwyODBbg6AxbPvz7mg9nCsNLlSPknKRqR2A+LTWhmDf2/NnYZevt9iA0yRNturNU8c048BRCqALMf676u9LJ7AkGhHOiiZ1nMzlTteLUrHt9sikSf4+kxWrvl/FP0qF93IoIxMRIDoDAje7jsZj9edpMqTP+3TU1fGsnxslsTIylEziJHsa8SPt7jbEhQ1BvNm/xoj3vzdeLE3LUdODeVEw0GMU5zGKbkrrfzZ613JxeFtirhy0sAnB7ioAlohdLbQFFIbOEAkjoxgrg+1PURILfjVZNgeZokZsZJdPhPAWGKCjW9Cqd2m9J91TRjWhPssHitdMArv4dccV6JJyHzl+itBafYVmHv9JzWEasqKZucggXnxrnd1gte0C0CCaOAfIE0kzsY94kvphuTDR8mh28rXwq/vTBXSjd4H8/aUYewqaY5yanlIkfcpRQholKUSmTm4adYZdeT1u5l21LM3LLTH9Onli+ot1s2Ui/cJl69CIDhxuXWdG1+Njy/D/7uaD3cKJw2NuQ97esCESzcpkqYTW3xvWZsAxmSTtzj4qShUyL8ljCNwHrBOs0ggfXP0rj8CKFMOe7krOUcOQsr80zqB2Y4XYaRdbUZRp6urUtilPrPsXcBm0RXNkQzI06VtBI/Mye/rPRSzo0X8ISg/5H31r6WoQwxeb1ktNvuvqNKWwgpzXEolhR7Fu57Myyhd59pwabrgMR1CGxxtygBTUinaann37Po0nFAsVpb6QTWx7GUNRxaJzAAIosV4ZyGsLTP6Ep6cCAAM4B2JWCAnTtc2mphi5pxgbYzl2gOYaLSCC+dJ5T8Asc93Xgf9M6/6oaolXiwoeSBwMDLETNG6EMKN6bPzaIZMFy0BG5akIkCRe8OU3CEfx9+LQ85ZRjZT6aJcMrYb3UNFy0MccvzD5Ws1xfh+u0p5wqRdPWfqtK9rfqYuTFxSSQl3L3y/BA+FuomYzwNZejLLuwKN/yg4SwKYpZ74QJN21WYH763T5TymC/uRwQoIRN/FEclwAMwBwRSGEDplHZoOiNIL+9iMmJ5wNzbogX8Srx9PlADG1JvSHX4H85T3U0HdbNPpx+aDIvKVCbZDEdRo82WPM5e87CfA+AdrOn/x9Rs1B3TgMieeyVZzw9znfEkKI51UL4I3gZqNJZk6Izwp2NJCyCk79D1+JmURI9gmnG0ADA/6+aE3ArF/IfiWWVkG9DZGn+WRjm7L3ySpFGPlqVzam0G9r+Gpn53BpEbxrka7ZoPcW/J/tlVRMyyCceu3oP/yZKA+vpYEDhYQ8/hnEYMXECwx/l/6XtD1oKsQpZ83vFVVf5Nx4H9/0E5e1iCGiVtza2WAKQWSAgtjq02I3UNWzIrBI4eE0hNksVEQA1dMXBfn5lVKAn0+whaY9tgNL1ZO6ddENUnw9k6zA1niIyV/nb2gL+T9sa8VX8VMaHo2TJ6KBq+JYmxrr0VA8pcWOoBgk49hB+xW504nCeHh4zp4hbRrbtw+NfXeYq8lKAH1uJLQHfpaIcx3Jeoyl2VxVTL/jAW34s4rwEquijMEYw8VQV1KR9YqUbg5o9f2odeSuUVPVmu8lLS3nqey8wD5JGl0iUEG7fh1VPLAk+AWsPT7X+YCu9Mzgy+qYZL/G/b0RHokHN/roLIxck/C7BxVlnLaXdEqyZ1mrN6H/pXXGOykSOn+n+YEsYbilsqDU3Y1A1TtXD9y7mNWsFDgQ6NzrUGMkH8GUM6fGoKrFgLzZHYXlr5pQsOLBHEQsIk0MJteuJvcu70CiIaFSq8NUJo9T0dvPxHzLZWd0oW+BCn2eX0P0/JljqqSflnEqZWDRe7QwKlBV0dxwA1hkrPqg0wkwrQJUY4fLkXEeg0cHcPyRYew0CfVvDywWxgF2B+KopJA2kMTiTE11uunI4TWivXFRqX/lc5lfiIeyhd4D9WPdTk5lU7My4Ze5hZt8SX5GsDB091zuOvYMDe2Zx2mXRA6HyUo0r0OiLn4gGyh8mXxojzwYhTa9rD/sEBnZs8fyuPObSEpISLMELtAmNLZ2ZLzwxp3XKDmZb1vYv5BYzbDMoEZSmg33cxBI//3S5//PlMNb8rlgvp6tlbYybO1NKd8i0wsYEo4AI4ipU0HG7qydWFWcoVaARZqmZhM7M4opoDwpAdGRKHNXQ/fQd4o9oj2HjhLtIxwUdTbj85XoEIltHV63PCNM/9+JU9hJ5BkKx1dYUEn6ELFZDmUFjYolsdZNDdt02xkVmhxplk6p07wULeerub0bWx/BjVNiAr7NDr+TAj+OSz8hoG1Xe8xjrO9Qf3d+O4/Ttegzius91MQqusiPpiJaFnf/OwKm2flR2sl8Xx+tFBW/WdQ18t7JR8tIOn9SrwtXWGZF8P4fuFdzFH46YneM7k1duF12sqY3jSrh8u/9gZsG3T7u2/5ey75Crl+lLDkDkmSxnTkutFKyY779h/Hisk1VZ5MxA7vlYGQTHPAdY0Di4hJ/NjlrbsjE3/8+hz55TQZvvwqo1Qgo2UN2j/HGdJTP+aLlJqcSBYF4zU6snBUN56sn3pPcqdCW4QdEy4swOA2rImp8/IeYb5QDFP17W+XWunPyKtx/5Vg58by6oMbAVDFJnmMkbHcsC+npYRnp5r1zYY0KT6D0tZ0yBD/5lhB12voXe10DY6kY41xhEjtn2xPavJOO+FI3sbDxBKKbpnQp1IoS1KSPf8KNOsCI3TWt+PiR35uI2gL2KoV5sVCo9d90S/mS0ql1r6gB5GB1L8MzTyZ2/zRKtcxKGIKetvQcQfML0F+6IFVNivQlC7H+oQs4R1LLk9eHrDbDYhkrP+fH/J7X6pDv538itEZO+gqC7ZLuGY/xt5z9os3E+pLgsNZHLw+vtxHR5jnlN+5c3n4aa4UkSEw8qtUTqfels3tvo7Q+1+gFMW/1eJ0/bIiS30EXuG6w783Jh2wVXf5CKVLr7lKo9YsSCCK0Ax0HuV+Tu/HMUfgsXvriK4sGZnvG9QoJtCzV+5TtypodwkhkUB5SHbYlEPPTTFY/ye5Yyn24pjTu0979AANLt4QZuMpebG1jWOlR/uQuj1BET0jOBQrv5HCRaaUHeXuZUBp4+WHawNb6hY62n8DulSGN48iWD3XW544UtetAzl0lC28Xf8ElxLLCn+lzW7xz8CbtUm4xYXgUSiVWmlzqRXzbIz+T0jPqATQ9dKXfsAZmzaEt+mhjEc7JCKuUff7j6Pkt9kLa/Am/DGIZa5PALN4ov5cZlvHINlE9bd0dV1/YEfoXIhopRxf9rqRSqotRW0H/9ykPFRQ5C6uvqWgJQauQuVpoSEFQE0PhXGdLEkR8UbeKCHOz4FzTmocMfMvEOryladkyAIU6JXqGWQhMFYDw8UYXEHc0ub8y0oMWYr3ix5pcEKz3s01yw3O7QkgABbhk45KPfSAn2F7C2X77TSAhvDjMOj2LKGTQ2N0XhdMgi/z+ySgravyX7yQst5lcjjY90vKxh4pPhJwgfkLe6lEUF4mvgntTqpF0/4ZAReeMRB+oUBdWWxEpLoJVMD7wSZDI2cO1WcmDIJeqWP/ICnj/wAQQAA7IAHvTX2d/01sDvwNDTg+ntDKzXLCeCowEpXi+Pi+VvoolsuYgJ62QgyByvi6r6g5IQ8LDN1HI5aPkHXo+w7Gr5tIowneiqQswicKUSiMB6za9Ledr8jWt39iANx5xVeeUGUlxC/1H5+rG7yHxlf3mMP7Hfrymd+4phBV6pSY7MPuAAAAAAAA") center / contain no-repeat;
+}
+.testa .nome { font-weight: 700; font-size: 15px; letter-spacing: -.02em; }
+.testa .stagione { font-family: var(--numeri); font-size: 13px; color: var(--luce-fioca); }
+.testa .pagina {
+  margin-left: auto; font-family: var(--numeri); font-size: 12px;
+  font-weight: 600; letter-spacing: .1em; color: var(--luce-fioca);
+}
+
+.piede {
+  margin-top: auto; padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.10);
+  font-size: 12px; color: var(--luce-fioca); line-height: 1.5;
+}
+.piede b { color: var(--luce-media); font-weight: 600; }
+
+/* ── Titoli ───────────────────────────────────────────────── */
+
+.occhiello {
+  font-size: 11px; font-weight: 700; letter-spacing: .17em;
+  text-transform: uppercase; color: var(--luce-fioca); margin-bottom: 8px;
+}
+h1 {
+  font-size: 40px; font-weight: 300; line-height: 1.03; letter-spacing: -.042em;
+  text-shadow: 0 2px 22px rgba(8, 12, 7, .6);
+}
+h1 .acceso { color: var(--lime); font-weight: 500; }
+.sommario {
+  font-size: 15.5px; color: var(--luce-media); line-height: 1.48;
+  max-width: 850px; margin-top: 9px;
+}
+.sommario b { color: var(--luce); font-weight: 600; }
+
+h2 {
+  font-size: 12px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--lime); margin-bottom: 9px;
+}
+
+/* ── Superfici ────────────────────────────────────────────── */
+
+.riquadro {
+  background: var(--velo); border: 1px solid var(--bordo);
+  border-radius: 17px; padding: 14px 17px;
+}
+.riquadro.acceso { background: var(--lime-fioco); border-color: rgba(210,247,106,.30); }
+
+.colonne { display: grid; gap: 14px; }
+.c2 { grid-template-columns: 1fr 1fr; }
+.c3 { grid-template-columns: repeat(3, 1fr); }
+
+/* I tre numeri che comandano tutto. */
+.cifrone {
+  font-family: var(--display); font-weight: 700;
+  font-size: 46px; line-height: .92; letter-spacing: -.05em; color: var(--lime);
+}
+.cifrone .u { font-size: 24px; font-weight: 600; letter-spacing: -.03em; }
+.etichetta {
+  font-size: 12px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--luce); margin: 7px 0 4px;
+}
+.spiega { font-size: 13px; color: var(--luce-media); line-height: 1.5; }
+.spiega b { color: var(--luce); font-weight: 600; }
+
+/* ── Tabelle ──────────────────────────────────────────────── */
+
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--luce-fioca); padding: 0 12px 8px; white-space: nowrap;
+}
+td { padding: 7px 11px; border-top: 1px solid rgba(255,255,255,.11); font-size: 14px; vertical-align: baseline; }
+td.tipo { font-weight: 700; color: var(--lime); white-space: nowrap; }
+td.n { font-family: var(--numeri); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td small { display: block; font-size: 11.5px; color: var(--luce-fioca); line-height: 1.4; }
+tr.spenta td { color: var(--luce-fioca); }
+/* Le due tabelle dell'ultima pagina hanno dieci righe a testa: respirano meno. */
+table.stretta td { padding-top: 4px; padding-bottom: 4px; }
+
+/* ── Elenchi ──────────────────────────────────────────────── */
+
+.punti { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.punti li { font-size: 13.5px; color: var(--luce-media); line-height: 1.5; padding-left: 17px; position: relative; }
+.punti li::before {
+  content: ""; position: absolute; left: 0; top: 8px;
+  width: 6px; height: 6px; border-radius: 999px; background: var(--lime);
+}
+.punti b { color: var(--luce); font-weight: 600; }
+
+/* Le quattro strade per uscire dalla rosa: una griglia di caselle
+   piccole, perché è un confronto e non un elenco. */
+.strade { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.strada {
+  background: var(--velo); border: 1px solid var(--bordo);
+  border-radius: 13px; padding: 9px 12px;
+}
+.strada b { display: block; font-size: 13px; font-weight: 700; color: var(--luce); margin-bottom: 2px; }
+.strada span { font-size: 12px; color: var(--luce-media); line-height: 1.42; display: block; }
+/* Il titolo della casella va a capo da solo, ma un <b> dentro al testo no:
+   senza questa riga «l'ingaggio no» si stacca e la frase si spezza in tre. */
+.strada span b { display: inline; font-weight: 700; color: var(--luce); }
+
+.passo { display: flex; gap: 12px; align-items: flex-start; }
+.numero {
+  flex: none; width: 25px; height: 25px; border-radius: 999px;
+  background: var(--lime); color: #0B0E0B;
+  font-family: var(--numeri); font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.passo .testo { font-size: 13px; color: var(--luce-media); line-height: 1.5; }
+.passo .testo b { color: var(--luce); font-weight: 600; display: block; font-size: 14px; margin-bottom: 1px; }
+.passo .testo b ~ b { display: inline; font-size: inherit; margin: 0; }
+
+/* ── La copertina finale del primo foglio ─────────────────── */
+
+.conti { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.conto {
+  border-radius: 17px; padding: 13px 17px;
+  border: 1px solid var(--bordo);
+  background: var(--velo);
+}
+.conto .quale { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--lime); }
+.conto .quanto { font-family: var(--display); font-weight: 700; font-size: 27px; letter-spacing: -.035em; margin: 3px 0 4px; }
+.conto .cosè { font-size: 12.5px; color: var(--luce-media); line-height: 1.45; }
+
+/* L'anno in quattro momenti: una linea del tempo, non un elenco — si
+   legge da sinistra a destra come passa la stagione. */
+.anno { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.anno > div { padding: 0 16px; border-left: 1px solid rgba(255,255,255,.13); position: relative; }
+.anno > div:first-child { padding-left: 0; border-left: 0; }
+.anno .quando {
+  display: block; font-family: var(--numeri); font-size: 12.5px; font-weight: 700;
+  color: var(--lime); letter-spacing: -.01em; margin-bottom: 3px;
+}
+.anno .cosa { display: block; font-size: 12.5px; color: var(--luce-media); line-height: 1.42; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ 1 — LA LEGA ══════════════════ -->
+<section class="slide">
+  <div class="testa">
+    <span class="palla"></span>
+    <span class="nome">Dynasty League</span>
+    <span class="stagione">2026/27</span>
+    <span class="pagina">1 / 4</span>
+  </div>
+
+  <p class="occhiello">Che lega è</p>
+  <h1>I giocatori restano <span class="acceso">tuoi</span>.</h1>
+  <p class="sommario">
+    Non si riparte da zero ogni anno: quello che costruisci te lo porti dietro. Firmi un contratto
+    e quel giocatore è tuo finché dura — <b>per questo una firma è una decisione, non una casella
+    da riempire</b>.
+  </p>
+
+  <div class="colonne c3" style="margin-top:18px">
+    <div class="riquadro">
+      <div class="cifrone">85 <span class="u">M</span></div>
+      <div class="etichetta">Tetto salariale</div>
+      <p class="spiega">La somma degli ingaggi della tua rosa non lo supera mai.
+        Non è denaro che spendi: è <b>spazio che occupi</b>.</p>
+    </div>
+    <div class="riquadro">
+      <div class="cifrone">25–30</div>
+      <div class="etichetta">Giocatori in rosa</div>
+      <p class="spiega">Nessun minimo per reparto: puoi anche stare con un portiere solo,
+        purché la rosa resti dentro questi due numeri.</p>
+    </div>
+    <div class="riquadro">
+      <div class="cifrone">9</div>
+      <div class="etichetta">Slot pluriennali</div>
+      <p class="spiega">Tanti sono i contratti <b>oltre un anno</b> che puoi tenere aperti
+        insieme. Gli annuali e i tampone non ne occupano.</p>
+    </div>
+  </div>
+
+  <div class="conti" style="margin-top:10px">
+    <div class="conto">
+      <div class="quale">Il tetto</div>
+      <div class="quanto">Spazio, non soldi</div>
+      <p class="cosè"><b>85 M</b> di ingaggi, e non un euro: è un limite. Si libera quando un contratto
+        finisce, e <b>non</b> si libera quando svincoli.</p>
+    </div>
+    <div class="conto">
+      <div class="quale">Il Capitale</div>
+      <div class="quanto">Soldi, non spazio</div>
+      <p class="cosè"><b>40 M</b> all'iscrizione. Lo guadagni con i premi, lo spendi in stadio, settore
+        giovanile e osservatori. <b>Nessuna operazione lo trasforma in tetto, e viceversa.</b></p>
+    </div>
+  </div>
+
+  <div class="riquadro" style="margin-top:10px;padding:12px 17px">
+    <h2>L'anno, in quattro momenti</h2>
+    <div class="anno">
+      <div><span class="quando">Settembre</span><span class="cosa">L'asta, al tavolo, tutti insieme.
+        Il giorno dopo si scrivono le rose nell'app.</span></div>
+      <div><span class="quando">3ª → 20ª giornata</span><span class="cosa">Dynasty Apertura.
+        Il mercato è aperto: buste, scambi, offerte.</span></div>
+      <div><span class="quando">21ª → 38ª</span><span class="cosa">Dynasty Clausura. Cup, Super Cup
+        e Youth corrono lungo l'anno.</span></div>
+      <div><span class="quando">Giugno</span><span class="cosa">Si chiude la stagione: i contratti
+        scalano di un anno. Poi il draft.</span></div>
+    </div>
+  </div>
+
+  <div class="piede">
+    Gli importi si muovono di <b>0,25 M</b> · L'età di un giocatore si conta al <b>1° settembre</b> ·
+    Se hai meno di 25 giocatori, devi tenere liberi <b>0,5 M per ogni posto mancante</b>: senza,
+    si spende tutto su tre nomi e poi non si può più tesserare un portiere.
+  </div>
+</section>
+
+<!-- ══════════════════ 2 — I CONTRATTI ══════════════════ -->
+<section class="slide">
+  <div class="testa">
+    <span class="palla"></span>
+    <span class="nome">Dynasty League</span>
+    <span class="stagione">2026/27</span>
+    <span class="pagina">2 / 4</span>
+  </div>
+
+  <p class="occhiello">I contratti</p>
+  <h1>Cinque modi di <span class="acceso">firmare</span>.</h1>
+  <p class="sommario">
+    Non decidi solo <i>quanto</i> paghi: decidi <b>per quanto</b>, e come quell'ingaggio si muoverà
+    negli anni. Un veterano costa caro adesso e poco dopo; un giovane costa uguale per quattro anni
+    mentre il suo valore sale.
+  </p>
+
+  <div class="riquadro" style="margin-top:15px;padding:14px 11px">
+    <table>
+      <tr>
+        <th style="width:132px">Contratto</th>
+        <th style="width:118px">Durata</th>
+        <th style="width:334px">Chi può firmarlo</th>
+        <th style="width:344px">L'ingaggio, anno dopo anno</th>
+        <th>Slot</th>
+      </tr>
+      <tr>
+        <td class="tipo">Annuale</td>
+        <td class="n">1 anno</td>
+        <td>Chiunque, a qualunque cifra</td>
+        <td>Finisce e basta</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td class="tipo">Standard</td>
+        <td class="n">2 o 3 anni</td>
+        <td>Chiunque, a qualunque cifra</td>
+        <td class="n">+10 % ogni anno<small>10 M → 11 → 12,1</small></td>
+        <td>Sì</td>
+      </tr>
+      <tr>
+        <td class="tipo">Rookie</td>
+        <td class="n">2, 3 o 4 anni</td>
+        <td>Under 23 alla firma · fino a 6 M</td>
+        <td class="n">Resta uguale<small>premia chi vede prima degli altri</small></td>
+        <td>Sì</td>
+      </tr>
+      <tr>
+        <td class="tipo">Veteran</td>
+        <td class="n">2 anni</td>
+        <td>Over 30 alla firma · fino a 10 M</td>
+        <td class="n">−20 % ogni anno<small>10 M → 8</small></td>
+        <td>Sì</td>
+      </tr>
+      <tr>
+        <td class="tipo">Tampone</td>
+        <td class="n">4 giornate</td>
+        <td>Chiunque · fino a 1 M · <b>3 a stagione</b></td>
+        <td>Per gli infortuni, non per il mercato</td>
+        <td>No</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="colonne c2" style="margin-top:12px">
+    <div class="riquadro acceso">
+      <h2>A fine stagione, da solo</h2>
+      <ul class="punti">
+        <li><b>Il contratto perde un anno</b> e l'ingaggio si muove col suo tasso: non c'è niente da rinnovare a mano.</li>
+        <li><b>Chi era all'ultimo anno torna libero</b> e ti libera tutto il suo ingaggio. Non è uno svincolo: è un contratto finito.</li>
+      </ul>
+    </div>
+    <div class="riquadro">
+      <h2>Da tenere a mente</h2>
+      <ul class="punti">
+        <li>L'età si guarda <b>al momento della firma</b>: un rookie firmato a 22 anni resta rookie anche a 26.</li>
+        <li>Prolungare è firmare di nuovo, e vale il requisito di quel giorno.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="piede">
+    L'app non ti lascia firmare quello che non si può firmare, e ti dice <b>il numero</b> per cui no:
+    «ne ha 27, oltre i 22», «restano 3,5 M». Se il tasto è spento, sotto c'è scritto perché.
+  </div>
+</section>
+
+<!-- ══════════════════ 3 — IL MERCATO ══════════════════ -->
+<section class="slide">
+  <div class="testa">
+    <span class="palla"></span>
+    <span class="nome">Dynasty League</span>
+    <span class="stagione">2026/27</span>
+    <span class="pagina">3 / 4</span>
+  </div>
+
+  <p class="occhiello">Il mercato</p>
+  <h1>Prendere, lasciare, <span class="acceso">rubare</span>.</h1>
+
+  <div class="colonne c2" style="margin-top:11px;gap:14px">
+
+    <div>
+      <div class="riquadro">
+        <h2>Prendere un giocatore libero</h2>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div class="passo"><div class="numero">1</div><div class="testo">
+            <b>Deposita una busta chiusa</b>Ingaggio e durata. Nessuno vede la tua, tu non vedi le loro.
+            <b>5 offerte a stagione</b>, non una di più.</div></div>
+          <div class="passo"><div class="numero">2</div><div class="testo">
+            <b>Si aspettano 24 ore</b>Chi vuole quel giocatore ha un giorno per farsi avanti.</div></div>
+          <div class="passo"><div class="numero">3</div><div class="testo">
+            <b>Vince l'ingaggio più alto</b>A parità, la durata maggiore. A parità ancora, <b>vince
+            chi è messo peggio in classifica</b> — è il modo di non far scappare via i primi.</div></div>
+        </div>
+        <p class="spiega" style="margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,.11)">
+          Chi viene svincolato passa prima da <b>48 ore di waiver</b>: in quel tempo lo si reclama,
+          e ha la precedenza chi sta peggio.</p>
+      </div>
+
+      <div class="riquadro" style="margin-top:11px">
+        <h2>Il draft — 3 giri, a serpentina</h2>
+        <p class="spiega">Chi arriva ultimo sceglie per primo, e al giro dopo l'ordine si rovescia.
+          L'ingaggio non si tratta: è <b>la quotazione del listone</b>. Le scelte sono cose che
+          possiedi — <b>si scambiano</b>, anche quelle degli anni prossimi.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="riquadro">
+        <h2>Quando un giocatore esce dalla rosa</h2>
+        <div class="strade">
+          <div class="strada"><b>Svincolo secco</b><span>Il posto si libera subito,
+            <b>l'ingaggio no</b>: resta sul tetto fino a giugno.</span></div>
+          <div class="strada"><b>Svincolo spalmato</b><span>Ingaggio <b>×1,25</b> diviso sugli anni che
+            restavano. Liberi spazio adesso e te lo porti dietro.</span></div>
+          <div class="strada"><b>Scambiato</b><span>L'ingaggio se ne va con lui, e quello che ricevi
+            arriva col suo.</span></div>
+          <div class="strada"><b>Va all'estero</b><span>Libera tetto e posto <b>lo stesso giorno</b>:
+            non l'hai scelto tu.</span></div>
+        </div>
+        <p class="spiega" style="margin-top:11px">
+          Uno scambio si accetta entro <b>48 ore</b>; poi il commissioner ha <b>24 ore</b> per annullarlo
+          se è fuori regola.</p>
+      </div>
+
+      <div class="riquadro acceso" style="margin-top:11px">
+        <h2>Offrire a un giocatore in scadenza di un altro</h2>
+        <p class="spiega" style="color:var(--luce-media)">
+          <b>3 a stagione.</b> L'offerta la vede <b>solo il commissioner</b>, che la riferisce alla
+          squadra proprietaria <b>senza dire da chi arriva</b>. Lei ha <b>48 ore</b> per pareggiarla con
+          un prolungamento: se lo fa se lo tiene, se non risponde <b>a fine stagione il giocatore
+          cambia squadra</b>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="piede">
+    L'asta di settembre si fa al tavolo, tutti insieme: quello che passa dall'applicazione è ciò
+    che succede <b>dopo</b>. Ogni movimento finisce nel <b>Registro</b>, con data e cifra — così non
+    si discute a giugno di chi doveva cosa.
+  </div>
+</section>
+
+<!-- ══════════════════ 4 — LA SOCIETÀ ══════════════════ -->
+<section class="slide">
+  <div class="testa">
+    <span class="palla"></span>
+    <span class="nome">Dynasty League</span>
+    <span class="stagione">2026/27</span>
+    <span class="pagina">4 / 4</span>
+  </div>
+
+  <p class="occhiello">La società</p>
+  <h1>Quello che si costruisce <span class="acceso">fuori dal campo</span>.</h1>
+
+  <div class="colonne c2" style="margin-top:11px;gap:14px">
+    <div>
+      <div class="riquadro" style="padding:13px 11px">
+        <h2 style="padding:0 7px">Lo stadio — 19 gare in casa</h2>
+        <table class="stretta">
+          <tr><th style="padding-left:7px;width:150px">Livello</th><th style="width:88px">Costa</th><th>Manutenzione</th><th>Incasso a gara</th><th>Fantapunti in casa</th></tr>
+          <tr><td style="padding-left:7px">Comunale</td><td class="n">30 M</td><td class="n">3 M</td><td class="n">0,5 M</td><td class="n">+0,5</td></tr>
+          <tr><td style="padding-left:7px">Rinnovato</td><td class="n">60 M</td><td class="n">6 M</td><td class="n">0,9 M</td><td class="n">+0,8</td></tr>
+          <tr><td style="padding-left:7px">Moderno</td><td class="n">100 M</td><td class="n">10 M</td><td class="n">1,4 M</td><td class="n">+1,1</td></tr>
+          <tr><td style="padding-left:7px;white-space:nowrap">Grande impianto</td><td class="n">150 M</td><td class="n">15 M</td><td class="n">2,0 M</td><td class="n">+1,4</td></tr>
+          <tr><td style="padding-left:7px">Cattedrale</td><td class="n">210 M</td><td class="n">21 M</td><td class="n">2,7 M</td><td class="n">+1,7</td></tr>
+        </table>
+        <p class="spiega" style="margin-top:9px;padding:0 7px">
+          Si paga subito ed <b>è operativo dalla 20ª giornata</b>: sei mesi di cantiere. A ogni
+          livello il saldo annuo è positivo — un investimento lento, non una tassa.</p>
+      </div>
+
+      <div class="riquadro acceso" style="margin-top:11px">
+        <h2>Il settore giovanile</h2>
+        <p class="spiega" style="color:var(--luce-media)">
+          Tre giovani gratis, fino a 11 posti pagando (da 5 a 10 M). Ci va chi ha <b>fino a 20 anni</b>
+          ed è <b>quotato fino a 3 M</b>: non prende ingaggio e non occupa tetto né posto in rosa —
+          <b>costa Capitale, non spazio</b>. E nessuno te lo porta via: quando è pronto
+          <b>lo tesseri tu, alla sua quotazione, con un Rookie</b>.</p>
+      </div>
+
+    </div>
+
+    <div class="riquadro" style="padding:13px 11px">
+      <h2 style="padding:0 7px">I premi — Capitale e denaro</h2>
+      <table class="stretta">
+        <tr><th style="padding-left:7px">Competizione</th><th>1º</th><th>2º</th><th>3º</th></tr>
+        <tr>
+          <td style="padding-left:7px">Dynasty Apertura<small>Girone unico · dalla 3ª alla 20ª</small></td>
+          <td class="n">27 M<small>130 €</small></td><td class="n">25 M<small>100 €</small></td><td class="n">23 M<small>70 €</small></td>
+        </tr>
+        <tr>
+          <td style="padding-left:7px">Dynasty Clausura<small>Girone unico · dalla 21ª alla 38ª</small></td>
+          <td class="n">27 M<small>130 €</small></td><td class="n">25 M<small>100 €</small></td><td class="n">23 M<small>70 €</small></td>
+        </tr>
+        <tr>
+          <td style="padding-left:7px">Dynasty Cup<small>Due gironi, poi andata e ritorno</small></td>
+          <td class="n">15 M<small>75 €</small></td><td class="n">10 M<small>50 €</small></td><td class="n">7 M</td>
+        </tr>
+        <tr>
+          <td style="padding-left:7px">Super Cup<small>Le prime quattro di Apertura e Clausura</small></td>
+          <td class="n">7 M<small>25 €</small></td><td class="n">5 M</td><td class="n">3 M</td>
+        </tr>
+        <tr>
+          <td style="padding-left:7px">Dynasty Youth<small>Media voto dei primavera</small></td>
+          <td class="n">5 M<small>30 €</small></td><td class="n">3 M<small>15 €</small></td><td class="n">1 M</td>
+        </tr>
+      </table>
+      <p class="spiega" style="margin-top:10px;padding:0 7px">
+        In Apertura e Clausura <b>prende Capitale anche l'ultimo</b> (10 M): serve a non lasciare
+        indietro nessuno per sempre. Il Capitale entra nel conto della società; il denaro resta
+        una cosa fra noi, e l'app si limita a ricordarlo.</p>
+      <div style="margin-top:12px;padding:11px 12px;border-radius:13px;background:var(--velo);border:1px solid var(--bordo)">
+        <h2 style="margin-bottom:5px">Gli osservatori</h2>
+        <p class="spiega">Da <b>6 a 10 M</b> per un campionato, per una stagione: ti danno il diritto di
+          <b>pareggiare l'offerta più alta</b> su chi da lì arriva in Serie A.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="piede">
+    Tutto questo sta nell'app con i tuoi numeri davanti. E se una regola non ti torna,
+    <b>chiedila al Commissioner</b> lì dentro: risponde con l'articolo e con il tuo conto.
+  </div>
+</section>
+
+</body>
+</html>
