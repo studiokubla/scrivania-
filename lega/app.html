@@ -645,7 +645,28 @@ const REGOLE = {
     TAMPONE:  { nome: "Tampone",  anni: [1],          slot: false, ingaggioMax: 1, maxStagione: 3, nota: "Quattro giornate, max 1 M. Tre a stagione." },
   },
 
-  primavera: { etaMax: 20, quotazioneMax: 3, presenzeMax: 5 },  // art. 16.1
+  primavera: {
+    etaMax: 20, quotazioneMax: 3, presenzeMax: 5,   // art. 16.1
+
+    /**
+     * IL DIRITTO DI PRELAZIONE
+     *
+     * Il vivaio esisteva come capienza e basta: si pagava per avere nove posti
+     * e dentro non c'era niente. Adesso i giovani ci stanno davvero, e valgono
+     * la cosa per cui un vivaio esiste — nessun altro te li può prendere.
+     *
+     * Un giovane in vivaio non percepisce ingaggio, non occupa tetto, non
+     * occupa slot e non conta nella rosa: costa Capitale, non spazio. Ma è
+     * tuo, e quando il campo dice che è pronto — dalla sesta presenza — tu
+     * puoi tesserarlo a un prezzo che nessun altro avrebbe: la sua
+     * quotazione, con un Rookie, senza consumare un'offerta di mercato.
+     *
+     * È la regola che trasforma «ho investito nel vivaio» da una riga di
+     * bilancio a una storia: hai visto il diciottenne prima degli altri, te lo
+     * sei tenuto, e adesso te lo prendi al prezzo di allora.
+     */
+    prelazione: { contratto: "ROOKIE", allaQuotazione: true },
+  },
 
   /**
    * Lo svincolo.
@@ -663,6 +684,42 @@ const REGOLE = {
    * avere. La penale è quel che impedisce che diventi la scelta ovvia.
    */
   svincolo: { penaleSpalmatura: 1.25 },
+
+  /**
+   * CHI LASCIA LA SERIE A
+   *
+   * Non è uno svincolo e non gli somiglia. Chi taglia un giocatore fa una
+   * scelta, e se la paga fino a giugno; chi si vede portare via un giocatore
+   * da un trasferimento all'estero non ha scelto niente. Tenergli l'ingaggio
+   * addosso sarebbe una penale per un fatto che non dipende da lui — e
+   * soprattutto punirebbe chi ha scovato il giovane bravo, che è esattamente
+   * il comportamento che una lega dynasty vuole premiare.
+   *
+   * Quindi: esce dalla rosa, libera il tetto e il posto lo stesso giorno, e
+   * si porta via anche l'eventuale peso morto che aveva lasciato. Lo dichiara
+   * il commissioner, perché è un fatto che succede fuori dalla lega.
+   */
+  partenzaEstero: { liberaSubito: true },
+
+  /**
+   * LE OFFERTE AI GIOCATORI IN SCADENZA
+   *
+   * Durante l'anno si può offrire a un giocatore in scadenza di un'altra
+   * squadra. L'offerta la vede solo il commissioner, che la riferisce alla
+   * proprietaria: se lei pareggia con un prolungamento se lo tiene, se no a
+   * fine stagione il giocatore cambia squadra.
+   *
+   * Il passaggio dal commissioner non è burocrazia: è quello che rende la
+   * cosa un gioco. Chi riceve la notizia sa quanto gli offrono ma non da chi,
+   * e deve decidere se pagare quella cifra a un giocatore che magari non
+   * varrebbe tanto — sapendo che dall'altra parte qualcuno lo vuole davvero.
+   * È la restricted free agency del football americano, e lì funziona da
+   * quarant'anni per la stessa ragione.
+   */
+  offerteScadenza: {
+    oreRisposta: 48,       // quanto ha la proprietaria per pareggiare
+    perStagione: 3,        // quante se ne possono fare
+  },
 
   /**
    * IL DRAFT
@@ -1201,6 +1258,7 @@ const stato = {
   mercato: [],
   scambi: [],
   draft: new Map(),
+  offerte: [],
   albo: [],
   aggiornamentoListone: null,
   esitoQuotazioni: null,   // il risultato dell'ultimo import, che deve sopravvivere al ridisegno
@@ -1247,6 +1305,85 @@ function modiSvincolo(contratto) {
   const spalmato = { modo: "spalmato", ingaggio: Math.ceil(totale / residui),
                      anni: residui, totale };
   return { secco, spalmato };
+}
+
+/**
+ * Tutti quelli che oggi pesano sul tetto di qualcuno: in rosa o come peso
+ * morto. Sono le due categorie che una partenza per l'estero cancella.
+ *
+ * La chiave è «squadra|giocatore|dove», perché lo stesso nome può stare in
+ * rosa da una parte e pesare da svincolato da un'altra.
+ */
+function tesseratiEsvincolati() {
+  const fuori = [];
+  for (const sq of stato.squadre) {
+    for (const c of rosaDi(sq.id))
+      fuori.push({ chiave: `${sq.id}|${c.giocatoreId}|rosa`, squadraId: sq.id,
+                   squadra: sq.nome, nome: c.nome, ingaggio: c.ingaggio, pesoMorto: false });
+    for (const x of pesiMortiDi(sq.id))
+      fuori.push({ chiave: `${sq.id}|${x.giocatoreId}|peso`, squadraId: sq.id,
+                   squadra: sq.nome, nome: x.nome, ingaggio: x.ingaggio, pesoMorto: true });
+  }
+  return fuori.sort((a, b) => a.nome.localeCompare(b.nome));
+}
+
+/* ── Le offerte ai giocatori in scadenza ──────────────────────────
+   La restricted free agency: si offre a un giocatore di un altro, e la
+   sua squadra decide se pareggiare. Il passaggio dal commissioner tiene
+   segreto chi ha offerto, che è metà del gioco. */
+
+/**
+ * È in scadenza?
+ *
+ * Oggi vuol dire «contratto di un anno»: gli annuali finiscono a giugno e
+ * i pluriennali no. Quando l'applicazione saprà far passare le stagioni,
+ * questa funzione guarderà gli anni che restano invece di quelli firmati —
+ * ed è l'unico punto da cambiare, che è la ragione per cui esiste.
+ */
+const inScadenza = (contratto) => contratto.tipo !== "TAMPONE" && Number(contratto.anni) === 1;
+
+/** I giocatori in scadenza di tutte le squadre tranne una. */
+function inScadenzaAltrui(esclusa) {
+  const fuori = [];
+  for (const sq of stato.squadre) {
+    if (sq.id === esclusa) continue;
+    for (const c of rosaDi(sq.id)) if (inScadenza(c)) fuori.push({ ...c, squadraId: sq.id, squadra: sq.nome });
+  }
+  return fuori.sort((a, b) => b.ingaggio - a.ingaggio);
+}
+
+/** Le offerte vive su un giocatore: una alla volta, per non fare l'asta. */
+const offertaSu = (giocatoreId) =>
+  stato.offerte.find((o) => o.giocatoreId === giocatoreId &&
+    ["SEGRETA", "RIFERITA"].includes(o.stato)) ?? null;
+
+/** Quante ne ha già presentate questa squadra in questa stagione. */
+const offerteFatteDa = (squadraId) =>
+  stato.offerte.filter((o) => o.daChi === squadraId && o.stagione === STAGIONE &&
+    o.stato !== "RITIRATA").length;
+
+/**
+ * La proprietaria può pareggiare? L'elenco dei motivi per cui no.
+ *
+ * Pareggiare vuol dire riscrivere il contratto alle condizioni offerte, e
+ * il costo si sente da subito. È la versione prudente — nel football il
+ * prolungamento partirebbe l'anno dopo — ma finché l'applicazione non sa
+ * far passare le stagioni è anche l'unica onesta: un impegno che non pesa
+ * su nessun bilancio non è un impegno.
+ */
+function perchéNoPareggio(offerta) {
+  const contratto = rosaDi(offerta.proprietaria).find((c) => c.giocatoreId === offerta.giocatoreId);
+  if (!contratto) return ["Il giocatore non è più in rosa."];
+  const g = PER_ID.get(offerta.giocatoreId);
+  /* Il conto si fa come se il vecchio contratto non ci fosse: si sostituisce,
+     non si somma. */
+  const senzaDiLui = rosaDi(offerta.proprietaria).filter((c) => c.giocatoreId !== offerta.giocatoreId);
+  const conto = contoRosa(senzaDiLui, pesiMortiDi(offerta.proprietaria));
+  return perchéNo({
+    giocatore: g, tipo: offerta.tipo, ingaggio: offerta.ingaggio,
+    ingaggioScritto: aMilioni(offerta.ingaggio), anni: offerta.anni, conto,
+    contrattiTampone: senzaDiLui.filter((c) => c.tipo === "TAMPONE").length,
+  });
 }
 
 /* ── Il draft ─────────────────────────────────────────────────────
@@ -1357,6 +1494,43 @@ function ordineInverso() {
 /** Gli ingaggi di chi è stato svincolato: pesano sul tetto fino a fine stagione. */
 const pesiMortiDi = (squadraId) => stato.rose.get(squadraId)?.pesiMorti ?? [];
 
+/* ── Il vivaio ────────────────────────────────────────────────────
+   I giovani stanno nel documento della rosa, accanto ai contratti e ai
+   pesi morti: sono la terza cosa che una squadra possiede, e tenerli in
+   una collezione a parte vorrebbe dire due letture per disegnare una
+   pagina che li mostra insieme. */
+
+/** I giovani che una squadra tiene in vivaio. */
+const vivaioDi = (squadraId) => stato.rose.get(squadraId)?.vivaio ?? [];
+
+/** Chi ha in vivaio questo giocatore, se qualcuno ce l'ha. */
+function inVivaioDi(giocatoreId) {
+  for (const sq of stato.squadre)
+    if (vivaioDi(sq.id).some((x) => x.giocatoreId === giocatoreId)) return sq.id;
+  return null;
+}
+
+/**
+ * Si può mettere in vivaio? L'elenco dei motivi per cui no.
+ *
+ * I posti sono quelli comprati con il Capitale: il vivaio è l'unica cosa
+ * della società che limita davvero le mosse di mercato, ed è giusto che
+ * sia così — è per quello che lo si amplia.
+ */
+function perchéNoVivaio(giocatore, squadraId) {
+  const motivi = [];
+  const p = primavera(giocatore);
+  if (p.stato === "no") motivi.push(`Non è idoneo al vivaio: ${p.motivo}.`);
+  const posti = giovanileDa(societaDi(squadraId).capienzaGiovanile).capienza;
+  const dentro = vivaioDi(squadraId).length;
+  if (dentro >= posti)
+    motivi.push(`Il vivaio è pieno: ${dentro} su ${posti} posti. Amplialo dalla pagina Società.`);
+  if (tesserati().has(giocatore.id)) motivi.push("È già sotto contratto con qualcuno.");
+  const altro = inVivaioDi(giocatore.id);
+  if (altro && altro !== squadraId) motivi.push(`È già nel vivaio di ${squadraDi(altro)?.nome ?? "un'altra squadra"}.`);
+  return motivi;
+}
+
 /* ── L'albo d'oro ──────────────────────────────────────────── */
 
 /** Il verdetto di una competizione in una stagione, se è già stato scritto. */
@@ -1445,6 +1619,10 @@ function tesserati() {
   const mappa = new Map();
   for (const [squadraId, rosa] of stato.rose) {
     for (const c of rosa.contratti ?? []) mappa.set(c.giocatoreId, squadraId);
+    /* Anche i giovani in vivaio: è in questa riga che vive il diritto di
+       prelazione. Non c'è nessun altro controllo da nessuna parte — chi è
+       nel vivaio di qualcuno semplicemente non compare mai come libero. */
+    for (const g of rosa.vivaio ?? []) mappa.set(g.giocatoreId, squadraId);
   }
   return mappa;
 }
@@ -1468,7 +1646,10 @@ async function risolviScadenze() {
 
   const scadute = stato.mercato.filter((m) => m.stato === "APERTA" && Date.parse(m.scadeIl) <= adesso);
   const scambiScaduti = stato.scambi.filter((s) => s.stato === "PROPOSTO" && Date.parse(s.scadeIl) <= adesso);
-  if (!scadute.length && !scambiScaduti.length) return;
+  /* Chi non pareggia entro il tempo perde il giocatore: non subito, a fine
+     stagione. Il silenzio è una risposta anche qui. */
+  const offerteScadute = stato.offerte.filter((o) => o.stato === "RIFERITA" && Date.parse(o.scadeIl) <= adesso);
+  if (!scadute.length && !scambiScaduti.length && !offerteScadute.length) return;
 
   staRisolvendo = true;
   try {
@@ -1476,6 +1657,12 @@ async function risolviScadenze() {
     for (const scambio of scambiScaduti) {
       await db.collection("scambi").doc(scambio.id).set({ ...scambio, stato: "SCADUTO" });
       await annota("scambio", `Proposta di scambio scaduta senza risposta`, scambio.da);
+    }
+    for (const o of offerteScadute) {
+      await db.collection("offerte").doc(o.id).set({ ...o, stato: "VINTA", chiusa: new Date().toISOString() });
+      await annota("offerta",
+        `${squadraDi(o.proprietaria)?.nome} non pareggia per ${o.nome}: a fine stagione cambia squadra`,
+        o.proprietaria);
     }
   } catch (e) {
     console.warn("scadenze non risolte", e);
@@ -1585,11 +1772,12 @@ async function annota(cosa, dettaglio, squadraId) {
 
 /** Sostituisce la rosa di una squadra. Il documento è uno per squadra:
  *  chi tocca la propria non disturba quella degli altri. */
-async function scriviRosa(squadraId, contratti, pesiMorti) {
+async function scriviRosa(squadraId, contratti, pesiMorti, vivaio) {
   if (!db) throw new Error("Il database non è disponibile.");
   await db.collection("rose").doc(squadraId).set({
     contratti,
     pesiMorti: pesiMorti ?? pesiMortiDi(squadraId),
+    vivaio: vivaio ?? vivaioDi(squadraId),
     aggiornata: new Date().toISOString(),
   });
 }
@@ -1653,6 +1841,11 @@ function ascolta() {
 
   db.collection("rose").onSnapshot((istantanea) => {
     stato.rose = new Map(istantanea.docs.map((d) => [d.id, d.data()]));
+    disegna();
+  });
+
+  db.collection("offerte").onSnapshot((istantanea) => {
+    stato.offerte = istantanea.docs.map((d) => ({ id: d.id, ...d.data() }));
     disegna();
   });
 
@@ -2157,6 +2350,40 @@ function paginaRosa() {
     </div>` : `<div class="avviso neutro" style="margin-bottom:16px">
       Stai guardando la rosa di un'altra squadra: puoi leggerla, non cambiarla.</div>`}
 
+    ${(() => {
+      const giovani = vivaioDi(squadra.id);
+      const posti = giovanileDa(societaDi(squadra.id).capienzaGiovanile).capienza;
+      if (!giovani.length && !posso) return "";
+      return `<div class="sezione">
+        <div class="intestazione-sezione"><h2>Vivaio</h2>
+          <span class="conteggio">${giovani.length} su ${posti}</span></div>
+        <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
+          Non percepiscono ingaggio e non occupano tetto, slot né posti in rosa: costano
+          Capitale. Finché sono qui nessun altro può prenderli — e quando sono pronti li
+          tesseri tu, alla loro quotazione, con un Rookie.
+        </p>
+        ${giovani.length ? `<div class="elenco">${giovani.map((g) => {
+          const dati = PER_ID.get(g.giocatoreId);
+          const ancoraIdoneo = dati ? primavera(dati).stato !== "no" : true;
+          return `<div class="voce">
+            <span class="ruolo ${pulito(g.ruolo)}">${pulito(g.ruolo)}</span>
+            <span class="corpo"><span class="nome">${pulito(g.nome)}
+              ${dati ? `<span class="mantra">${pulito(scriviMantra(dati))}</span>` : ""}</span>
+              <span class="dettaglio">quotato ${g.quotazione} M${
+                dati?.eta != null ? ` · ${dati.eta} anni` : ""}${
+                ancoraIdoneo ? "" : ` · <span class="targhetta forse">non più idoneo: promuovilo o liberalo</span>`}</span></span>
+            ${posso ? `<span class="coda">
+              <button class="bottone piccolo primario" data-promuovi="${pulito(g.giocatoreId)}">Tesseralo</button>
+              <button class="bottone piccolo" data-libera-giovane="${pulito(g.giocatoreId)}">Libera</button>
+            </span>` : ""}
+          </div>`;
+        }).join("")}</div>`
+        : `<div class="vuoto riquadro">Vivaio vuoto. Nel listone, il filtro <b>Primavera</b>
+             tiene chi ci può entrare: fino a ${REGOLE.primavera.etaMax} anni e non oltre
+             ${REGOLE.primavera.quotazioneMax} M.</div>`}
+      </div>`;
+    })()}
+
     ${pesiMorti.length ? `<div class="sezione">
       <div class="intestazione-sezione"><h2>Pesano ancora</h2>
         <span class="conteggio">${soldi(conto.pesoMorto)}</span></div>
@@ -2219,7 +2446,8 @@ function bloccoListone({ soloLettura = false } = {}) {
         <span class="dettaglio">
           ${pulito(g.squadra)}${g.eta != null ? ` · ${g.eta} anni` : ` · <span style="color:var(--avviso)">età ignota</span>`}
           ${etichettaPrimavera}
-          ${suaSquadra ? `<span class="targhetta neutra">${pulito(suaSquadra.nome)}</span>` : ""}
+          ${suaSquadra ? `<span class="targhetta neutra">${pulito(suaSquadra.nome)}${
+            inVivaioDi(g.id) ? " · vivaio" : ""}</span>` : ""}
         </span>
       </span>
       <span class="coda"><span class="prezzo num">${g.quotazione} M</span></span>
@@ -2266,17 +2494,18 @@ function paginaListone() {
 let bozza = { tipo: "ANNUALE", anni: 1, ingaggio: "" };
 
 function disegnaFoglio() {
-  if (foglioAperto?.tipo === "firma") return foglioFirma(foglioAperto.giocatoreId, foglioAperto.daDraft);
+  if (foglioAperto?.tipo === "firma") return foglioFirma(foglioAperto.giocatoreId, foglioAperto.daDraft, foglioAperto.daVivaio);
   if (foglioAperto?.tipo === "squadra") return foglioSquadra(foglioAperto.squadraId);
   if (foglioAperto?.tipo === "codice") return foglioCodice(foglioAperto.chi);
   if (foglioAperto?.tipo === "busta") return foglioBusta(foglioAperto.trattativaId, foglioAperto.giocatoreId);
   if (foglioAperto?.tipo === "scambio") return foglioScambio();
   if (foglioAperto?.tipo === "verdetto") return foglioVerdetto();
   if (foglioAperto?.tipo === "svincolo") return foglioSvincolo(foglioAperto.giocatoreId);
+  if (foglioAperto?.tipo === "offerta") return foglioOfferta();
   return "";
 }
 
-function foglioFirma(giocatoreId, daDraft = null) {
+function foglioFirma(giocatoreId, daDraft = null, daVivaio = false) {
   const g = PER_ID.get(giocatoreId);
   const squadra = squadraCorrente();
   if (!g || !squadra) return "";
@@ -2369,7 +2598,104 @@ function foglioFirma(giocatoreId, daDraft = null) {
           Dopo la firma restano ${soldi(Math.max(0, conto.spazio - (Number.isFinite(ingaggioQuarti) ? ingaggioQuarti : 0)))} di spazio.
         </p>
       </form>
+
+      ${(() => {
+        /* La strada del vivaio, per chi è idoneo: non è una firma, è un
+           posto tenuto. Sta fuori dal modulo perché non ha niente a che
+           vedere con l'ingaggio scritto sopra. */
+        if (daDraft || daVivaio || p.stato === "no") return "";
+        const motivi = perchéNoVivaio(g, squadra.id);
+        const posti = giovanileDa(societaDi(squadra.id).capienzaGiovanile).capienza;
+        return `<div style="border-top:1px solid var(--bordo);margin-top:16px;padding-top:16px">
+          <b style="font-size:14px">Oppure: mettilo in vivaio</b>
+          <p style="font-size:12.5px;color:var(--luce-media);margin:5px 0 10px">
+            Niente ingaggio, niente tetto, niente slot — e nessun altro può prenderlo.
+            Quando sarà pronto lo tesseri tu a ${g.quotazione} M.
+            Hai ${vivaioDi(squadra.id).length} giovani su ${posti} posti.
+          </p>
+          ${motivi.length ? `<div class="avviso attenzione">${motivi.map(pulito).join("<br>")}</div>`
+            : `<button class="bottone largo" data-in-vivaio="${pulito(g.id)}">Mettilo in vivaio</button>`}
+        </div>`;
+      })()}
     </div></div>`;
+}
+
+/* ── Il foglio dell'offerta a un giocatore in scadenza ────────────── */
+
+/* Si parte dall'annuale: è l'unico tipo che non consuma uno slot
+   pluriennale, e con gli slot pieni — che è la norma a metà stagione —
+   qualunque altro default farebbe aprire il foglio già in rosso. */
+let bozzaOfferta = { giocatoreId: "", tipo: "ANNUALE", anni: 1, ingaggio: "" };
+
+function foglioOfferta() {
+  const mia = squadraCorrente();
+  if (!mia) return "";
+  const candidati = inScadenzaAltrui(mia.id);
+  const scelto = candidati.find((c) => c.giocatoreId === bozzaOfferta.giocatoreId) ?? null;
+  const g = scelto ? PER_ID.get(scelto.giocatoreId) : null;
+  const gia = scelto ? offertaSu(scelto.giocatoreId) : null;
+
+  const ingaggioQuarti = bozzaOfferta.ingaggio === "" ? NaN : aQuarti(bozzaOfferta.ingaggio);
+  const conto = contoDi(mia.id);
+  const motivi = [];
+  if (scelto && Number.isFinite(ingaggioQuarti) && ingaggioQuarti > 0) {
+    if (gia) motivi.push(`C'è già un'offerta viva su ${scelto.nome}: una alla volta, o diventa un'asta.`);
+    if (ingaggioQuarti <= scelto.ingaggio)
+      motivi.push(`Offri più di quanto prende adesso: ${soldi(scelto.ingaggio)}.`);
+    motivi.push(...perchéNo({
+      giocatore: g, tipo: bozzaOfferta.tipo, ingaggio: ingaggioQuarti,
+      ingaggioScritto: Number(bozzaOfferta.ingaggio), anni: bozzaOfferta.anni, conto,
+      contrattiTampone: rosaDi(mia.id).filter((c) => c.tipo === "TAMPONE").length,
+    }));
+  }
+
+  const regola = REGOLE.contratti[bozzaOfferta.tipo];
+  return `<div class="velo" data-velo><div class="foglio" role="dialog" aria-modal="true">
+    <div class="foglio-testa">
+      <div><h2>Offri a un giocatore in scadenza</h2>
+        <p style="font-size:13px;color:var(--luce-media)">
+          La vede solo il commissioner. Se la squadra proprietaria pareggia se lo tiene, se no
+          a fine stagione il giocatore è tuo.</p></div>
+      <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
+    </div>
+    <form id="modulo-offerta" class="moduli">
+      <label class="campo"><span>A chi</span>
+        <select id="off-chi">
+          <option value="">— scegli —</option>
+          ${candidati.map((c) => `<option value="${pulito(c.giocatoreId)}" ${
+            c.giocatoreId === bozzaOfferta.giocatoreId ? "selected" : ""}>${
+            pulito(c.nome)} · ${pulito(c.squadra)} · prende ${soldi(c.ingaggio)}</option>`).join("")}
+        </select></label>
+
+      ${candidati.length === 0
+        ? `<div class="avviso neutro">Nessun giocatore in scadenza nelle altre squadre. In
+           scadenza vuol dire contratto di un anno: i pluriennali non si toccano.</div>` : ""}
+
+      ${scelto ? `
+        <label class="campo"><span>Quanto gli offri — deve battere ${soldi(scelto.ingaggio)}</span>
+          <input type="number" id="off-ingaggio" step="0.25" min="0.25" max="${REGOLE.tetto}"
+                 value="${pulito(bozzaOfferta.ingaggio)}" inputmode="decimal" required></label>
+
+        <div><span style="display:block;font-size:12px;font-weight:600;color:var(--luce-media);margin-bottom:6px">Che contratto</span>
+          <div class="scelte">${Object.entries(REGOLE.contratti).filter(([id]) => id !== "TAMPONE").map(([id, r]) => `
+            <button type="button" class="scelta" data-off-tipo="${id}" aria-pressed="${bozzaOfferta.tipo === id}">
+              <b>${r.nome}</b><small>${r.nota}</small></button>`).join("")}</div></div>
+
+        ${regola.anni.length > 1 ? `<label class="campo"><span>Per quanti anni</span>
+          <div class="filtri" style="margin:0">${regola.anni.map((a) => `
+            <button type="button" class="pillola" data-off-anni="${a}" aria-pressed="${bozzaOfferta.anni === a}">${a} anni</button>`).join("")}</div></label>` : ""}
+
+        ${motivi.length ? `<div class="avviso errore">${motivi.map(pulito).join("<br>")}</div>`
+          : `<div class="avviso bene">Se non pareggiano, a fine stagione ${pulito(scelto.nome)}
+             è tuo a ${soldi(ingaggioQuarti || 0)}. Il conto lo fai adesso: deve starci nel tuo
+             tetto anche allora.</div>`}
+
+        <button class="bottone primario largo" type="submit"
+          ${motivi.length || !Number.isFinite(ingaggioQuarti) || ingaggioQuarti <= 0 ? "disabled" : ""}>
+          Consegna l'offerta al commissioner</button>
+      ` : ""}
+    </form>
+  </div></div>`;
 }
 
 /* ── Il foglio dello svincolo ─────────────────────────────────────
@@ -2516,6 +2842,8 @@ function paginaMercato() {
       potrebbe leggerle. Fra dieci persone che si conoscono va bene saperlo, ed è giusto dirlo.
     </div>
 
+    ${sezioneOfferteScadenza(squadra)}
+
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Trattative aperte</h2>
         <span class="conteggio">${aperte.length}</span></div>
@@ -2543,6 +2871,105 @@ function paginaMercato() {
       <div class="intestazione-sezione"><h2>Scambi conclusi</h2></div>
       ${altriScambi.map(schedaScambio).join("")}
     </div>` : ""}`;
+}
+
+/**
+ * Le offerte ai giocatori in scadenza, dentro il mercato.
+ *
+ * Tre facce nello stesso posto, perché sono la stessa cosa vista da tre
+ * parti: chi offre vede le sue, il commissioner vede quelle da riferire,
+ * la proprietaria vede quelle che la riguardano — senza il nome di chi ha
+ * offerto, che resta al commissioner fino alla fine.
+ */
+function sezioneOfferteScadenza(squadra) {
+  const posso = squadra && possoToccare(squadra.id);
+  const boss = sonoCommissioner();
+
+  const daRiferire = boss ? stato.offerte.filter((o) => o.stato === "SEGRETA") : [];
+  const daPareggiare = squadra
+    ? stato.offerte.filter((o) => o.stato === "RIFERITA" && o.proprietaria === squadra.id) : [];
+  const mie = squadra
+    ? stato.offerte.filter((o) => o.daChi === squadra.id && o.stato !== "RITIRATA") : [];
+  const promesse = stato.offerte.filter((o) => o.stato === "VINTA");
+
+  const riga = (o, dentro) => {
+    const g = PER_ID.get(o.giocatoreId);
+    return `<div class="voce">
+      <span class="ruolo ${pulito(o.ruolo)}">${pulito(o.ruolo)}</span>
+      <span class="corpo">
+        <span class="nome">${pulito(o.nome)}</span>
+        <span class="dettaglio">
+          ${soldi(o.ingaggio)} × ${o.anni} ${o.anni === 1 ? "anno" : "anni"}
+          · ${pulito(REGOLE.contratti[o.tipo]?.nome ?? o.tipo)}
+          ${dentro.mostraChi ? `<span class="targhetta neutra">da ${pulito(squadraDi(o.daChi)?.nome ?? "—")}</span>` : ""}
+          ${dentro.mostraDove ? `<span class="targhetta neutra">${pulito(squadraDi(o.proprietaria)?.nome ?? "—")}</span>` : ""}
+          ${o.stato === "RIFERITA" && o.scadeIl ? `<span class="targhetta forse">risponde ${fraQuanto(o.scadeIl)}</span>` : ""}
+          ${o.stato === "VINTA" ? `<span class="targhetta ok">passa a fine stagione</span>` : ""}
+          ${o.stato === "PAREGGIATA" ? `<span class="targhetta ok">pareggiata</span>` : ""}
+          ${o.stato === "SEGRETA" ? `<span class="targhetta forse">dal commissioner</span>` : ""}
+        </span>
+      </span>
+      <span class="coda">${dentro.bottoni?.(o) ?? ""}</span>
+    </div>`;
+  };
+
+  const motiviPareggio = (o) => perchéNoPareggio(o);
+
+  return `
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Giocatori in scadenza</h2>
+        ${squadra ? `<span class="conteggio">${offerteFatteDa(squadra.id)} su ${REGOLE.offerteScadenza.perStagione}</span>` : ""}</div>
+      <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
+        Si può offrire a un giocatore in scadenza di un'altra squadra. L'offerta la vede solo il
+        commissioner, che la riferisce alla proprietaria: se pareggia se lo tiene, se no a fine
+        stagione cambia squadra. Chi la riceve non sa da chi arriva.
+      </p>
+
+      ${posso ? `<button class="bottone" id="apri-offerta"
+        ${offerteFatteDa(squadra.id) >= REGOLE.offerteScadenza.perStagione ? "disabled" : ""}>
+        ${offerteFatteDa(squadra.id) >= REGOLE.offerteScadenza.perStagione
+          ? "Offerte finite per questa stagione" : "Offri a un giocatore in scadenza"}</button>` : ""}
+
+      ${daPareggiare.length ? `<div style="margin-top:14px">
+        <div class="avviso attenzione" style="margin-bottom:8px">
+          <b>Qualcuno vuole un tuo giocatore in scadenza.</b> Pareggia l'offerta per tenerlo:
+          il contratto si riscrive a quelle condizioni, e da subito.</div>
+        <div class="elenco">${daPareggiare.map((o) => riga(o, {
+          bottoni: (x) => {
+            const no = motiviPareggio(x);
+            return no.length
+              ? `<span class="targhetta no" title="${pulito(no.join(" "))}">non puoi pareggiare</span>`
+              : `<button class="bottone piccolo primario" data-pareggia="${pulito(x.id)}">Pareggio</button>`;
+          },
+        })).join("")}</div>
+      </div>` : ""}
+
+      ${boss && daRiferire.length ? `<div style="margin-top:14px">
+        <div class="avviso neutro" style="margin-bottom:8px">
+          <b>Da riferire.</b> Solo tu le vedi. Quando la riferisci, la proprietaria ha
+          ${REGOLE.offerteScadenza.oreRisposta} ore per pareggiare — e non saprà da chi arriva.</div>
+        <div class="elenco">${daRiferire.map((o) => riga(o, {
+          mostraChi: true, mostraDove: true,
+          bottoni: (x) => `<button class="bottone piccolo primario" data-riferisci="${pulito(x.id)}">Riferisci</button>`,
+        })).join("")}</div>
+      </div>` : ""}
+
+      ${mie.length ? `<div style="margin-top:14px">
+        <span class="occhiello">Le tue offerte</span>
+        <div class="elenco" style="margin-top:6px">${mie.map((o) => riga(o, {
+          mostraDove: true,
+          bottoni: (x) => x.stato === "SEGRETA"
+            ? `<button class="bottone piccolo" data-ritira-offerta="${pulito(x.id)}">Ritira</button>` : "",
+        })).join("")}</div>
+      </div>` : ""}
+
+      ${boss && promesse.length ? `<div style="margin-top:14px">
+        <span class="occhiello">Passaggi promessi a fine stagione</span>
+        <div class="elenco" style="margin-top:6px">${promesse.map((o) => riga(o, {
+          mostraChi: true, mostraDove: true,
+        })).join("")}</div>
+      </div>` : ""}
+    </div>`;
 }
 
 /* ── Pagina: la società ───────────────────────────────────── */
@@ -3340,6 +3767,48 @@ function paginaGestione() {
       </div>
     </div>
 
+    ${stato.offerte.some((o) => o.stato === "VINTA") ? `
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Passaggi promessi</h2>
+        <span class="conteggio">${stato.offerte.filter((o) => o.stato === "VINTA").length}</span></div>
+      <div class="riquadro">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
+          Offerte che nessuno ha pareggiato. Quando la stagione è finita davvero, questo comando
+          sposta i giocatori con il contratto offerto. Se a chi li riceve non basta il tetto o il
+          posto in rosa, il passaggio si ferma e te lo dico.
+        </p>
+        <div class="elenco" style="margin-bottom:12px">
+          ${stato.offerte.filter((o) => o.stato === "VINTA").map((o) => `<div class="voce">
+            <span class="corpo"><span class="nome">${pulito(o.nome)}</span>
+              <span class="dettaglio">${pulito(squadraDi(o.proprietaria)?.nome ?? "—")} →
+                ${pulito(squadraDi(o.daChi)?.nome ?? "—")} · ${soldi(o.ingaggio)} × ${o.anni}</span></span>
+          </div>`).join("")}
+        </div>
+        <button class="bottone" id="esegui-passaggi">Esegui i passaggi</button>
+      </div>
+    </div>` : ""}
+
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Chi lascia la Serie A</h2></div>
+      <div class="riquadro">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
+          Un trasferimento all'estero non è uno svincolo: chi taglia sceglie, chi si vede
+          portare via un giocatore non ha scelto niente. L'ingaggio si libera <b>subito</b>,
+          insieme al posto in rosa, e se ne va anche l'eventuale peso morto che quel giocatore
+          aveva lasciato.
+        </p>
+        ${tesseratiEsvincolati().length ? `
+          <label class="campo" style="margin-bottom:12px"><span>Chi è partito</span>
+            <select id="chi-parte">
+              <option value="">— scegli —</option>
+              ${tesseratiEsvincolati().map((x) => `<option value="${pulito(x.chiave)}">${
+                pulito(x.nome)} · ${pulito(x.squadra)}${x.pesoMorto ? " (svincolato)" : ` · ${soldi(x.ingaggio)}`}</option>`).join("")}
+            </select></label>
+          <button class="bottone pericolo" id="parte-per-estero">Toglilo e libera l'ingaggio</button>`
+          : `<p style="font-size:13.5px;color:var(--luce-media)">Non c'è nessun giocatore sotto contratto.</p>`}
+      </div>
+    </div>
+
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Ripartire da zero</h2></div>
       <div class="riquadro">
@@ -3580,6 +4049,55 @@ function dopoIlDisegno() {
     await firma();
   });
 
+  /* ── Il vivaio ── */
+  su("[data-in-vivaio]", "click", async (e) => {
+    const g = PER_ID.get(e.currentTarget.dataset.inVivaio);
+    const squadra = squadraCorrente();
+    if (!g || !squadra || !possoToccare(squadra.id)) return;
+    if (perchéNoVivaio(g, squadra.id).length) return;
+    await scriviRosa(squadra.id, rosaDi(squadra.id), pesiMortiDi(squadra.id), [
+      ...vivaioDi(squadra.id),
+      { giocatoreId: g.id, nome: g.nome, ruolo: g.ruolo, quotazione: g.quotazione,
+        preso: new Date().toISOString() },
+    ]);
+    await annota("vivaio", `${g.nome} nel vivaio di ${squadra.nome}: nessun altro può prenderlo`, squadra.id);
+    chiudiFoglio();
+  });
+
+  su("[data-libera-giovane]", "click", async (e) => {
+    const id = e.currentTarget.dataset.liberaGiovane;
+    const squadra = squadraCorrente();
+    const g = vivaioDi(squadra.id).find((x) => x.giocatoreId === id);
+    if (!g) return;
+    if (!confirm(`Togli ${g.nome} dal vivaio? Torna libero per tutti.`)) return;
+    await scriviRosa(squadra.id, rosaDi(squadra.id), pesiMortiDi(squadra.id),
+      vivaioDi(squadra.id).filter((x) => x.giocatoreId !== id));
+    await annota("vivaio", `${g.nome} esce dal vivaio di ${squadra.nome}`, squadra.id);
+  });
+
+  /* La prelazione: il foglio si apre già col prezzo di allora e col
+     contratto che l'età permette. Non c'è niente da contrattare — è il
+     premio per averlo visto per primo. */
+  su("[data-promuovi]", "click", (e) => {
+    const id = e.currentTarget.dataset.promuovi;
+    const g = PER_ID.get(id);
+    const squadra = squadraCorrente();
+    const dal = vivaioDi(squadra.id).find((x) => x.giocatoreId === id);
+    if (!g || !dal) return;
+    const rookie = REGOLE.contratti[REGOLE.primavera.prelazione.contratto];
+    /* Il Rookie è un pluriennale e uno slot lo occupa: se non ce ne sono, la
+       prelazione non si perde — cambia contratto. Il diritto è sul prezzo e
+       sull'esclusiva, non sulla durata. */
+    const puòRookie = g.eta != null && g.eta <= rookie.etaMax
+      && contoDi(squadra.id).slotLiberi >= 1;
+    bozza = {
+      tipo: puòRookie ? REGOLE.primavera.prelazione.contratto : "ANNUALE",
+      anni: puòRookie ? rookie.anni[0] : 1,
+      ingaggio: String(dal.quotazione),
+    };
+    apriFoglio({ tipo: "firma", giocatoreId: id, daVivaio: true });
+  });
+
   /* Togliere dalla rosa: la scelta fra le due strade sta nel foglio, con i
      numeri di tutt'e due sotto gli occhi. */
   su("[data-togli]", "click", (e) => {
@@ -3629,11 +4147,106 @@ function dopoIlDisegno() {
       squadra.id);
   });
 
+  agganciaOfferte();
   agganciaDraft();
   agganciaAlbo();
   agganciaMercato();
   agganciaSocieta();
   agganciaGestione();
+}
+
+/* ── Le offerte ai giocatori in scadenza, i comandi ───────────────── */
+
+function agganciaOfferte() {
+  su("#apri-offerta", "click", () => {
+    bozzaOfferta = { giocatoreId: "", tipo: "ANNUALE", anni: 1, ingaggio: "" };
+    apriFoglio({ tipo: "offerta" });
+  });
+
+  const chi = radice.querySelector("#off-chi");
+  if (chi) chi.addEventListener("change", (e) => {
+    bozzaOfferta.giocatoreId = e.target.value;
+    disegna();
+  });
+  const quanto = radice.querySelector("#off-ingaggio");
+  if (quanto) quanto.addEventListener("input", (e) => { bozzaOfferta.ingaggio = e.target.value; disegna(); });
+  su("[data-off-tipo]", "click", (e) => {
+    bozzaOfferta.tipo = e.currentTarget.dataset.offTipo;
+    const anni = REGOLE.contratti[bozzaOfferta.tipo].anni;
+    if (!anni.includes(bozzaOfferta.anni)) bozzaOfferta.anni = anni[0];
+    disegna();
+  });
+  su("[data-off-anni]", "click", (e) => { bozzaOfferta.anni = Number(e.currentTarget.dataset.offAnni); disegna(); });
+
+  const modulo = radice.querySelector("#modulo-offerta");
+  if (modulo) modulo.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const mia = squadraCorrente();
+    const scelto = inScadenzaAltrui(mia.id).find((c) => c.giocatoreId === bozzaOfferta.giocatoreId);
+    if (!scelto || !possoToccare(mia.id)) return;
+    if (offerteFatteDa(mia.id) >= REGOLE.offerteScadenza.perStagione) return;
+    if (offertaSu(scelto.giocatoreId)) { alert("C'è già un'offerta viva su questo giocatore."); return; }
+
+    await db.collection("offerte").doc("o" + Date.now().toString(36)).set({
+      stagione: STAGIONE,
+      giocatoreId: scelto.giocatoreId, nome: scelto.nome, ruolo: scelto.ruolo,
+      daChi: mia.id, proprietaria: scelto.squadraId,
+      ingaggio: aQuarti(bozzaOfferta.ingaggio), tipo: bozzaOfferta.tipo, anni: bozzaOfferta.anni,
+      ingaggioDiOra: scelto.ingaggio,
+      stato: "SEGRETA", proposta: new Date().toISOString(),
+    });
+    /* Nel registro non ci va né chi ha offerto né a chi: il registro lo
+       leggono tutti, e l'offerta la deve vedere solo il commissioner. */
+    await annota("offerta", "Un'offerta a un giocatore in scadenza è arrivata al commissioner", null);
+    chiudiFoglio();
+  });
+
+  su("[data-ritira-offerta]", "click", async (e) => {
+    const o = stato.offerte.find((x) => x.id === e.currentTarget.dataset.ritiraOfferta);
+    if (!o || o.stato !== "SEGRETA") return;
+    if (!confirm(`Ritiri l'offerta per ${o.nome}? Non conterà fra quelle spese.`)) return;
+    await db.collection("offerte").doc(o.id).set({ ...o, stato: "RITIRATA", chiusa: new Date().toISOString() });
+  });
+
+  su("[data-riferisci]", "click", async (e) => {
+    if (!sonoCommissioner()) return;
+    const o = stato.offerte.find((x) => x.id === e.currentTarget.dataset.riferisci);
+    if (!o || o.stato !== "SEGRETA") return;
+    const prop = squadraDi(o.proprietaria);
+    if (!confirm(
+      `Riferisco a ${prop?.nome} che qualcuno offre ${soldi(o.ingaggio)} × ${o.anni} a ${o.nome}.\n\n` +
+      `Non saprà da chi. Ha ${REGOLE.offerteScadenza.oreRisposta} ore per pareggiare.`
+    )) return;
+    await db.collection("offerte").doc(o.id).set({
+      ...o, stato: "RIFERITA", riferita: new Date().toISOString(),
+      scadeIl: new Date(Date.now() + REGOLE.offerteScadenza.oreRisposta * 3600000).toISOString(),
+    });
+    await annota("offerta",
+      `${prop?.nome}: qualcuno offre ${soldi(o.ingaggio)} × ${o.anni} ${o.anni === 1 ? "anno" : "anni"} a ${o.nome}. Pareggia entro ${REGOLE.offerteScadenza.oreRisposta} ore o a fine stagione cambia squadra`,
+      o.proprietaria);
+  });
+
+  su("[data-pareggia]", "click", async (e) => {
+    const o = stato.offerte.find((x) => x.id === e.currentTarget.dataset.pareggia);
+    if (!o || o.stato !== "RIFERITA") return;
+    const mia = squadraCorrente();
+    if (!mia || mia.id !== o.proprietaria || !possoToccare(mia.id)) return;
+    if (perchéNoPareggio(o).length) return;
+    if (!confirm(
+      `Pareggi per ${o.nome}?\n\n` +
+      `Il contratto si riscrive: ${soldi(o.ingaggio)} × ${o.anni} ${o.anni === 1 ? "anno" : "anni"} ` +
+      `(${REGOLE.contratti[o.tipo].nome}), al posto dei ${soldi(o.ingaggioDiOra ?? 0)} di adesso. Vale da subito.`
+    )) return;
+
+    const rosa = rosaDi(mia.id).map((c) => c.giocatoreId === o.giocatoreId
+      ? { ...c, tipo: o.tipo, anni: o.anni, ingaggio: o.ingaggio, pareggiato: new Date().toISOString() }
+      : c);
+    await scriviRosa(mia.id, rosa);
+    await db.collection("offerte").doc(o.id).set({ ...o, stato: "PAREGGIATA", chiusa: new Date().toISOString() });
+    await annota("offerta",
+      `${mia.nome} pareggia e tiene ${o.nome}: ${soldi(o.ingaggio)} × ${o.anni} ${o.anni === 1 ? "anno" : "anni"}`,
+      mia.id);
+  });
 }
 
 /* ── Gli effetti del draft ────────────────────────────────── */
@@ -4108,8 +4721,15 @@ async function firma() {
   });
   if (motivi.length) { disegna(); return; }
 
+  /* Chi promuove dal proprio vivaio sta tesserando uno che è già suo: è il
+     diritto di prelazione, e il controllo di sotto lo scambierebbe per un
+     furto altrui se non lo si mettesse da parte prima. */
+  const daVivaio = foglioAperto?.daVivaio
+    ? vivaioDi(squadra.id).find((x) => x.giocatoreId === g.id) ?? null
+    : null;
+
   /* Qualcuno potrebbe averlo appena preso: l'ultima parola è al database. */
-  if (tesserati().has(g.id)) {
+  if (!daVivaio && tesserati().has(g.id)) {
     alert(`${g.nome} è appena stato preso da un'altra squadra.`);
     chiudiFoglio();
     return;
@@ -4119,8 +4739,12 @@ async function firma() {
     giocatoreId: g.id, nome: g.nome, ruolo: g.ruolo,
     tipo: bozza.tipo, anni: bozza.anni, ingaggio,
     firmato: new Date().toISOString(),
+    ...(daVivaio ? { dalVivaio: true } : {}),
   };
-  await scriviRosa(squadra.id, [...contratti, nuovo]);
+  /* Una sola scrittura: se viene dal vivaio, il posto si libera nello stesso
+     momento in cui nasce il contratto. */
+  await scriviRosa(squadra.id, [...contratti, nuovo], pesiMortiDi(squadra.id),
+    daVivaio ? vivaioDi(squadra.id).filter((x) => x.giocatoreId !== g.id) : undefined);
 
   /* Se la firma nasce da un turno di draft, quel turno si consuma: la
      scelta porta il nome di chi è stato preso e non torna più libera. */
@@ -4137,9 +4761,11 @@ async function firma() {
     }
   }
 
-  await annota(daDraft ? "draft" : "contratto",
+  await annota(daDraft ? "draft" : daVivaio ? "vivaio" : "contratto",
     daDraft
       ? `Draft ${daDraft.stagione}, scelta ${daDraft.numero}: ${g.nome} a ${squadra.nome} per ${soldi(ingaggio)}`
+      : daVivaio
+      ? `${squadra.nome} esercita la prelazione su ${g.nome}: dal vivaio alla rosa per ${soldi(ingaggio)} × ${bozza.anni} ${bozza.anni === 1 ? "anno" : "anni"}`
       : `${g.nome} a ${squadra.nome} per ${soldi(ingaggio)} × ${bozza.anni} ${bozza.anni === 1 ? "anno" : "anni"} (${REGOLE.contratti[bozza.tipo].nome})`,
     squadra.id);
   chiudiFoglio();
@@ -4303,6 +4929,67 @@ function agganciaGestione() {
     } catch (errore) {
       dillo("errore", `Non sono riuscito a leggere il file: ${pulito(errore.message ?? errore)}`);
     }
+  });
+
+  su("#esegui-passaggi", "click", async (e) => {
+    if (!sonoCommissioner()) return;
+    const promesse = stato.offerte.filter((o) => o.stato === "VINTA");
+    if (!promesse.length) return;
+    if (!confirm(`Sposto ${promesse.length} ${promesse.length === 1 ? "giocatore" : "giocatori"} con il contratto offerto. Procedo?`)) return;
+    e.currentTarget.disabled = true;
+
+    const fermi = [];
+    for (const o of promesse) {
+      const vecchia = rosaDi(o.proprietaria);
+      const contratto = vecchia.find((c) => c.giocatoreId === o.giocatoreId);
+      if (!contratto) { fermi.push(`${o.nome}: non è più nella rosa di partenza.`); continue; }
+
+      /* Il conto di chi lo riceve si fa adesso, non quando l'offerta è nata:
+         nel frattempo può aver firmato altri dieci e non averci più posto. */
+      const conto = contoDi(o.daChi);
+      const motivi = perchéNo({
+        giocatore: PER_ID.get(o.giocatoreId), tipo: o.tipo, ingaggio: o.ingaggio,
+        ingaggioScritto: aMilioni(o.ingaggio), anni: o.anni, conto,
+        contrattiTampone: rosaDi(o.daChi).filter((c) => c.tipo === "TAMPONE").length,
+      });
+      if (motivi.length) { fermi.push(`${o.nome} → ${squadraDi(o.daChi)?.nome}: ${motivi[0]}`); continue; }
+
+      await scriviRosa(o.proprietaria, vecchia.filter((c) => c.giocatoreId !== o.giocatoreId));
+      await scriviRosa(o.daChi, [...rosaDi(o.daChi), {
+        giocatoreId: o.giocatoreId, nome: o.nome, ruolo: o.ruolo,
+        tipo: o.tipo, anni: o.anni, ingaggio: o.ingaggio,
+        firmato: new Date().toISOString(), daOfferta: true,
+      }]);
+      await db.collection("offerte").doc(o.id).set({ ...o, stato: "ESEGUITA", eseguita: new Date().toISOString() });
+      await annota("offerta",
+        `${o.nome} passa a ${squadraDi(o.daChi)?.nome} per ${soldi(o.ingaggio)} × ${o.anni}: nessuno aveva pareggiato`,
+        o.daChi);
+    }
+    if (fermi.length) alert("Questi passaggi non si sono potuti fare:\n\n" + fermi.join("\n"));
+  });
+
+  su("#parte-per-estero", "click", async () => {
+    const scelta = radice.querySelector("#chi-parte")?.value;
+    if (!scelta) { alert("Scegli chi è partito."); return; }
+    const [squadraId, giocatoreId, dove] = scelta.split("|");
+    const squadra = squadraDi(squadraId);
+    const contratto = rosaDi(squadraId).find((c) => c.giocatoreId === giocatoreId);
+    const peso = pesiMortiDi(squadraId).find((x) => x.giocatoreId === giocatoreId);
+    const chi = contratto?.nome ?? peso?.nome ?? "—";
+    const quanto = (dove === "rosa" ? contratto?.ingaggio : peso?.ingaggio) ?? 0;
+    if (!confirm(
+      `${chi} lascia la Serie A.\n\n` +
+      `${squadra?.nome} libera ${soldi(quanto)} di tetto oggi stesso` +
+      (dove === "rosa" ? " e un posto in rosa" : "") + `. Non va in waiver: è fuori dal listone.\n\nProcedo?`
+    )) return;
+
+    /* Si toglie da tutt'e due i posti in cui poteva stare: chi era già stato
+       svincolato e poi parte non deve continuare a pesare. */
+    await scriviRosa(squadraId,
+      rosaDi(squadraId).filter((c) => c.giocatoreId !== giocatoreId),
+      pesiMortiDi(squadraId).filter((x) => x.giocatoreId !== giocatoreId));
+    await annota("lega",
+      `${chi} lascia la Serie A: ${squadra?.nome} libera ${soldi(quanto)} subito`, squadraId);
   });
 
   su("#libera-pesi", "click", async (e) => {
