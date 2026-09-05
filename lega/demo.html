@@ -830,7 +830,13 @@ const REGOLE = {
   },
 
   primavera: {
-    etaMax: 20, quotazioneMax: 3, presenzeMax: 5,   // art. 16.1
+    /* Due requisiti, non tre. Le presenze in Serie A c'erano nel
+       regolamento (art. 16.1) ma l'applicazione non può conoscerle, e
+       tenerle in vita voleva dire che ogni giovane restava un «forse» —
+       l'unica cosa incerta in un'app fatta di numeri esatti. La lega ha
+       deciso di contarle da sé, come fa con le giornate del Tampone e
+       con l'apertura dello stadio. */
+    etaMax: 20, quotazioneMax: 3,
 
     /**
      * IL DIRITTO DI PRELAZIONE
@@ -1102,7 +1108,10 @@ const NOME_RUOLO_PL = { P: "portieri", D: "difensori", C: "centrocampisti", A: "
 const LISTONE_GREZZO = {"stagione":"2026/27","annoInizio":2026,"etaAllAnno":2026,"squadre":["Atalanta","Bologna","Cagliari","Como","Fiorentina","Frosinone","Genoa","Inter","Juventus","Lazio","Lecce","Milan","Monza","Napoli","Parma","Roma","Sassuolo","Torino","Udinese","Venezia"],"mantra":["Por","Dd","Dc","Ds","B","E","M","C","W","T","A","Pc"],"righe":[["Malen","A",15,38,450,27,[11],5585],["Martinez L.","A",7,33,361,28,[11],2764],["Dimarco","D",7,31,240,29,[5,8],254],["Paz N.","C",3,29,245,22,[9,10],6875],["Calhanoglu","C",7,28,243,32,[6,7],2194],["Hojlund","A",13,28,260,23,[11],6052],["Thuram","A",7,28,249,29,[11],4871],["McTominay","C",13,27,220,30,[7,9],4777],["Ramos G.","A",11,27,237,25,[11],6397],["Kolo Muani","A",8,25,165,28,[11],5951],["Orsolini","C",1,25,177,29,[8,10],2167],["Kean","A",3,24,183,26,[11],2097],["Pulisic","C",11,24,150,28,[9,10],2423],["Rabiot","C",11,23,145,31,[7,9],2379],["Woltemade","A",8,23,160,24,[10],6752],["Douvikas","A",3,22,185,27,[11],7017],["Yildiz","A",8,22,100,21,[10],6434],["Baturina","C",3,20,105,23,[9],7126],["Mora","C",15,20,100,19,[9],7556],["Berardi","A",16,19,106,32,[10],531],["Davis K.","A",18,19,108,28,[11],5637],["Scamacca","A",0,19,110,27,[11],2137],["Svilar","P",15,19,85,27,[0],5841],["Barella","C",7,18,81,29,[7],1870],["Da Cunha","C",3,18,87,25,[7,9],5559],["Krstovic","A",0,18,98,26,[11],6435],["Molina N.","D",15,18,78,28,[5],4998],["Wesley","D",15,18,87,23,[5],7181],["Zaniolo","C",18,18,80,27,[9,10],2766],["Carnesecchi","P",0,17,55,26,[0],4431],["De Bruyne","C",13,17,108,35,[9],2517],["De Ketelaere","A",0,17,95,25,[10],5995],["Esposito F.P.","A",7,17,105,21,[11],7071],["Martinez Jo.","P",7,17,68,28,[0],5116],["McKennie","C",8,17,70,28,[7,9],4973],["Vicario","P",8,17,70,30,[0],4964],["Bremer","D",8,16,60,29,[2],2788],["Dybala","A",15,16,100,33,[10],309],["Mancini","D",15,16,50,30,[2],2296],["Zaccagni","C",9,16,87,31,[8,10],632],["Akanji","D",7,15,47,31,[2],4159],["Atta","C",4,15,78,23,[7,9],6908],["Butez","P",3,15,50,31,[0],6966],["Dovbyk","A",1,15,51,29,[11],6675],["Laurientè","A",16,15,83,28,[10],6060],["Maignan","P",11,15,52,31,[0],4312],["Rrahmani","D",13,15,51,32,[2],4409],["Bastoni","D",7,14,43,27,[2],2120],["Beto","A",4,14,50,28,[11],5694],["Castro S.","A",15,14,70,22,[11],6572],["Kalulu","D",8,14,47,26,[1,2],4976],["Pavlovic","D",11,14,49,25,[2],5022],["Pellegrino M.","A",4,14,40,25,[11],7023],["Raspadori","A",0,14,73,26,[10],4371],["Santos A.","A",13,14,61,24,[8,10],7351],["Simeone","A",17,14,80,31,[11],2061],["Conceicao","C",8,13,68,24,[8,10],6884],["Gila","D",11,13,31,26,[2],5833],["N'Dicka","D",15,13,42,27,[2],4317],["Samardzic","C",0,13,44,24,[7,9],5119],["Solet","D",18,13,46,26,[2],6956],["Soulè","A",15,13,48,23,[10],5734],["Taylor K.","C",9,13,53,24,[7,9],7314],["Vlasic","C",17,13,73,29,[9],5687],["Bisseck","D",7,12,36,26,[2],6217],["Di Lorenzo","D",13,12,39,33,[1,5],2816],["Diao","A",3,12,50,21,[8,10],6967],["Ederson D.S.","C",0,12,46,27,[6,7],5792],["Ekkelenkamp","C",18,12,57,26,[7,9],6684],["Esposito Se.","A",16,12,40,24,[10],4463],["Goncalves P.","C",4,12,50,28,[8,9],7625],["Gonzalez N.","C",8,12,45,28,[8,10],4179],["Gudmundsson A.","C",9,12,40,29,[9,10],5800],["Jones C.","C",7,12,47,25,[7],5172],["Kessiè","C",0,12,47,30,[7],1850],["Kevin Carlos","A",2,12,36,25,[11],7547],["Modric","C",11,12,45,41,[6,7],2606],["Pinamonti","A",9,12,53,27,[11],2038],["Stones","D",7,12,25,32,[2],2514],["Zielinski","C",7,12,45,32,[7],152],["Adams A.","A",19,11,35,26,[11],7484],["Alajbegovic","C",8,11,42,19,[8,9],7436],["Baldanzi","C",6,11,28,23,[9],5823],["Colombo","A",6,11,52,24,[11],4923],["De Gea","P",4,11,30,36,[0],2521],["Hermoso","D",15,11,26,31,[2],4807],["Mastantuono","C",4,11,50,19,[8,9],7078],["Meret","P",13,11,48,29,[0],572],["Moreira","C",11,11,45,22,[5,8],6372],["Ostigard","D",6,11,41,27,[2],5750],["Rodriguez Je.","C",3,11,31,21,[8,10],7129],["Saelemaekers","C",11,11,35,27,[5,8],4892],["Spence","D",7,11,37,26,[5],5982],["Adams C.","A",17,10,33,30,[10],6646],["Bernardeschi","C",1,10,27,32,[8,9],184],["Caprile","P",2,10,25,25,[0],4360],["Chalobah T.","D",3,10,32,27,[1,2],5641],["Frattesi","C",9,10,75,27,[7,9],2848],["Konè M.","C",15,10,42,25,[6,7],5589],["Mandas","P",9,10,36,25,[0],6482],["Perrone","C",3,10,34,23,[6,7],6151],["Ramon","D",3,10,31,21,[2],6869],["Romero D.","A",14,10,37,23,[11],7554],["Rowe","C",0,10,40,23,[8,9],6844],["Scalvini","D",0,10,28,23,[2],5526],["Skorupski","P",1,10,32,35,[0],133],["Thorstvedt","C",16,10,39,27,[7,9],5844],["Tourè E.","A",14,10,37,25,[11],6229],["Vergara","C",13,10,35,23,[8,9],7223],["Zambo Anguissa","C",13,10,41,31,[7],4220],["Bobcek","A",5,9,31,25,[11],7612],["Bowie","A",16,9,32,24,[11],7347],["Cancellieri","C",9,9,25,24,[8,10],5500],["Casadei","C",17,9,27,23,[7,9],5888],["Colpani","C",12,9,15,27,[9],5878],["Cristante","C",15,9,29,31,[6,7],779],["Cutrone","A",12,9,23,28,[11],2155],["Diouf","C",7,9,43,23,[5,7],6274],["Dodò","D",4,9,20,28,[1,5],5885],["Isaksen","C",9,9,22,25,[8,10],6398],["Kamara H.","D",18,9,12,32,[3,5],5555],["Locatelli","C",8,9,33,28,[6,7],827],["Okoye","P",18,9,28,27,[0],6462],["Pellegrini Lo.","C",15,9,20,30,[7,9],530],["Perri","P",17,9,26,29,[0],6534],["Politano","C",13,9,37,33,[8],536],["Raimondo","A",5,9,27,22,[11],5436],["Sucic P.","C",7,9,21,23,[7],7070],["Thuram K.","C",8,9,25,25,[7],5562],["Vasquez","D",6,9,30,28,[3,2],5514],["Vojvoda","D",18,9,19,31,[1,5],4994],["Volpato","C",16,9,25,23,[8,9],5735],["Yeboah J.","A",19,9,27,26,[10],6904],["Bartesaghi","D",11,8,22,21,[3,5],6496],["Bijlow","P",6,8,15,28,[0],7332],["Calò","C",5,8,27,29,[6,7],7472],["Cambiaghi","C",1,8,25,26,[8,10],4436],["Cambiaso","D",8,8,18,26,[1,3,5],5520],["Celik","D",8,8,16,29,[4,1,5],4657],["Chukwueze","C",11,8,22,27,[5,8],4856],["Comuzzo","D",17,8,13,21,[2],6495],["Couto","D",3,8,25,24,[1,5],6727],["Delprato","D",14,8,21,-1,[4,1,5],6664],["Diego Carlos","D",14,8,26,33,[2],4137],["Doekhi","D",9,8,16,28,[2],6320],["Falcone","P",10,8,26,31,[0],2134],["Geubbels","A",10,8,23,25,[11],5029],["Ghedjemis","A",5,8,23,24,[8,10],6530],["Hutchinson","C",11,8,25,23,[8,10],7618],["Konè I.","C",16,8,20,24,[7],6717],["Koulierakis","D",15,8,15,23,[2],7529],["Lobotka","C",13,8,23,32,[6,7],4287],["Mandragora","C",17,8,23,29,[7],1933],["Mbangula","C",1,8,28,22,[8,10],6833],["Miranda J.","D",1,8,23,26,[3,5],4734],["Odgaard","C",1,8,17,27,[9],2765],["Osmajic","A",6,8,28,27,[11],7600],["Pasalic","C",0,8,22,31,[7,9],2077],["Piccoli","A",1,8,29,25,[11],4359],["Sanchez Ro.","P",3,8,25,29,[0],6344],["Schmid","C",5,8,25,26,[8,9],7551],["Spinazzola","D",13,8,25,33,[3,5],1852],["Theate","D",1,8,20,26,[3,2],5675],["Tiago Gabriel","D",10,8,20,22,[2],6989],["Valeri","D",14,8,22,28,[3,5],5862],["Vitinha O.","A",6,8,13,26,[10],6164],["Zappacosta","D",0,8,19,34,[1,5],554],["Adopo","C",2,7,13,26,[6,7],4870],["Akinsanmiro","C",12,7,11,22,[7],6593],["Badiashile","D",13,7,18,25,[2],4664],["Belghali","D",17,7,20,24,[1,5],7220],["Bernabè","C",14,7,34,25,[7],6666],["Boga","A",8,7,27,29,[8,10],2832],["Bonny","A",7,7,15,23,[11],6669],["Bracaglia","D",5,7,15,23,[3,2],7469],["Coco","D",17,7,14,27,[2],6642],["Coulibaly L.","C",10,7,17,30,[6,7],5504],["Dragusin","D",4,7,20,24,[2],5365],["Elmas","C",0,7,22,27,[8,9],4479],["Fagioli","C",4,7,20,25,[6,7],4465],["Ferguson","C",1,7,23,27,[6,7],5858],["Frendrup","C",6,7,19,25,[6,7],5791],["Gabbia","D",11,7,15,27,[2],4401],["Gaetano","C",0,7,30,26,[6,7],4364],["Gnonto","A",4,7,25,23,[8,10],7623],["Hien","D",0,7,11,27,[2],6046],["Idzes","D",16,7,19,26,[2],6672],["Ismajli","D",17,7,13,30,[2],5010],["Jimenez A.","D",4,7,18,21,[1,3,5],6531],["Karlstrom","C",18,7,20,31,[6,7],6680],["Koopmeiners","C",8,7,15,28,[7,9],5685],["Lucumì","D",8,7,17,28,[2],6042],["Mangas","D",12,7,15,28,[3,5],7485],["Mina","D",2,7,20,32,[2],4210],["Monteiro J.","C",10,7,23,27,[8,10],7619],["Muric","P",16,7,15,28,[0],4236],["Ndour","C",4,7,22,22,[7],6294],["Obert","D",2,7,15,24,[4,3,5],5701],["Pisilli","C",15,7,19,22,[7],6190],["Romano","C",2,7,21,20,[6,7],7311],["Rovella","C",9,7,16,25,[6,7],4459],["Rrahmani Al.","A",19,7,13,26,[11],7449],["Sarr P.","C",8,7,25,24,[6,7],5680],["Sow","C",6,7,15,29,[6,7],5946],["Sutalo J.","D",9,7,19,26,[2],7580],["Tavares N.","D",9,7,25,26,[3,5],5620],["Unai Gomez","C",18,7,16,23,[9],6783],["Varela G.","A",12,7,40,21,[11],7523],["Zalewski","C",0,7,18,24,[8],5422],["Zortea","D",1,7,19,27,[1,5],4433],["Adzic","C",16,6,16,20,[7,9],6677],["Bakola","C",16,6,14,19,[7,9],7036],["Balerdi","D",15,6,11,27,[2],4705],["Basic","C",19,6,19,30,[6,7],5674],["Bellanova","D",0,6,17,26,[1,5],4887],["Bernasconi","D",0,6,18,23,[3,5],7219],["Beukema","D",13,6,12,28,[2],6202],["Braganca","C",17,6,20,27,[7],7624],["Buongiorno","D",13,6,15,27,[2],2724],["Cacciamani","C",17,6,24,19,[5,8],7060],["Caleta-Car","D",16,6,15,30,[2],4147],["Caqueret","C",3,6,17,26,[7,9],5036],["Carlos Augusto","D",7,6,20,27,[4,3,5],5877],["Daffara","P",14,6,7,22,[0],7411],["Ellertsson","C",6,6,16,24,[5,7],6020],["Fazzini","C",2,6,23,23,[7,9],6010],["Fortini","D",17,6,12,20,[5],7069],["Gallo","D",10,6,12,26,[3,5],4502],["Heggem","D",1,6,15,27,[3,2],7212],["Holm","D",1,6,13,26,[1,5],5678],["Kaiki","D",3,6,13,23,[3,5],7414],["Kolasinac","D",0,6,8,33,[3,2],2640],["Kristensen T.","D",0,6,20,24,[1,2],6485],["Kvernadze","A",5,6,24,23,[8,10],6204],["Leysen F.","D",16,6,12,23,[3,2],7564],["Liberali","C",3,6,21,19,[9],6678],["Marcandalli","D",6,6,14,24,[2],6660],["Marusic","D",9,6,20,34,[1,3,5],2188],["Matic","C",16,6,15,38,[6,7],2528],["Milla","C",3,6,30,32,[6,7],7412],["Monterisi","D",5,6,13,25,[2],4952],["Neres","A",13,6,20,29,[8,10],6831],["Nicolussi Caviglia","C",14,6,16,26,[6,7],4349],["Noslin","A",9,6,8,27,[10],6556],["Obrador","D",16,6,13,22,[3,5],7329],["Oristanio","C",17,6,12,24,[8,9],6218],["Oulai","C",4,6,18,20,[6,7],7464],["Oyono A.","D",5,6,10,25,[1,5],6238],["Pavard","D",7,6,14,30,[1,2],4177],["Pedraza","D",9,6,14,30,[3,5],4817],["Pessina","C",12,6,15,29,[6,7],2741],["Pierotti","C",10,6,19,25,[8],6549],["Piotrowski","C",18,6,15,29,[6,7],7198],["Pobega","C",1,6,12,27,[6,7],5298],["Romagnoli","D",9,6,20,31,[2],460],["Stankovic F.","P",19,6,11,24,[0],6248],["Stulic","A",10,6,11,25,[11],7252],["Sugawara","D",2,6,15,26,[1,5],7621],["Sulemana K.","A",0,6,8,24,[10],5918],["Tomori","D",11,6,8,29,[2],4751],["Tourè I.","C",12,6,14,28,[5,6],7146],["Valle","D",3,6,21,22,[3,5],6867],["Veiga D.","D",10,6,12,24,[1,5],6990],["Viery","D",4,6,12,21,[3,2],7410],["Winks","C",2,6,15,30,[6,7],4260],["Zapata D.","A",17,6,12,35,[11],608],["Zeballos","A",12,6,18,24,[10],7620],["Zerbin","C",5,6,12,27,[8],5998],["Zhegrova","C",8,6,17,27,[8],5761],["Amondarain","C",1,5,10,21,[6,7],7528],["Bella-Kotchap","D",19,5,13,25,[2],7253],["Birligea","A",5,5,11,26,[11],7610],["Busio","C",19,5,14,24,[6,7],5507],["Calvani","D",5,5,13,22,[2],7467],["Cissè A.","C",11,5,24,20,[8,9],6618],["Correia T.","D",19,5,12,27,[1,3,5],4845],["De Winter","D",11,5,20,24,[1,2],5739],["Dele-Bashiru","C",9,5,13,25,[7,9],6629],["Doig","D",16,5,10,24,[3,5],5851],["Felici","C",2,5,7,25,[8],6640],["Fitz-Jim","C",17,5,18,23,[6,7],7535],["Gaspar K.","D",10,5,12,29,[2],6632],["Ghilardi","D",15,5,10,23,[2],6631],["Gineitis","C",17,5,12,22,[6,7],6170],["Haps","D",19,5,10,33,[3,5],5695],["Jashari","C",11,5,13,24,[6,7],7203],["Keita M.","C",14,5,15,24,[6,7],6898],["Kelly L.","D",8,5,12,28,[3,2],6766],["Kempf","D",3,5,13,31,[2],6893],["Kofler","D",2,5,8,21,[2],7532],["Luis Henrique","C",7,5,12,25,[5,8],5301],["Maldini","A",2,5,21,25,[9,10],4896],["Meichtry","C",6,5,11,21,[8,9],7409],["Milinkovic-Savic V.","P",13,5,5,29,[0],2170],["Ngonge","A",12,5,13,26,[10],6145],["Olivera","D",13,5,13,29,[4,3,5],5840],["Palmisani","P",5,5,12,22,[0],6415],["Patterson","D",17,5,12,25,[1,5],5751],["Perez K.","C",19,5,15,29,[7,9],6994],["Sohm","C",19,5,11,25,[7],5319],["Valdepenas","D",4,5,16,20,[3,2],7294],["Zè Pedro","D",2,5,13,29,[1,2],7274],["Addai","C",3,4,10,21,[8,10],7127],["Adorante","A",19,4,8,26,[11],4387],["Almqvist","C",14,4,11,27,[8,10],6207],["Amorim","C",6,4,11,21,[6,7],7341],["Arizala","D",18,4,8,21,[3,5],7312],["Berisha M.","C",10,4,12,23,[7,9],6015],["Bertola","D",18,4,10,23,[1,3,2],5820],["Birindelli","D",12,4,12,27,[1,3,5],5838],["Borrelli","A",2,4,9,26,[11],6243],["Camarda","A",11,4,20,18,[11],6519],["Cataldi","C",9,4,12,32,[6,7],333],["Cichella","C",5,4,12,21,[6,7],7473],["Cittadini","D",5,4,8,24,[2],5757],["Comert","D",17,4,12,28,[2],7526],["De Roon","C",15,4,10,35,[6,7],22],["Dominguez B.","C",16,4,12,23,[8,10],6895],["Douglas Luiz","C",8,4,15,28,[7],4911],["Fabbian","C",14,4,8,23,[7,9],6206],["Fatah","A",10,4,14,22,[8,10],7602],["Favasuli","D",13,4,11,22,[1,3,5],7563],["Fini","C",5,4,13,20,[8],6506],["Floriani Mussolini","D",9,4,10,23,[1,5],7131],["Folorunsho","C",12,4,17,28,[7,9],6252],["Frigan","A",14,4,6,23,[10],7213],["Gandelman","C",10,4,10,26,[7,9],7318],["Gatti","D",8,4,10,28,[2],5831],["Giovane","A",13,4,7,23,[10],7162],["Grillitsch","C",5,4,10,31,[6,7],7550],["Gueye","A",18,4,7,20,[11],7272],["Hainaut","D",19,4,12,24,[1,5],6821],["Havel","A",6,4,5,23,[11],7453],["Ilkhan","C",17,4,8,22,[6,7],6005],["Juan Jesus","D",19,4,10,35,[3,2],256],["Kabasele","D",18,4,12,35,[2],4263],["Kossounou","D",0,4,12,25,[1,2],5578],["Koutsoupias","C",5,4,11,25,[7],7474],["Kulenovic","A",17,4,9,27,[11],7349],["Lang","A",13,4,14,27,[10],7120],["Loftus-Cheek","C",11,4,16,30,[7,9],4199],["Lucca","A",13,4,12,26,[11],6215],["Massolin","C",2,4,12,24,[7,9],7579],["Mendy P.","A",2,4,12,19,[11],7374],["Messias","C",6,4,8,35,[8,9],4970],["Milik","A",8,4,10,32,[11],2012],["Miller L.","C",18,4,12,20,[6,7],7208],["Mitaj","D",6,4,10,23,[3,5],7537],["Mkhitaryan","C",7,4,9,37,[7],2529],["Moreno M.","D",19,4,6,23,[2],6890],["Moro N.","C",1,4,14,28,[6,7],6054],["Mota","A",12,4,8,28,[10],5882],["N'Dri","A",10,4,12,26,[8,10],7001],["Ngom","C",10,4,12,22,[6,7],7322],["Njie","C",4,4,28,21,[8,10],6827],["Nzola","A",2,4,10,30,[11],5336],["Parisi","D",4,4,10,26,[3,5],5449],["Pongracic","D",4,4,8,29,[2],5603],["Provstgaard","D",9,4,13,23,[2],7012],["Rensch","D",15,4,14,23,[4,1,5],6986],["Ricci S.","C",3,4,12,25,[6,7],5453],["Robinson J.","A",12,4,5,19,[10],7546],["Rodriguez Ju.","D",2,4,14,21,[3,2],7268],["Siebert","D",10,4,12,24,[2],7240],["Smolcic I.","D",3,4,10,26,[1,5],7014],["Terzic","D",5,4,8,27,[3,5],4375],["Thiam","P",12,4,5,28,[0],4485],["Traorè Hj.","C",6,4,11,26,[8,9],2857],["Valenti","D",14,4,10,27,[2],5307],["Vitik","D",1,4,10,23,[2],7068],["Walukiewicz","D",16,4,10,26,[1,2],4374],["Zanoli","D",18,4,10,26,[1,5],5527],["Aboukhlal","C",17,3,5,26,[8,10],7183],["Akpoguma","D",5,3,6,31,[2],7540],["Brescianini","C",4,3,11,26,[7,9],4947],["Britschgi","D",14,3,10,20,[1,3,5],7255],["Candè","D",16,3,7,28,[3,2],6985],["Carboni A.","D",12,3,9,25,[3,2],4925],["Casale","D",1,3,5,28,[2],5498],["Colombo L.","C",12,3,4,21,[6,7],7477],["Deiola","C",2,3,8,31,[6,7],1871],["Diallo O.","C",14,3,12,19,[8,10],7536],["Drameh","D",6,3,10,25,[1,3,5],5742],["Ebosse","D",18,3,5,27,[3,2],5994],["Ekhator","A",8,3,10,20,[10],6822],["Elphege","A",14,3,11,25,[11],7342],["Estupinan","D",11,3,13,28,[3,5],5273],["Fernandez T.","C",19,3,8,18,[9,10],7232],["Franjic","D",19,3,7,-1,[4,3,5],7478],["Gagliardini","C",2,3,8,32,[6,7],801],["Gelli F.","C",5,3,6,30,[7,9],6241],["Gilmour","C",13,3,10,25,[6,7],5131],["Gorter","C",10,3,12,21,[6,7],7248],["Halhal","D",19,3,10,23,[2],7538],["Helgason","C",19,3,3,26,[7,9],5872],["Helland","D",1,3,12,21,[1,2],7326],["Idrissi R.","D",2,3,3,21,[3,5],7125],["Joao Mario","D",4,3,12,26,[1,5],7175],["Kambwala","D",3,3,8,22,[1,2],6601],["Kouadio","D",12,3,14,20,[1,2],7238],["Lontani","A",14,3,11,18,[10],7561],["Lucchesi","D",12,3,11,23,[2],6659],["Maleh","C",10,3,7,28,[6,7],5457],["Masini","C",5,3,8,25,[6,7],6917],["Musah","C",11,3,15,24,[7,8],5295],["Odenthal","D",16,3,8,26,[2],7154],["Ordonez C.","C",14,3,10,22,[6,7],7138],["Palma","D",18,3,11,18,[2],6925],["Ranieri L.","D",4,3,10,27,[3,2],4378],["Schingtienne","D",19,3,10,24,[2],6892],["Stankovic A.","C",7,3,7,21,[6,7],6503],["Sulemana I.","C",16,3,7,23,[6,7],6024],["Sverko","D",19,3,7,28,[3,2],6673],["Tchato","D",5,3,8,24,[1,5],7605],["Troilo","D",14,3,14,23,[2],7235],["Abankwah","D",18,2,10,22,[1,2],6021],["Alhassane","D",1,2,6,24,[3,5],7483],["Aurelio","D",2,2,5,26,[3,5],7548],["Bakoune","D",12,2,4,20,[1,5],7476],["Belahyane","C",9,2,3,22,[6,7],6191],["Biraghi","D",17,2,5,34,[4,3,5],252],["Boloca","C",16,2,5,28,[6,7],6219],["Chakvetadze","C",18,2,6,27,[8,9],7418],["Cinquegrano","D",16,2,4,22,[1,5],7573],["Ciurria","C",12,2,6,31,[5,8],5880],["Corvi","P",14,2,10,25,[0],6662],["Cremaschi","C",14,2,3,21,[5,7],7276],["Desplanches","P",5,2,1,23,[0],7463],["Diawara S.","D",11,2,4,20,[3,2],7525],["Drobnic","D",14,2,1,19,[2],7615],["Duncan","C",19,2,4,33,[7],526],["El Azzouzi O.","C",1,2,10,25,[6,7],6225],["Fadera","C",2,2,12,25,[8],6815],["Foe Ondoa","C",12,2,2,21,[7],7574],["Forson O.","C",12,2,1,22,[8,9],6592],["Goglichidze","D",12,2,5,22,[1,2],6537],["Hasa","C",5,2,5,22,[7,9],6903],["Jean","D",10,2,4,26,[2],6883],["Jovanovic","C",18,2,5,-1,[8,9],7092],["Lazzari","D",9,2,5,33,[1,5],2263],["Lipani","C",16,2,5,21,[6,7],6246],["Lulli","D",15,2,10,19,[5],7599],["Marin R.","D",13,2,8,24,[2],6638],["Ndaba","D",10,2,5,27,[3,5],7182],["Ndiaye","D",14,2,8,24,[2],7202],["Otoa","D",6,2,5,22,[2],6977],["Pellegrini Lu.","D",9,2,7,27,[3,5],2728],["Provedel","P",7,2,5,32,[0],2814],["Puczka","D",6,2,3,21,[3,5],7413],["Sabelli","D",6,2,5,33,[1,3,5],791],["Sagrado","D",19,2,4,22,[1,5],6681],["Terracciano F.","D",11,2,4,36,[4,1,3],5812],["Van Der Brempt","D",16,2,11,24,[1,5],6896],["Venturino","C",6,2,4,20,[8],6980],["Zarraga","C",18,2,4,27,[6,7],6212],["Amey","D",5,1,1,21,[2],5424],["Anjorin","C",17,1,4,25,[7,9],6889],["Antov","D",12,1,2,26,[2],5399],["Bayo V.","A",18,1,3,29,[11],7161],["Bleve","P",10,1,1,31,[0],4468],["Cabal","D",8,1,4,25,[4,3,5],6039],["Carboni F.","D",14,1,3,23,[3,5],6149],["Christensen O.","P",4,1,1,27,[0],6403],["Ciervo","C",2,1,1,24,[8],5462],["Comotto","C",11,1,1,18,[6,7],7572],["Contini","P",13,1,1,30,[0],2845],["Dagasso","C",19,1,1,22,[7],7481],["De Martis","A",14,1,1,18,[11],7568],["De Marzi","P",15,1,1,19,[0],7048],["De Silvestri","D",1,1,4,38,[1,5],487],["Dembelè A.","D",10,1,2,22,[1,5],6826],["Di Gennaro","P",7,1,1,33,[0],1926],["El Azzouzi A.","C",5,1,1,25,[6,7],7456],["Fofana Sa.","C",10,1,1,23,[6,7],7319],["Ghidotti","P",14,1,1,26,[0],2874],["Goldaniga","D",3,1,1,33,[2],418],["Gollini","P",15,1,1,31,[0],610],["Gomes","D",19,1,1,18,[3,2],7454],["Grabara","P",8,1,1,27,[0],7603],["Grandi","P",19,1,1,34,[0],6671],["Happonen","P",1,1,1,19,[0],7533],["Ilic","C",10,1,10,25,[6,7],5007],["Kaba","C",10,1,2,25,[6,7],6410],["Kone B.","C",5,1,3,26,[7],5725],["Laerke","C",10,1,1,19,[8,10],7571],["Lahdo","C",3,1,1,19,[7,9],7357],["Lauberbach","A",19,1,1,28,[11],7482],["Lezzerini","P",4,1,1,31,[0],158],["Lisman","A",19,1,1,20,[8,10],7408],["Liteta","C",2,1,1,20,[6,7],7165],["Lolic","P",5,1,1,22,[0],7466],["Marianucci","D",13,1,3,22,[2],6809],["Mascardi","P",17,1,5,20,[0],7457],["Maye","D",12,1,1,20,[3,2],7604],["Mazzocchi","D",19,1,10,31,[1,3,5],5481],["Montipò","P",19,1,1,30,[0],4957],["Motta","P",9,1,1,21,[0],7337],["Mout","C",12,1,12,19,[7],7575],["Mrozek","P",18,1,1,26,[0],7611],["Omar Fayed","D",5,1,1,23,[2],7553],["Padelli","P",18,1,1,41,[0],543],["Paleari","P",17,1,1,34,[0],5320],["Patric","D",9,1,1,33,[1,2],327],["Penev","P",10,1,1,18,[0],7557],["Pessina Mas.","P",1,1,1,19,[0],7172],["Piana","P",18,1,1,23,[0],5707],["Pieragnolo","D",16,1,1,23,[3,5],7156],["Pinsoglio","P",8,1,1,36,[0],1930],["Pisseri","P",5,1,1,35,[0],7560],["Pompei","P",0,1,1,-1,[0],7626],["Pozzi","P",19,1,1,26,[0],7531],["Przyborek","C",9,1,5,19,[8,9],7345],["Radunovic","P",2,1,1,30,[0],3],["Renzetti","P",9,1,1,20,[0],7534],["Robinho Junior","A",6,1,3,-1,[10],7622],["Rugani","D",8,1,3,32,[2],294],["Russo A.","P",16,1,1,25,[0],4518],["Satalino","P",16,1,1,27,[0],2127],["Sherri","P",2,1,1,29,[0],6650],["Siviero","P",17,1,1,20,[0],7363],["Sommariva","P",6,1,1,29,[0],219],["Sportiello","P",0,1,1,34,[0],4],["Stolz","P",6,1,1,25,[0],6569],["Strajnar","P",12,1,1,19,[0],7475],["Terracciano","P",11,1,1,36,[0],2815],["Tornqvist","P",12,1,10,24,[0],7301],["Torriani","P",11,1,1,21,[0],6813],["Trepy","A",2,1,2,20,[11],7317],["Turati","P",16,1,1,25,[0],4867],["Vigorito","P",3,1,1,36,[0],2809],["Ziolkowski","D",12,1,8,21,[2],7260]]};
 
 const SQUADRE_SERIE_A = LISTONE_GREZZO.squadre;
-const STAGIONE = LISTONE_GREZZO.stagione;
+/* La stagione la dice la configurazione della lega, non il listone: è
+   quella che cambia quando si chiude un anno, e il listone incorporato
+   resta quello del giorno in cui l'app è stata composta. */
+let STAGIONE = LISTONE_GREZZO.stagione;
 
 /** Il listone in forma comoda, con un identificatore stabile per ogni
  *  giocatore: serve a legarlo ai contratti nel database. */
@@ -1392,28 +1401,33 @@ function manutenzioneAnnua(societa) {
 }
 
 /**
- * Idoneità al settore giovanile (art. 16.1).
+ * Idoneità alla squadra primavera (art. 16.1).
  *
- * Tre requisiti — età, presenze in Serie A, quotazione — che la lega
- * possiede in momenti diversi. Età e quotazione arrivano col listone il
- * primo giorno; le presenze della stagione precedente, alla prima
- * stagione, non esistono e nessuno può darle a posteriori.
+ * Due requisiti soli — età e quotazione — e tutt'e due arrivano col
+ * listone il primo giorno. La risposta è quindi sì o no, senza forse.
  *
- * Perciò la risposta non è sì o no: è sì, no, oppure «non ancora». Dire
- * «non idoneo» a un ragazzo di diciotto anni perché manca un dato
- * sarebbe una bugia comoda; dire «idoneo» sarebbe una bugia pericolosa.
+ * Le presenze in Serie A stavano nel regolamento e sono uscite di qui:
+ * l'applicazione non le può conoscere, e tenerle voleva dire che ogni
+ * giovane restava un punto interrogativo. Le conta la lega, come conta
+ * le giornate del Tampone e l'apertura dello stadio.
+ *
+ * Chi non ha l'età nel listone — sono cinque su cinquecento — resta
+ * fuori: senza quel numero non c'è modo di dire di sì, e un sì sbagliato
+ * qui vuol dire un giocatore che non paga ingaggio senza averne diritto.
  */
 function primavera(giocatore) {
   const motivi = [];
   if (giocatore.quotazione > REGOLE.primavera.quotazioneMax) {
     motivi.push(`quotato ${giocatore.quotazione} M, oltre i ${REGOLE.primavera.quotazioneMax} M`);
   }
-  if (giocatore.eta != null && giocatore.eta > REGOLE.primavera.etaMax) {
+  if (giocatore.eta == null) {
+    motivi.push("il listone non dà la sua età");
+  } else if (giocatore.eta > REGOLE.primavera.etaMax) {
     motivi.push(`ha ${giocatore.eta} anni, oltre i ${REGOLE.primavera.etaMax}`);
   }
-  if (motivi.length) return { stato: "no", motivo: motivi.join("; ") };
-  if (giocatore.eta == null) return { stato: "forse", motivo: "manca la sua età" };
-  return { stato: "forse", motivo: "mancano le presenze della stagione precedente" };
+  return motivi.length
+    ? { stato: "no", motivo: motivi.join("; ") }
+    : { stato: "si", motivo: `${giocatore.eta} anni, quotato ${giocatore.quotazione} M` };
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1446,6 +1460,8 @@ const stato = {
   albo: [],
   aggiornamentoListone: null,
   esitoQuotazioni: null,   // il risultato dell'ultimo import, che deve sopravvivere al ridisegno
+  esitoChiusura: null,     // com'è andata la chiusura di stagione: sopravvive anch'esso
+  chiusuraInCorso: false,
   registro: [],
   io: null,                // { ruolo: "commissioner" | "presidente", squadraId }
   vista: "lega",
@@ -2010,6 +2026,7 @@ function ascolta() {
   db.doc("lega/config").onSnapshot(
     (istantanea) => {
       stato.config = istantanea.exists ? istantanea.data() : null;
+      STAGIONE = stato.config?.stagione || LISTONE_GREZZO.stagione;
       stato.pronto = true;
       disegna();
     },
@@ -2624,7 +2641,7 @@ function bloccoListone({ soloLettura = false } = {}) {
     const squadraId = presi.get(g.id);
     const suaSquadra = squadraId ? squadraDi(squadraId) : null;
     const etichettaPrimavera =
-      p.stato === "forse" ? `<span class="targhetta forse" title="${pulito(p.motivo)}">primavera?</span>` : "";
+      p.stato === "si" ? `<span class="targhetta ok" title="${pulito(p.motivo)}">primavera</span>` : "";
     return `<button class="voce" ${soloLettura ? "disabled" : `data-giocatore="${pulito(g.id)}"`}>
       <span class="ruolo ${g.ruolo}">${g.ruolo}</span>
       <span class="corpo">
@@ -2769,7 +2786,7 @@ function foglioFirma(giocatoreId, daDraft = null, daVivaio = false) {
           <p style="font-size:13px;color:var(--luce-media)">
             ${(g.mantra ?? []).map((r) => pulito(RUOLI_MANTRA[r]?.nome ?? r)).join(" · ")}<br>
             ${pulito(g.squadra)} · quotato ${g.quotazione} M${g.eta != null ? ` · ${g.eta} anni al ${REGOLE.etaAl}` : " · età ignota"}
-            ${p.stato === "forse" ? ` · <span style="color:var(--avviso)">primavera da verificare</span>` : ""}
+            ${p.stato === "si" ? ` · <span style="color:var(--ok)">da primavera</span>` : ""}
           </p>
         </div>
         <button class="chiudi" data-chiudi aria-label="Chiudi">×</button>
@@ -3125,8 +3142,11 @@ function sezioneOfferteScadenza(squadra) {
   const daRiferire = boss ? stato.offerte.filter((o) => o.stato === "SEGRETA") : [];
   const daPareggiare = squadra
     ? stato.offerte.filter((o) => o.stato === "RIFERITA" && o.proprietaria === squadra.id) : [];
+  /* Solo quelle di quest'anno: le offerte della stagione scorsa sono morte
+     con la stagione, e tenerle in elenco farebbe credere il contrario. */
   const mie = squadra
-    ? stato.offerte.filter((o) => o.daChi === squadra.id && o.stato !== "RITIRATA") : [];
+    ? stato.offerte.filter((o) => o.daChi === squadra.id && o.stagione === STAGIONE &&
+        o.stato !== "RITIRATA") : [];
   const promesse = stato.offerte.filter((o) => o.stato === "VINTA");
 
   const riga = (o, dentro) => {
@@ -3144,6 +3164,7 @@ function sezioneOfferteScadenza(squadra) {
           ${o.stato === "VINTA" ? `<span class="targhetta ok">passa a fine stagione</span>` : ""}
           ${o.stato === "PAREGGIATA" ? `<span class="targhetta ok">pareggiata</span>` : ""}
           ${o.stato === "SEGRETA" ? `<span class="targhetta forse">dal commissioner</span>` : ""}
+          ${o.stato === "SCADUTA" ? `<span class="targhetta neutra">finita con la stagione</span>` : ""}
         </span>
       </span>
       <span class="coda">${dentro.bottoni?.(o) ?? ""}</span>
@@ -3554,6 +3575,115 @@ function foglioScambio() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   IL BACKUP E IL PASSAGGIO DI STAGIONE
+
+   Le due operazioni più serie dell'applicazione, e non a caso stanno
+   insieme: la seconda riscrive ogni contratto della lega, e prima di
+   riscrivere qualcosa che non si può disfare bisogna averlo salvato.
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Tutta la lega, in un oggetto solo. */
+function tuttaLaLega() {
+  return {
+    formato: "dynasty-league/1",
+    salvato: new Date().toISOString(),
+    stagione: STAGIONE,
+    config: stato.config,
+    squadre: stato.squadre,
+    rose: Object.fromEntries([...stato.rose].map(([id, r]) => [id, r])),
+    societa: Object.fromEntries([...stato.societa].map(([id, r]) => [id, r])),
+    draft: Object.fromEntries([...stato.draft].map(([id, r]) => [id, r])),
+    albo: stato.albo,
+    mercato: stato.mercato,
+    scambi: stato.scambi,
+    offerte: stato.offerte,
+    registro: stato.registro,
+    aggiornamentoListone: stato.aggiornamentoListone,
+  };
+}
+
+/**
+ * Fa scaricare il backup.
+ *
+ * Un `<a download>` è la strada normale, ma in certi contenitori — un
+ * artifact, una pagina dentro un'altra — i download sono spenti e non
+ * lo dicono: il tasto sembra funzionare e non succede niente. Perciò la
+ * funzione riferisce se ci è riuscita, e chi la chiama offre la seconda
+ * strada: il testo negli appunti.
+ */
+function scaricaBackup() {
+  const testo = JSON.stringify(tuttaLaLega(), null, 1);
+  const nome = `dynasty-${spoglia(stato.config?.nome ?? "lega").replace(/ /g, "-")}-${
+    STAGIONE.replace("/", "-")}-${new Date().toISOString().slice(0, 10)}.json`;
+  try {
+    const url = URL.createObjectURL(new Blob([testo], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = nome;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    return { riuscito: true, nome, peso: testo.length, testo };
+  } catch {
+    return { riuscito: false, nome, peso: testo.length, testo };
+  }
+}
+
+/**
+ * IL PASSAGGIO DI STAGIONE
+ *
+ * Quello che succede quando un anno finisce, calcolato prima di essere
+ * scritto: la funzione non tocca niente, restituisce solo il conto di
+ * cosa cambierebbe. Serve a mostrarlo prima di farlo — un'operazione
+ * che riscrive ogni contratto della lega non si lancia alla cieca — e
+ * serve a scriverlo dopo, senza rifare i calcoli una seconda volta e in
+ * un altro modo.
+ */
+function contiDiFineStagione() {
+  const perSquadra = [];
+  for (const sq of stato.squadre) {
+    const restano = [], scaduti = [], pesi = [];
+    for (const c of rosaDi(sq.id)) {
+      const anni = (Number(c.anni) || 1) - 1;
+      if (anni <= 0) { scaduti.push(c); continue; }
+      /* L'ingaggio si muove col tasso del suo tipo: è la progressione che
+         il foglio della firma mostra al momento di firmare, e che fino a
+         oggi nessuno applicava davvero. */
+      const tasso = REGOLE.contratti[c.tipo]?.tasso ?? 1;
+      const nuovo = Math.max(aQuarti(REGOLE.passo), Math.round(c.ingaggio * tasso));
+      restano.push({ ...c, anni, ingaggio: nuovo, ingaggioPrima: c.ingaggio });
+    }
+    for (const x of pesiMortiDi(sq.id)) {
+      const anni = (Number(x.anni) || 1) - 1;
+      if (anni > 0) pesi.push({ ...x, anni });
+    }
+    const soc = societaDi(sq.id);
+    const mantenimento = manutenzioneAnnua(soc);
+    perSquadra.push({
+      squadra: sq, restano, scaduti, pesi, mantenimento,
+      capitalePrima: soc.capitale,
+      capitaleDopo: soc.capitale - mantenimento,
+      ingaggiPrima: rosaDi(sq.id).reduce((t, c) => t + c.ingaggio, 0),
+      ingaggiDopo: restano.reduce((t, c) => t + c.ingaggio, 0),
+      giovani: vivaioDi(sq.id).length,
+    });
+  }
+  return {
+    perSquadra,
+    scaduti: perSquadra.reduce((t, x) => t + x.scaduti.length, 0),
+    rinnovati: perSquadra.reduce((t, x) => t + x.restano.length, 0),
+    mantenimento: perSquadra.reduce((t, x) => t + x.mantenimento, 0),
+    pendenti: stato.mercato.filter((m) => m.stato === "APERTA").length
+            + stato.scambi.filter((x) => x.stato === "PROPOSTO").length,
+    promesse: stato.offerte.filter((o) => o.stato === "VINTA").length,
+  };
+}
+
+/** «2026/27» → «2027/28». */
+function stagioneDopo(stagione) {
+  const primo = Number(String(stagione).slice(0, 4));
+  return Number.isFinite(primo) ? `${primo + 1}/${String(primo + 2).slice(2)}` : stagione;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    IL COMMISSIONER
 
    Un assistente a cui chiedere com'è messa la squadra, chi è un
@@ -3708,7 +3838,8 @@ const REGOLAMENTO = [
   { chiavi: ["primavera", "vivaio", "giovani", "giovanile", "prelazione"],
     titolo: "La primavera e la prelazione", testo: () => `
     Ci entra chi ha fino a <b>${REGOLE.primavera.etaMax} anni</b> ed è quotato non oltre
-    <b>${REGOLE.primavera.quotazioneMax} M</b> (e non più di ${REGOLE.primavera.presenzeMax} presenze).
+    <b>${REGOLE.primavera.quotazioneMax} M</b>. Le presenze in Serie A le conta la lega, non
+    l'applicazione: qui il requisito è solo età e quotazione.
     Non percepisce ingaggio e non occupa tetto, slot né posti in rosa: costa i posti del settore
     giovanile, che si comprano con il Capitale.<br><br>
     <b>Finché è lì nessun altro lo può prendere.</b> Quando è pronto lo tesseri tu alla sua
@@ -4361,27 +4492,24 @@ function paginaGestione() {
     </div>
 
     <div class="sezione">
-      <div class="intestazione-sezione"><h2>Fine stagione</h2>
-        <span class="conteggio">${soldi(stato.squadre.reduce((s, x) => s + contoDi(x.id).pesoMorto, 0))} da liberare</span></div>
+      <div class="intestazione-sezione"><h2>Backup</h2>
+        <span class="conteggio">${stato.squadre.length} squadre · ${stato.registro.length} righe di registro</span></div>
       <div class="riquadro">
         <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
-          Gli ingaggi degli svincolati pesano sul tetto <b>fino a fine stagione</b>, e quelli
-          spalmati anche oltre: alla chiusura scalano di un anno invece di sparire. Quando la
-          stagione è finita davvero, questo comando li cancella e restituisce lo spazio a tutti.
-          Rose, contratti e Capitale non si toccano.
+          Tutta la lega in un file solo: squadre, rose, settore giovanile, svincoli, società,
+          draft, mercato, scambi, offerte, albo d'oro e registro. Chiunque abbia il link della
+          lega può scrivere nel database — è il prezzo di non chiedere una password a nessuno —
+          e un backup di ieri è la differenza fra un pomeriggio perso e una stagione persa.
         </p>
-        ${stato.squadre.some((s) => contoDi(s.id).pesoMorto > 0)
-          ? `<div class="elenco" style="margin-bottom:12px">
-              ${stato.squadre.filter((s) => contoDi(s.id).pesoMorto > 0).map((s) => `<div class="voce">
-                <span class="corpo"><span class="nome">${pulito(s.nome)}</span>
-                  <span class="dettaglio">${pesiMortiDi(s.id).map((x) => pulito(x.nome)).join(", ")}</span></span>
-                <span class="coda"><span class="prezzo num" style="color:var(--allarme)">${soldi(contoDi(s.id).pesoMorto)}</span></span>
-              </div>`).join("")}
-            </div>
-            <button class="bottone" id="libera-pesi">Libera gli ingaggi degli svincolati</button>`
-          : `<p style="font-size:13.5px;color:var(--luce-media)">Nessuno ha svincolato: non c'è niente da liberare.</p>`}
+        <p style="font-size:12.5px;color:var(--luce-fioca);margin-bottom:12px">
+          Falne uno prima dell'asta, prima del draft e prima di chiudere la stagione. Il file
+          si apre con qualunque editor: dentro c'è tutto scritto in chiaro.
+        </p>
+        <button class="bottone" id="fai-backup">Scarica il backup</button>
+        <div id="esito-backup" style="margin-top:10px"></div>
       </div>
     </div>
+
 
     ${stato.offerte.some((o) => o.stato === "VINTA") ? `
     <div class="sezione">
@@ -4424,6 +4552,89 @@ function paginaGestione() {
           : `<p style="font-size:13.5px;color:var(--luce-media)">Non c'è nessun giocatore sotto contratto.</p>`}
       </div>
     </div>
+
+    ${(() => {
+      const conti = contiDiFineStagione();
+      const prossima = stagioneDopo(STAGIONE);
+      const inRosso = conti.perSquadra.filter((x) => x.capitaleDopo < 0);
+      return `
+    <div class="sezione">
+      <div class="intestazione-sezione"><h2>Fine stagione ${pulito(STAGIONE)}</h2>
+        <span class="conteggio">si apre la ${pulito(prossima)}</span></div>
+      <div class="riquadro">
+        <p style="font-size:13.5px;color:var(--luce-media);margin-bottom:12px">
+          Un comando solo, e la lega passa alla ${pulito(prossima)}. È l'operazione più grossa
+          che l'applicazione sappia fare, e l'unica davvero irreversibile: il backup parte da sé
+          un attimo prima di scrivere.
+        </p>
+        <ul style="font-size:13.5px;color:var(--luce-media);margin:0 0 14px;padding-left:20px;line-height:1.75">
+          <li><b>I contratti perdono un anno</b> e l'ingaggio si muove col tasso del suo tipo:
+              ${Object.entries(REGOLE.contratti).filter(([, r]) => r.tasso != null && r.tasso !== 1)
+                .map(([nome, r]) => `${nome.toLowerCase()} ×${String(r.tasso).replace(".", ",")}`).join(", ")}.
+              È la progressione che il foglio della firma promette; qui viene applicata.</li>
+          <li><b>Chi era all'ultimo anno esce dalla rosa</b> e torna libero. Il tetto si libera
+              per intero: non è uno svincolo, è un contratto finito.</li>
+          <li><b>Gli svincoli spalmati scalano di una stagione</b> e spariscono quando arrivano
+              a zero. Quelli secchi, che pesavano solo per quest'anno, se ne vanno tutti.</li>
+          <li><b>Il mantenimento di stadio e settore giovanile</b> viene addebitato al Capitale
+              (art. 14): ${soldi(conti.mantenimento)} in tutta la lega.</li>
+          <li><b>Buste e scambi ancora aperti decadono.</b> Una trattativa della stagione
+              scorsa non si eredita.</li>
+          <li><b>La squadra primavera resta com'è</b>: i giovani non hanno contratto e non
+              scalano niente. La prelazione vale finché restano idonei.</li>
+        </ul>
+
+        <div class="elenco" style="margin-bottom:12px">
+          ${conti.perSquadra.map((x) => `<div class="voce">
+            <span class="ruolo" style="background:${pulito(x.squadra.colore || "#DADDD2")};color:#12140F">${pulito(x.squadra.sigla)}</span>
+            <span class="corpo">
+              <span class="nome">${pulito(x.squadra.nome)}
+                <span class="num" style="color:var(--lime);margin-left:6px;white-space:nowrap">${
+                  soldi(x.ingaggiPrima, false)} → ${soldi(x.ingaggiDopo)}</span></span>
+              <span class="dettaglio">${x.restano.length} rinnovati · ${x.scaduti.length} scaduti${
+                x.giovani ? ` · ${x.giovani} in primavera` : ""} · mantenimento ${soldi(x.mantenimento)}${
+                x.capitaleDopo < 0 ? " — <b style=\"color:var(--allarme)\">Capitale insufficiente</b>" : ""}</span>
+            </span>
+          </div>`).join("")}
+        </div>
+
+        <div class="avviso neutro" style="margin-bottom:12px">
+          In tutta la lega: <b>${conti.rinnovati}</b> contratti rinnovati,
+          <b>${conti.scaduti}</b> in scadenza che tornano liberi,
+          <b>${soldi(conti.mantenimento)}</b> di mantenimento addebitato.
+        </div>
+
+        ${conti.promesse ? `<div class="avviso attenzione" style="margin-bottom:12px">
+          Ci sono ancora <b>${conti.promesse}</b> ${conti.promesse === 1 ? "passaggio promesso" : "passaggi promessi"}
+          da eseguire. Falli prima di chiudere: dopo, il contratto offerto non c'è più.
+        </div>` : ""}
+
+        ${inRosso.length ? `<div class="avviso attenzione" style="margin-bottom:12px">
+          A ${inRosso.map((x) => pulito(x.squadra.nome)).join(", ")} il Capitale non basta per il
+          mantenimento. La chiusura va avanti lo stesso e il conto va in rosso: si sistema
+          togliendo una tribuna o vendendo qualcosa, ma va sistemato.
+        </div>` : ""}
+
+        ${conti.pendenti ? `<div class="avviso neutro" style="margin-bottom:12px">
+          ${conti.pendenti} fra buste e scambi ancora aperti: si chiudono da soli.
+        </div>` : ""}
+
+        <p style="font-size:13px;color:var(--luce-media);margin-bottom:10px">
+          Per confermare scrivi <b>${pulito(STAGIONE)}</b>.
+        </p>
+        <div class="moduli">
+          <input type="text" id="conferma-chiusura" placeholder="${pulito(STAGIONE)}"
+                 inputmode="text" autocomplete="off">
+          <button class="bottone pericolo" id="chiudi-stagione" data-prossima="${pulito(prossima)}"
+                  ${stato.chiusuraInCorso ? "disabled" : ""}>Chiudi la ${pulito(STAGIONE)} e apri la ${pulito(prossima)}</button>
+        </div>
+        <div id="esito-chiusura" style="margin-top:10px">${
+          stato.esitoChiusura
+            ? `<div class="avviso ${stato.esitoChiusura.tipo}">${stato.esitoChiusura.testo}</div>`
+            : ""}</div>
+      </div>
+    </div>`;
+    })()}
 
     <div class="sezione">
       <div class="intestazione-sezione"><h2>Ripartire da zero</h2></div>
@@ -5678,34 +5889,152 @@ function agganciaGestione() {
       `${chi} lascia la Serie A: ${squadra?.nome} libera ${soldi(quanto)} subito`, squadraId);
   });
 
-  su("#libera-pesi", "click", async (e) => {
-    /* Non si cancella tutto: chi ha spalmato se lo porta dietro. Scalano di
-       una stagione, e spariscono quando arrivano a zero — se sparissero
-       tutti insieme, la spalmatura sarebbe uno sconto e non una dilazione. */
-    let liberato = 0, restano = 0;
-    const dopo = new Map();
-    for (const s of stato.squadre) {
-      const pesi = pesiMortiDi(s.id);
-      if (!pesi.length) continue;
-      const tenuti = [];
-      for (const x of pesi) {
-        const anni = (Number(x.anni) || 1) - 1;
-        if (anni > 0) { tenuti.push({ ...x, anni }); restano += x.ingaggio; }
-        else liberato += x.ingaggio;
-      }
-      dopo.set(s.id, tenuti);
+  su("#fai-backup", "click", () => {
+    const esito = radice.querySelector("#esito-backup");
+    const b = scaricaBackup();
+    const peso = b.peso >= 1048576
+      ? `${(b.peso / 1048576).toFixed(1)} MB`
+      : `${Math.max(1, Math.round(b.peso / 1024))} kB`;
+
+    esito.innerHTML = b.riuscito
+      ? `<div class="avviso bene"><b>${pulito(b.nome)}</b> · ${peso} — è nei tuoi download.
+           <button class="bottone piccolo" id="mostra-backup" style="margin-left:8px">Mostralo qui</button></div>`
+      : `<div class="avviso attenzione">Qui dentro i download sono spenti e il file non si salva da sé.
+           <button class="bottone piccolo" id="mostra-backup" style="margin-left:8px">Mostra il backup</button></div>`;
+
+    /* L'ascoltatore si attacca a mano: questo pezzo di pagina è nato adesso e
+       non passa dal disegno, quindi `su()` non lo vedrebbe. */
+    esito.querySelector("#mostra-backup")?.addEventListener("click", async () => {
+      let copiato = false;
+      try { await navigator.clipboard.writeText(b.testo); copiato = true; } catch { /* niente appunti: c'è la casella */ }
+      esito.innerHTML = `
+        <div class="avviso ${copiato ? "bene" : "neutro"}" style="margin-bottom:8px">
+          ${copiato ? "Copiato negli appunti." : "Selezionalo tutto e copialo."}
+          Salvalo in un file chiamato <b>${pulito(b.nome)}</b>.
+        </div>
+        <textarea readonly rows="8" spellcheck="false"
+          style="width:100%;padding:10px 12px;font:inherit;font-size:11px;font-family:ui-monospace,monospace;
+                 line-height:1.5;color:var(--luce-media);background:var(--vetro);
+                 border:1px solid var(--bordo-forte);border-radius:var(--raggio-s);resize:vertical"
+        >${pulito(b.testo)}</textarea>`;
+    });
+  });
+
+  su("#chiudi-stagione", "click", async (e) => {
+    if (!sonoCommissioner()) return;
+    const chiusa = STAGIONE;
+    const prossima = e.currentTarget.dataset.prossima;
+    const scritto = radice.querySelector("#conferma-chiusura")?.value.trim() ?? "";
+
+    const dillo = (tipo, testo) => { stato.esitoChiusura = { tipo, testo }; disegna(); };
+
+    if (scritto !== chiusa) {
+      dillo("errore", `Per confermare scrivi <b>${pulito(chiusa)}</b> nella casella.`);
+      return;
     }
-    if (!dopo.size) return;
+
+    /* I conti si rifanno adesso, non si riusa quelli del disegno: fra il
+       momento in cui la pagina è stata disegnata e questo clic può essere
+       arrivata una firma da un'altra squadra. */
+    const conti = contiDiFineStagione();
     if (!confirm(
-      `Fine stagione: libero ${soldi(liberato)} di ingaggi svincolati.` +
-      (restano ? `\n\n${soldi(restano)} restano: sono gli svincoli spalmati, che scalano di una stagione.` : "") +
-      `\n\nProcedo?`
+      `Chiudo la ${chiusa} e apro la ${prossima}.\n\n` +
+      `${conti.rinnovati} contratti rinnovati con il loro tasso\n` +
+      `${conti.scaduti} in scadenza tornano liberi\n` +
+      `${soldi(conti.mantenimento)} di mantenimento addebitato al Capitale` +
+      (conti.pendenti ? `\n${conti.pendenti} fra buste e scambi decadono` : "") +
+      (conti.promesse ? `\n\nATTENZIONE: ${conti.promesse} ${conti.promesse === 1 ? "passaggio promesso" : "passaggi promessi"} non ${conti.promesse === 1 ? "è stato eseguito" : "sono stati eseguiti"}.` : "") +
+      `\n\nNon si torna indietro. Il backup parte adesso.\n\nProcedo?`
     )) return;
-    e.currentTarget.disabled = true;
-    for (const [id, tenuti] of dopo) await scriviRosa(id, rosaDi(id), tenuti);
-    await annota("lega",
-      `Fine stagione: liberati ${soldi(liberato)} di ingaggi svincolati` +
-      (restano ? `, ${soldi(restano)} spalmati restano in carico` : ""), null);
+
+    /* Il bottone non si spegne da qui: fra un attimo il primo `scriviRosa`
+       fa ridisegnare la pagina e questo nodo non esisterà più. Lo spegne il
+       disegno, guardando lo stato. */
+    stato.chiusuraInCorso = true;
+    dillo("neutro", "Salvo il backup…");
+    const backup = scaricaBackup();
+
+    const guai = [];
+    let liberati = 0, rinnovati = 0;
+    try {
+      for (const x of conti.perSquadra) {
+        dillo("neutro", `${pulito(x.squadra.nome)}…`);
+
+        /* Rose e pesi morti in una scrittura sola. Il vivaio non si passa:
+           `scriviRosa` lo tiene com'era, ed è giusto così — i giovani non
+           hanno contratto, quindi non hanno un anno da scalare. */
+        await scriviRosa(x.squadra.id, x.restano, x.pesi);
+        rinnovati += x.restano.length;
+
+        for (const c of x.scaduti) {
+          liberati += c.ingaggio;
+          await annota("contratto",
+            `${c.nome}: contratto finito, ${x.squadra.nome} libera ${soldi(c.ingaggio)}`, x.squadra.id);
+        }
+
+        if (x.mantenimento > 0) {
+          const soc = societaDi(x.squadra.id);
+          if (soc.capitale - x.mantenimento < 0) {
+            /* `muoviCapitale` si rifiuta di scendere sotto zero, ed è la
+               regola giusta per una spesa che si sceglie. Il mantenimento
+               non si sceglie: è dovuto, e se il conto non basta va in rosso
+               e si vede. */
+            await scriviSocieta(x.squadra.id, {
+              capitale: soc.capitale - x.mantenimento,
+              movimenti: [{
+                quando: new Date().toISOString(), causale: `Mantenimento ${chiusa}`,
+                quanto: -x.mantenimento, saldo: soc.capitale - x.mantenimento,
+              }, ...(soc.movimenti ?? [])].slice(0, 60),
+            });
+            await annota("capitale",
+              `${x.squadra.nome}: −${soldi(x.mantenimento)} — Mantenimento ${chiusa} (conto in rosso)`,
+              x.squadra.id);
+            guai.push(`${x.squadra.nome}: il Capitale è andato in rosso di ${soldi(x.mantenimento - soc.capitale)}.`);
+          } else {
+            await muoviCapitale(x.squadra.id, -x.mantenimento, `Mantenimento ${chiusa}`);
+          }
+        }
+      }
+
+      dillo("neutro", "Chiudo quello che era rimasto aperto…");
+      for (const m of stato.mercato.filter((m) => m.stato === "APERTA")) {
+        await db.collection("mercato").doc(m.id).set({
+          ...m, stato: "CHIUSA", chiusaIl: new Date().toISOString(),
+          vincitore: null, scartate: (m.offerte ?? []).length,
+        });
+      }
+      for (const x of stato.scambi.filter((x) => x.stato === "PROPOSTO")) {
+        await db.collection("scambi").doc(x.id).set({ ...x, stato: "SCADUTO", chiusoIl: new Date().toISOString() });
+      }
+      /* Le offerte ancora in corso muoiono con la stagione: erano offerte a un
+         giocatore in scadenza, e quella scadenza è arrivata. Quelle già vinte
+         no — sono un passaggio promesso, e si eseguono dal loro comando. */
+      for (const o of stato.offerte.filter((o) => o.stato === "SEGRETA" || o.stato === "RIFERITA")) {
+        await db.collection("offerte").doc(o.id).set({ ...o, stato: "SCADUTA", chiusa: new Date().toISOString() });
+      }
+
+      await db.doc("lega/config").update({ stagione: prossima });
+      await annota("lega",
+        `Stagione ${chiusa} chiusa: ${rinnovati} contratti rinnovati, ` +
+        `${conti.scaduti} in scadenza liberano ${soldi(liberati)}, ` +
+        `${soldi(conti.mantenimento)} di mantenimento addebitato. Si apre la ${prossima}.`, null);
+
+      dillo("bene",
+        `<b>Siamo nella ${pulito(prossima)}.</b><br>` +
+        `${rinnovati} contratti rinnovati · ${conti.scaduti} scaduti che liberano ${soldi(liberati)} · ` +
+        `${soldi(conti.mantenimento)} di mantenimento addebitato.` +
+        (guai.length ? `<br><br>${guai.map(pulito).join("<br>")}` : "") +
+        (backup.riuscito ? `<br><br>Il backup della ${pulito(chiusa)} è nei tuoi download: <b>${pulito(backup.nome)}</b>.`
+                         : `<br><br>Il backup non si è potuto scaricare: prendilo dal riquadro Backup qui sopra.`) +
+        `<br><br>Ora carica il listone della ${pulito(prossima)} dal riquadro Quotazioni, e apri il draft.`);
+    } catch (errore) {
+      dillo("errore",
+        `La chiusura si è fermata: ${pulito(errore.message ?? errore)}<br><br>` +
+        `Quello che era già scritto resta scritto. Riparti dal backup della ${pulito(chiusa)} se qualcosa non torna.`);
+    } finally {
+      stato.chiusuraInCorso = false;
+      disegna();
+    }
   });
 
   su("#salva-lega", "click", async () => {

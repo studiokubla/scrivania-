@@ -62,8 +62,26 @@ porta, non a difendere segreti, perché chi ha il link legge tutto comunque.
 **Svincolare libera il posto, non lo spazio.** L'ingaggio di chi viene svincolato
 resta sul tetto fino a fine stagione: la rosa torna a ventiquattro, lo spazio
 salariale no. È la regola che rende il mercato una cosa seria — un contratto
-firmato è una decisione che si porta fino in fondo. A stagione conclusa il
-commissioner li libera tutti insieme da *Gestione → Fine stagione*.
+firmato è una decisione che si porta fino in fondo. A stagione conclusa la
+chiusura li libera tutti insieme.
+
+**Il backup e la chiusura di stagione** stanno in *Gestione*, e li vede solo il
+commissioner. Il backup mette tutta la lega in un file — squadre, rose, settore
+giovanile, svincoli, società, draft, mercato, scambi, offerte, albo e registro —
+e va fatto prima dell'asta, prima del draft e prima di chiudere l'anno: chiunque
+abbia il link può scrivere nel database, ed è il prezzo di non chiedere una
+password a nessuno.
+
+*Fine stagione* fa il passaggio in un colpo solo, e prima di scrivere salva il
+backup da sé. Ogni contratto perde un anno e l'ingaggio si muove col tasso del
+suo tipo — è la progressione che il foglio della firma promette; chi era
+all'ultimo anno esce dalla rosa e libera il tetto per intero; gli svincoli
+spalmati scalano di una stagione e spariscono a zero; il mantenimento di stadio
+e settore giovanile viene addebitato al Capitale; buste e scambi rimasti aperti
+decadono; la squadra primavera resta com'è, perché i giovani non hanno contratto
+e non hanno un anno da scalare. Prima di lanciarla, il riquadro mostra il conto
+squadra per squadra. Poi si carica il listone nuovo da *Quotazioni* e si apre il
+draft.
 
 **L'albo d'oro** conserva le classifiche finali delle cinque competizioni
 (Apertura, Clausura, Cup, Super Cup, Youth), stagione per stagione, con la
@@ -105,8 +123,8 @@ coi nomi veri, listone filtrabile per ruolo, età e idoneità primavera,
 composizione della rosa con tipo di contratto e ingaggio, tetto salariale con
 riserva per completare la rosa, slot pluriennali, minimi di ruolo, l'economia
 societaria (Capitale, stadio a cinque livelli, settore giovanile, rete
-osservatori, movimenti col saldo), pannello del commissioner, registro delle
-operazioni.
+osservatori, movimenti col saldo), pannello del commissioner, backup e chiusura
+di stagione, registro delle operazioni.
 
 **Non ci sono segnaposto.** La lega nasce vuota e il commissioner iscrive le
 dieci squadre con i nomi veri, incollando un elenco: una riga per squadra, nome
