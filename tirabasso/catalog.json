@@ -1,0 +1,622 @@
+[
+ {
+  "cat": "Borse",
+  "name": "Borse estive / Tirabasso",
+  "img": "https://shop.tirabasso.com/2574-large_default/borsa-in-rafia.jpg",
+  "price": 36.89,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/borse/185-borsa-in-rafia.html",
+  "file": "p000-borse-estive-tirabasso.webp",
+  "id": "p000"
+ },
+ {
+  "cat": "Borse",
+  "name": "Borsetta donna borsa tracolla rattan ed ecopelle",
+  "img": "https://shop.tirabasso.com/923-large_default/cappello-donna-paglia-raffia-100-naturale-con-cinturino.jpg",
+  "price": 28.69,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/borse/238-cappello-donna-paglia-raffia-100-naturale-con-cinturino.html",
+  "file": "p001-borsetta-donna-borsa-tracolla-rattan-ed-ecopelle.webp",
+  "id": "p001"
+ },
+ {
+  "cat": "Borse",
+  "name": "Borsetta donna borsa tracolla rattan ed ecopelle chiusura clip",
+  "img": "https://shop.tirabasso.com/927-large_default/cappello-donna-paglia-raffia-100-naturale-con-cinturino.jpg",
+  "price": 28.69,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/borse/239-cappello-donna-paglia-raffia-100-naturale-con-cinturino.html",
+  "file": "p002-borsetta-donna-borsa-tracolla-rattan-ed-ecopelle.webp",
+  "id": "p002"
+ },
+ {
+  "cat": "Borse",
+  "name": "Sacca WATER PROOF sport BAG OCEAN PACK NAVIGARE",
+  "img": "https://shop.tirabasso.com/2136-large_default/sacca-water-proof-sport-bag-ocean-pack-navigare.jpg",
+  "price": 5.74,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/navigare/351-sacca-water-proof-sport-bag-ocean-pack-navigare.html",
+  "file": "p003-sacca-water-proof-sport-bag-ocean-pack-navigare.webp",
+  "id": "p003"
+ },
+ {
+  "cat": "Borse",
+  "name": "Zaino da viaggio Ryanair compagnie aeree low cost 40x29x19",
+  "img": "https://shop.tirabasso.com/2937-large_default/zaino-da-viaggio-ryanair-compagnie-aeree-low-cost.jpg",
+  "price": 53.28,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/valigie-borse-e-accessori-da-viaggio/458-zaino-da-viaggio-ryanair-compagnie-aeree-low-cost.html",
+  "file": "p004-zaino-da-viaggio-ryanair-compagnie-aeree-low-cos.webp",
+  "id": "p004"
+ },
+ {
+  "cat": "Borse",
+  "name": "Borsa in raffia made in Italy abbinata al cappello stile Capri",
+  "img": "https://shop.tirabasso.com/3031-large_default/borsa-in-raffia-made-in-italy-abbinata-al-cappello.jpg",
+  "price": 53.28,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/borse/466-borsa-in-raffia-made-in-italy-abbinata-al-cappello.html",
+  "file": "p005-borsa-in-raffia-made-in-italy-abbinata-al-cappel.webp",
+  "id": "p005"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello Alpino in feltro ala asimmetrica Made in Italy",
+  "img": "https://shop.tirabasso.com/2645-large_default/fedora.jpg",
+  "price": 61.48,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/201-fedora.html",
+  "file": "p006-cappello-alpino-in-feltro-ala-asimmetrica-made-i.webp",
+  "id": "p006"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello in feltro modello alpino",
+  "img": "https://shop.tirabasso.com/1995-large_default/cappello-in-feltro-modello-alpino.jpg",
+  "price": 22.13,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/196-cappello-in-feltro-modello-alpino.html",
+  "file": "p007-cappello-in-feltro-modello-alpino.webp",
+  "id": "p007"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello in feltro da uomo 100% lana Made in Italy",
+  "img": "https://shop.tirabasso.com/1958-large_default/cappello-in-feltro-da-uomo-100-lana-made-in-italy.jpg",
+  "price": 40.98,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/204-cappello-in-feltro-da-uomo-100-lana-made-in-italy.html",
+  "file": "p008-cappello-in-feltro-da-uomo-100-lana-made-in-ital.webp",
+  "id": "p008"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cloche in feltro cuore applicato a contrasto",
+  "img": "https://shop.tirabasso.com/781-large_default/cloche-in-feltro-cuore-applicato-a-contrasto.jpg",
+  "price": 23.77,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/214-cloche-in-feltro-cuore-applicato-a-contrasto.html",
+  "file": "p009-cloche-in-feltro-cuore-applicato-a-contrasto.webp",
+  "id": "p009"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello feltro Uomo in 100% lapin Made in Italy pelo di lepre",
+  "img": "https://shop.tirabasso.com/1933-large_default/cappello-feltro-uomo-in-100-lapin-made-in-italy.jpg",
+  "price": 77.87,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/205-cappello-feltro-uomo-in-100-lapin-made-in-italy.html",
+  "file": "p010-cappello-feltro-uomo-in-100-lapin-made-in-italy-.webp",
+  "id": "p010"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello in feltro cuore",
+  "img": "https://shop.tirabasso.com/783-large_default/cloche-in-feltro-cuore-applicato-a-contrasto.jpg",
+  "price": 20.49,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/217-cloche-in-feltro-cuore-applicato-a-contrasto.html",
+  "file": "p011-cappello-in-feltro-cuore.webp",
+  "id": "p011"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello feltro Fedora bicolore Made in Italy",
+  "img": "https://shop.tirabasso.com/934-large_default/cappello-uomo-feltro-bicolore.jpg",
+  "price": 51.64,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/25-cappello-uomo-feltro-bicolore.html",
+  "file": "p012-cappello-feltro-fedora-bicolore-made-in-italy.webp",
+  "id": "p012"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Fedora con catena sottogola",
+  "img": "https://shop.tirabasso.com/2122-large_default/copy-of-fedora-con-borchie.jpg",
+  "price": 57.38,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/131-copy-of-fedora-con-borchie.html",
+  "file": "p013-fedora-con-catena-sottogola.webp",
+  "id": "p013"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello Uomo in lapin forma Fedora con feltrino e automatici",
+  "img": "https://shop.tirabasso.com/664-large_default/fedora.jpg",
+  "price": 61.48,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/45-fedora.html",
+  "file": "p014-cappello-uomo-in-lapin-forma-fedora-con-feltrino.webp",
+  "id": "p014"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello feltro TIRABASSO Uomo collezione Original Smooth Premium Quality",
+  "img": "https://shop.tirabasso.com/1011-large_default/cappello-feltro-uomo-collezione-original-smooth-premium-quality.jpg",
+  "price": 49.84,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/241-cappello-feltro-uomo-collezione-original-smooth-premium-quality.html",
+  "file": "p015-cappello-feltro-tirabasso-uomo-collezione-origin.webp",
+  "id": "p015"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello in feltro Uomo modello pork pie Made in Italy",
+  "img": "https://shop.tirabasso.com/1088-large_default/245-bozza2.jpg",
+  "price": 40.49,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/245-245-bozza2.html",
+  "file": "p016-cappello-in-feltro-uomo-modello-pork-pie-made-in.webp",
+  "id": "p016"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello donna falda larga con gros grain",
+  "img": "https://shop.tirabasso.com/1447-large_default/cappello-donna-feltro-falda-larga.jpg",
+  "price": 30.33,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/26-cappello-donna-feltro-falda-larga.html",
+  "file": "p017-cappello-donna-falda-larga-con-gros-grain.webp",
+  "id": "p017"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello Fedora donna in feltro con cinturino strass",
+  "img": "https://shop.tirabasso.com/1485-large_default/cappello-fedora-donna-in-feltro-con-cinturino-metallo.jpg",
+  "price": 28.69,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/277-cappello-fedora-donna-in-feltro-con-cinturino-metallo.html",
+  "file": "p018-cappello-fedora-donna-in-feltro-con-cinturino-st.webp",
+  "id": "p018"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello in feltro forma coppola uomo spinata MADE IN ITALY",
+  "img": "https://shop.tirabasso.com/1459-large_default/coppola.jpg",
+  "price": 30.33,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/49-coppola.html",
+  "file": "p019-cappello-in-feltro-forma-coppola-uomo-spinata-ma.webp",
+  "id": "p019"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello donna in feltro Nuova forma con cinturino anello",
+  "img": "https://shop.tirabasso.com/1501-large_default/cappello-donna-nuova-forma-con-cinturino-anello.jpg",
+  "price": 31.97,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/279-cappello-donna-nuova-forma-con-cinturino-anello.html",
+  "file": "p020-cappello-donna-in-feltro-nuova-forma-con-cinturi.webp",
+  "id": "p020"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello in feltro forma coppola uomo MADE IN ITALY",
+  "img": "https://shop.tirabasso.com/1474-large_default/coppola.jpg",
+  "price": 30.33,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/275-coppola.html",
+  "file": "p021-cappello-in-feltro-forma-coppola-uomo-made-in-it.webp",
+  "id": "p021"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello in feltro Porkpie testa diamante con grosgrain",
+  "img": "https://shop.tirabasso.com/2028-large_default/pork-pie.jpg",
+  "price": 27.87,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/uomo/50-pork-pie.html",
+  "file": "p022-cappello-in-feltro-porkpie-testa-diamante-con-gr.webp",
+  "id": "p022"
+ },
+ {
+  "cat": "Feltro",
+  "name": "Cappello Donna feltro falda larga a crimpare con cinturino anelli",
+  "img": "https://shop.tirabasso.com/1519-large_default/cappello-donna-feltro-falda-larga-a-crimpare-con-cinturino-anelli.jpg",
+  "price": 31.97,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/281-cappello-donna-feltro-falda-larga-a-crimpare-con-cinturino-anelli.html",
+  "file": "p023-cappello-donna-feltro-falda-larga-a-crimpare-con.webp",
+  "id": "p023"
+ },
+ {
+  "cat": "Maglieria",
+  "name": "Kagoule passamontagna balaclava a coste con bordino made in italy",
+  "img": "https://shop.tirabasso.com/1096-large_default/kagoule-passamontagna-balaclava-a-coste-con-bordino-made-in-italy.jpg",
+  "price": 20.49,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/246-kagoule-passamontagna-balaclava-a-coste-con-bordino-made-in-italy.html",
+  "file": "p024-kagoule-passamontagna-balaclava-a-coste-con-bord.webp",
+  "id": "p024"
+ },
+ {
+  "cat": "Maglieria",
+  "name": "SET cuffia e sciarpa misto lana effetto degradé Made in Italy",
+  "img": "https://shop.tirabasso.com/1209-large_default/set-con-lavorazione-a-losanghe-effetto-degrade.jpg",
+  "price": 60.66,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/255-set-con-lavorazione-a-losanghe-effetto-degrade.html",
+  "file": "p025-set-cuffia-e-sciarpa-misto-lana-effetto-degrad-m.webp",
+  "id": "p025"
+ },
+ {
+  "cat": "Maglieria",
+  "name": "Fascia a maglia donna cashmere Made in Italy",
+  "img": "https://shop.tirabasso.com/2093-large_default/fascia.jpg",
+  "price": 31.15,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/30-fascia.html",
+  "file": "p026-fascia-a-maglia-donna-cashmere-made-in-italy.webp",
+  "id": "p026"
+ },
+ {
+  "cat": "Maglieria",
+  "name": "Set cuffia e sciarpa misto lana Made in Italy",
+  "img": "https://shop.tirabasso.com/2667-large_default/set-cuffia-e-sciarpa-misto-lana-made-in-italy.jpg",
+  "price": 36.89,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/444-set-cuffia-e-sciarpa-misto-lana-made-in-italy.html",
+  "file": "p027-set-cuffia-e-sciarpa-misto-lana-made-in-italy.webp",
+  "id": "p027"
+ },
+ {
+  "cat": "Maglieria",
+  "name": "Cappuccio cappello sciarpa trapuntato donna  imbottito kagoule",
+  "img": "https://shop.tirabasso.com/2682-large_default/cappuccio-cappello-sciarpa-trapuntato-donna-imbottito.jpg",
+  "price": 39.34,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/445-cappuccio-cappello-sciarpa-trapuntato-donna-imbottito.html",
+  "file": "p028-cappuccio-cappello-sciarpa-trapuntato-donna-imbo.webp",
+  "id": "p028"
+ },
+ {
+  "cat": "Maglieria",
+  "name": "Set cuffia e sciarpa misto lana Made in Italy effetto degradé",
+  "img": "https://shop.tirabasso.com/2710-large_default/set-cuffia-e-sciarpa-misto-lana-made-in-italy.jpg",
+  "price": 38.52,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/446-set-cuffia-e-sciarpa-misto-lana-made-in-italy.html",
+  "file": "p029-set-cuffia-e-sciarpa-misto-lana-made-in-italy-ef.webp",
+  "id": "p029"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello rafia 100% naturale falda intrecciata",
+  "img": "https://shop.tirabasso.com/1587-large_default/1.jpg",
+  "price": 30.33,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-donna/174-1.html",
+  "file": "p030-cappello-rafia-100-naturale-falda-intrecciata.webp",
+  "id": "p030"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello 100% rafia extra-fino",
+  "img": "https://shop.tirabasso.com/1637-large_default/1.jpg",
+  "price": 69.67,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/176-1.html",
+  "file": "p031-cappello-100-rafia-extra-fino.webp",
+  "id": "p031"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello Donna modello pescatore in rafia e lino",
+  "img": "https://shop.tirabasso.com/1638-large_default/1.jpg",
+  "price": 28.69,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-donna/154-1.html",
+  "file": "p032-cappello-donna-modello-pescatore-in-rafia-e-lino.webp",
+  "id": "p032"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello panama giapponese traforato",
+  "img": "https://shop.tirabasso.com/1522-large_default/1.jpg",
+  "price": 53.28,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/149-1.html",
+  "file": "p033-cappello-panama-giapponese-traforato.webp",
+  "id": "p033"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello Panasoft testa tonda e costa cresta tipo Panama Montecristi fine",
+  "img": "https://shop.tirabasso.com/2387-large_default/1.jpg",
+  "price": 49.18,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-donna/181-1.html",
+  "file": "p034-cappello-panasoft-testa-tonda-e-costa-cresta-tip.webp",
+  "id": "p034"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Panama - Tirabasso Serafino",
+  "img": "https://shop.tirabasso.com/953-large_default/panama.jpg",
+  "price": 57.38,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/120-panama.html",
+  "file": "p035-panama-tirabasso-serafino.webp",
+  "id": "p035"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello donna tipo Panama disponibile in 3 colori",
+  "img": "https://shop.tirabasso.com/2391-large_default/1.jpg",
+  "price": 20.49,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-donna/153-1.html",
+  "file": "p036-cappello-donna-tipo-panama-disponibile-in-3-colo.webp",
+  "id": "p036"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello Panama Uomo ref. SQUARE originale intrecciato a mano",
+  "img": "https://shop.tirabasso.com/991-large_default/1.jpg",
+  "price": 57.38,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/179-1.html",
+  "file": "p037-cappello-panama-uomo-ref-square-originale-intrec.webp",
+  "id": "p037"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello Donna tinta unita colori pastello carta ritorta",
+  "img": "https://shop.tirabasso.com/1590-large_default/1.jpg",
+  "price": 20.49,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-donna/162-1.html",
+  "file": "p038-cappello-donna-tinta-unita-colori-pastello-carta.webp",
+  "id": "p038"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Collezione SS/21 TIRABASSO",
+  "img": "https://shop.tirabasso.com/490-large_default/1.jpg",
+  "price": 8.2,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/bambino/159-1.html",
+  "file": "p039-collezione-ss-21-tirabasso.webp",
+  "id": "p039"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Albicocca, Tirabasso Serafino",
+  "img": "https://shop.tirabasso.com/1635-large_default/albicocca.jpg",
+  "price": 53.28,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/106-albicocca.html",
+  "file": "p040-albicocca-tirabasso-serafino.webp",
+  "id": "p040"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello in rafia naturale extra-fino",
+  "img": "https://shop.tirabasso.com/1636-large_default/1.jpg",
+  "price": 69.67,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/168-1.html",
+  "file": "p041-cappello-in-rafia-naturale-extra-fino.webp",
+  "id": "p041"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Collezione Spring - Summer  TIRABASSO",
+  "img": "https://shop.tirabasso.com/1696-large_default/1.jpg",
+  "price": 14.75,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-donna/158-1.html",
+  "file": "p042-collezione-spring-summer-tirabasso.webp",
+  "id": "p042"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello Uomo paglia Fedora con cinturino in ecopelle",
+  "img": "https://shop.tirabasso.com/2552-large_default/cappello-uomo-fedora-con-cinturino-in-ecopelle.jpg",
+  "price": 28.69,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/223-cappello-uomo-fedora-con-cinturino-in-ecopelle.html",
+  "file": "p043-cappello-uomo-paglia-fedora-con-cinturino-in-eco.webp",
+  "id": "p043"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello Uomo paglia carta traforato traspirante con nastro gros grain",
+  "img": "https://shop.tirabasso.com/935-large_default/cappello-uomo-paglia-carta-traforato-traspirante-con-nastro-gros-grain.jpg",
+  "price": 20.49,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/227-cappello-uomo-paglia-carta-traforato-traspirante-con-nastro-gros-grain.html",
+  "file": "p044-cappello-uomo-paglia-carta-traforato-traspirante.webp",
+  "id": "p044"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello paglia carta Uomo modello Fedora con cinturino ecopelle",
+  "img": "https://shop.tirabasso.com/940-large_default/cappello-paglia-carta-uomo-modello-fedora-con-cinturino-ecopelle.jpg",
+  "price": 20.49,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-uomo/228-cappello-paglia-carta-uomo-modello-fedora-con-cinturino-ecopelle.html",
+  "file": "p045-cappello-paglia-carta-uomo-modello-fedora-con-ci.webp",
+  "id": "p045"
+ },
+ {
+  "cat": "Paglia",
+  "name": "Cappello paglia rafia Donna 100% naturale con cuciture zig zag",
+  "img": "https://shop.tirabasso.com/1725-large_default/cappello-paglia-raffia-donna-100-naturale-con-cuciture-zig-zag.jpg",
+  "price": 36.89,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/paglia-donna/234-cappello-paglia-raffia-donna-100-naturale-con-cuciture-zig-zag.html",
+  "file": "p046-cappello-paglia-rafia-donna-100-naturale-con-cuc.webp",
+  "id": "p046"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Coppola Uomo in juta e fodera cotone Made in Italy",
+  "img": "https://shop.tirabasso.com/812-large_default/coppola-uomo-in-juta-e-fodera-cotone-made-in-italy.jpg",
+  "price": 37.7,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/222-coppola-uomo-in-juta-e-fodera-cotone-made-in-italy.html",
+  "file": "p047-coppola-uomo-in-juta-e-fodera-cotone-made-in-ita.webp",
+  "id": "p047"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello coppola Uomo berretto misto lino cotone prodotto in italia",
+  "img": "https://shop.tirabasso.com/963-large_default/cappello-coppola-uomo-berretto-misto-lino-cotone.jpg",
+  "price": 33.61,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/224-cappello-coppola-uomo-berretto-misto-lino-cotone.html",
+  "file": "p048-cappello-coppola-uomo-berretto-misto-lino-cotone.webp",
+  "id": "p048"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello coppola Uomo berretto 100% lino fodera cotone",
+  "img": "https://shop.tirabasso.com/1031-large_default/cappello-coppola-uomo-berretto-100-lino-fodera-cotone.jpg",
+  "price": 33.61,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/225-cappello-coppola-uomo-berretto-100-lino-fodera-cotone.html",
+  "file": "p049-cappello-coppola-uomo-berretto-100-lino-fodera-c.webp",
+  "id": "p049"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello pescatore donna 50% lana e 50% nappa",
+  "img": "https://shop.tirabasso.com/1936-large_default/cappello-pescatore-donna-50-lana-e-50-nappa.jpg",
+  "price": 37.7,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/donna/320-cappello-pescatore-donna-50-lana-e-50-nappa.html",
+  "file": "p050-cappello-pescatore-donna-50-lana-e-50-nappa.webp",
+  "id": "p050"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello berretto 100% lino con fodera in cotone",
+  "img": "https://shop.tirabasso.com/1035-large_default/cappello-berretto-100-lino-con-fodera-in-cotone-.jpg",
+  "price": 40.98,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/226-cappello-berretto-100-lino-con-fodera-in-cotone-.html",
+  "file": "p051-cappello-berretto-100-lino-con-fodera-in-cotone.webp",
+  "id": "p051"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello uomo berrettone in lana tweed Irlandese Made in Italy",
+  "img": "https://shop.tirabasso.com/1102-large_default/cappello-uomo-berrettone-tweed-in-lana-con-tessuto-irlandese.jpg",
+  "price": 50.0,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/247-cappello-uomo-berrettone-tweed-in-lana-con-tessuto-irlandese.html",
+  "file": "p052-cappello-uomo-berrettone-in-lana-tweed-irlandese.webp",
+  "id": "p052"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello uomo berrettone in lana tweed Inglese Made in Italy",
+  "img": "https://shop.tirabasso.com/1112-large_default/cappello-uomo-berrettone-in-lana-tweed-inglese-made-in-italy.jpg",
+  "price": 50.0,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/249-cappello-uomo-berrettone-in-lana-tweed-inglese-made-in-italy.html",
+  "file": "p053-cappello-uomo-berrettone-in-lana-tweed-inglese-m.webp",
+  "id": "p053"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello da Uomo coppola in lana fodera trapuntata Made in Italy",
+  "img": "https://shop.tirabasso.com/1117-large_default/cappello-da-uomo-coppola-in-lana-fodera-trapuntata-made-in-italy.jpg",
+  "price": 33.61,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/250-cappello-da-uomo-coppola-in-lana-fodera-trapuntata-made-in-italy.html",
+  "file": "p054-cappello-da-uomo-coppola-in-lana-fodera-trapunta.webp",
+  "id": "p054"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello coppola uomo in tessuto pregiato made in italy",
+  "img": "https://shop.tirabasso.com/1536-large_default/cappello-coppola-uomo-in-tessuto-pregiato-made-in-italy.jpg",
+  "price": 30.33,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-uomo/283-cappello-coppola-uomo-in-tessuto-pregiato-made-in-italy.html",
+  "file": "p055-cappello-coppola-uomo-in-tessuto-pregiato-made-i.webp",
+  "id": "p055"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello baseball stampato e paillettes 100% Made in Italy",
+  "img": "https://shop.tirabasso.com/1628-large_default/cappello-baseball-stampato-e-paillettes-100-made-in-italy.jpg",
+  "price": 16.39,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-donna/292-cappello-baseball-stampato-e-paillettes-100-made-in-italy.html",
+  "file": "p056-cappello-baseball-stampato-e-paillettes-100-made.webp",
+  "id": "p056"
+ },
+ {
+  "cat": "Tessuto",
+  "name": "Cappello fidel stewart 100% lino made in italy",
+  "img": "https://shop.tirabasso.com/1755-large_default/1.jpg",
+  "price": 28.69,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/tessuto-donna/165-1.html",
+  "file": "p057-cappello-fidel-stewart-100-lino-made-in-italy.webp",
+  "id": "p057"
+ },
+ {
+  "cat": "Trolley",
+  "name": "Valigia Trolley NAVIGARE morbido da viaggio linea SOFT 8 ruote",
+  "img": "https://shop.tirabasso.com/1235-large_default/valigia-trolley-morbido-da-viaggio-linea-soft-8-ruote.jpg",
+  "price": 59.02,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/trolley/258-valigia-trolley-morbido-da-viaggio-linea-soft-8-ruote.html",
+  "file": "p058-valigia-trolley-navigare-morbido-da-viaggio-line.webp",
+  "id": "p058"
+ },
+ {
+  "cat": "Trolley",
+  "name": "Set 3 valigie Trolley NAVIGARE morbido da viaggio linea SOFT 8 ruote",
+  "img": "https://shop.tirabasso.com/1559-large_default/set-3-valigie-trolley-navigare-morbido-da-viaggio-linea-soft-8-ruote.jpg",
+  "price": 203.28,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/set-di-valigie/263-set-3-valigie-trolley-navigare-morbido-da-viaggio-linea-soft-8-ruote.html",
+  "file": "p059-set-3-valigie-trolley-navigare-morbido-da-viaggi.webp",
+  "id": "p059"
+ },
+ {
+  "cat": "Trolley",
+  "name": "Valigia Trolley NAVIGARE rigido da viaggio linea 1806 20'' 8 ruote",
+  "img": "https://shop.tirabasso.com/1217-large_default/valigia-trolley-rigido-da-viaggio-linea-rough-20-lt-8-ruote-espandibile.jpg",
+  "price": 55.74,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/trolley/256-valigia-trolley-rigido-da-viaggio-linea-rough-20-lt-8-ruote-espandibile.html",
+  "file": "p060-valigia-trolley-navigare-rigido-da-viaggio-linea.webp",
+  "id": "p060"
+ },
+ {
+  "cat": "Trolley",
+  "name": "Valigia Trolley NAVIGARE rigido da viaggio Rough 20'' 8 ruote ESP",
+  "img": "https://shop.tirabasso.com/2735-large_default/valigia-trolley-rigido-da-viaggio-linea-rough-20-lt-8-ruote-espandibile.jpg",
+  "price": 53.28,
+  "old": null,
+  "link": "https://shop.tirabasso.com/it/trolley/447-valigia-trolley-rigido-da-viaggio-linea-rough-20-lt-8-ruote-espandibile.html",
+  "file": "p061-valigia-trolley-navigare-rigido-da-viaggio-rough.webp",
+  "id": "p061"
+ }
+]

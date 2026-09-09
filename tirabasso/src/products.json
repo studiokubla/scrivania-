@@ -1,0 +1,1154 @@
+[
+ {
+  "id": "p000",
+  "nome": "Estiva",
+  "linea": "Riviera",
+  "cat": "Borse",
+  "materiale": "Rafia intrecciata",
+  "nota": "Borsa da giorno in rafia naturale, manici tubolari.",
+  "ref": "Borse estive / Tirabasso",
+  "prezzo": 36.89,
+  "img": "prod/p000-borse-estive-tirabasso.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p001",
+  "nome": "Rattan Tracolla",
+  "linea": "Riviera",
+  "cat": "Borse",
+  "materiale": "Rattan / pelle vegan",
+  "nota": "Tracolla in rattan intrecciato con profili in ecopelle.",
+  "ref": "Borsetta donna borsa tracolla rattan ed ecopelle",
+  "prezzo": 28.69,
+  "img": "prod/p001-borsetta-donna-borsa-tracolla-rattan-ed-ecopelle.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p002",
+  "nome": "Rattan Clip",
+  "linea": "Riviera",
+  "cat": "Borse",
+  "materiale": "Rattan / pelle vegan",
+  "nota": "Versione con chiusura a clip metallica.",
+  "ref": "Borsetta donna borsa tracolla rattan ed ecopelle chiusura clip",
+  "prezzo": 28.69,
+  "img": "prod/p002-borsetta-donna-borsa-tracolla-rattan-ed-ecopelle.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p003",
+  "nome": "Ocean Pack",
+  "linea": "Navigare",
+  "cat": "Borse",
+  "materiale": "Tessuto water proof",
+  "nota": "Sacca impermeabile arrotolabile. Linea Navigare.",
+  "ref": "Sacca WATER PROOF sport BAG OCEAN PACK NAVIGARE",
+  "prezzo": 5.74,
+  "img": "prod/p003-sacca-water-proof-sport-bag-ocean-pack-navigare.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p004",
+  "nome": "Cabin 40",
+  "linea": "Navigare",
+  "cat": "Borse",
+  "materiale": "Nylon tecnico",
+  "nota": "Zaino cabina 40×29×19, conforme ai vettori low cost.",
+  "ref": "Zaino da viaggio Ryanair compagnie aeree low cost 40x29x19",
+  "prezzo": 53.28,
+  "img": "prod/p004-zaino-da-viaggio-ryanair-compagnie-aeree-low-cos.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p005",
+  "nome": "Capri",
+  "linea": "Riviera",
+  "cat": "Borse",
+  "materiale": "Rafia Made in Italy",
+  "nota": "Borsa in rafia coordinata al cappello Capri.",
+  "ref": "Borsa in raffia made in Italy abbinata al cappello stile Capri",
+  "prezzo": 53.28,
+  "img": "prod/p005-borsa-in-raffia-made-in-italy-abbinata-al-cappel.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p006",
+  "nome": "Alpino Asimmetrico",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Ala asimmetrica, cordoncino in tono. Made in Italy.",
+  "ref": "Cappello Alpino in feltro ala asimmetrica Made in Italy",
+  "prezzo": 61.48,
+  "img": "prod/p006-cappello-alpino-in-feltro-ala-asimmetrica-made-i.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p007",
+  "nome": "Alpino",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "La forma alpina nella sua versione essenziale.",
+  "ref": "Cappello in feltro modello alpino",
+  "prezzo": 22.13,
+  "img": "prod/p007-cappello-in-feltro-modello-alpino.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p008",
+  "nome": "Lana Pura",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "100% lana",
+  "nota": "Feltro di pura lana, finitura liscia. Made in Italy.",
+  "ref": "Cappello in feltro da uomo 100% lana Made in Italy",
+  "prezzo": 40.98,
+  "img": "prod/p008-cappello-in-feltro-da-uomo-100-lana-made-in-ital.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p009",
+  "nome": "Cloche Cuore",
+  "linea": "Multicolor",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Cloche con cuore applicato a contrasto.",
+  "ref": "Cloche in feltro cuore applicato a contrasto",
+  "prezzo": 23.77,
+  "img": "prod/p009-cloche-in-feltro-cuore-applicato-a-contrasto.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p010",
+  "nome": "Lapin",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "100% lapin",
+  "nota": "Pelo di lepre, il feltro più nobile della casa.",
+  "ref": "Cappello feltro Uomo in 100% lapin Made in Italy pelo di lepre",
+  "prezzo": 77.87,
+  "img": "prod/p010-cappello-feltro-uomo-in-100-lapin-made-in-italy-.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p011",
+  "nome": "Cuore",
+  "linea": "Multicolor",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Dettaglio a cuore, gesto ironico sulla calotta.",
+  "ref": "Cappello in feltro cuore",
+  "prezzo": 20.49,
+  "img": "prod/p011-cappello-in-feltro-cuore.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p012",
+  "nome": "Fedora Bicolore",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Fedora bicolore con nastro in tono. Made in Italy.",
+  "ref": "Cappello feltro Fedora bicolore Made in Italy",
+  "prezzo": 51.64,
+  "img": "prod/p012-cappello-feltro-fedora-bicolore-made-in-italy.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p013",
+  "nome": "Fedora Catena",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Catena sottogola in metallo brunito.",
+  "ref": "Fedora con catena sottogola",
+  "prezzo": 57.38,
+  "img": "prod/p013-fedora-con-catena-sottogola.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p014",
+  "nome": "Lapin Fedora",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "100% lapin",
+  "nota": "Feltrino e automatici, tesa modellabile.",
+  "ref": "Cappello Uomo in lapin forma Fedora con feltrino e automatici",
+  "prezzo": 61.48,
+  "img": "prod/p014-cappello-uomo-in-lapin-forma-fedora-con-feltrino.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p015",
+  "nome": "Original Smooth",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "Feltro premium",
+  "nota": "La collezione Original Smooth, premium quality.",
+  "ref": "Cappello feltro TIRABASSO Uomo collezione Original Smooth Premium Quality",
+  "prezzo": 49.84,
+  "img": "prod/p015-cappello-feltro-tirabasso-uomo-collezione-origin.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p016",
+  "nome": "Pork Pie",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Calotta cilindrica, tesa corta rialzata. Made in Italy.",
+  "ref": "Cappello in feltro Uomo modello pork pie Made in Italy",
+  "prezzo": 40.49,
+  "img": "prod/p016-cappello-in-feltro-uomo-modello-pork-pie-made-in.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p017",
+  "nome": "Falda Larga",
+  "linea": "Ottico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Tesa ampia con gros grain in seta.",
+  "ref": "Cappello donna falda larga con gros grain",
+  "prezzo": 30.33,
+  "img": "prod/p017-cappello-donna-falda-larga-con-gros-grain.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p018",
+  "nome": "Fedora Strass",
+  "linea": "Multicolor",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Cinturino gioiello con strass applicati.",
+  "ref": "Cappello Fedora donna in feltro con cinturino strass",
+  "prezzo": 28.69,
+  "img": "prod/p018-cappello-fedora-donna-in-feltro-con-cinturino-st.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p019",
+  "nome": "Coppola Spinata",
+  "linea": "Coppola",
+  "cat": "Feltro",
+  "materiale": "Feltro spinato",
+  "nota": "Coppola in spinato, foderata. Made in Italy.",
+  "ref": "Cappello in feltro forma coppola uomo spinata MADE IN ITALY",
+  "prezzo": 30.33,
+  "img": "prod/p019-cappello-in-feltro-forma-coppola-uomo-spinata-ma.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p020",
+  "nome": "Anello",
+  "linea": "Ottico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Nuova forma con cinturino ad anello.",
+  "ref": "Cappello donna in feltro Nuova forma con cinturino anello",
+  "prezzo": 31.97,
+  "img": "prod/p020-cappello-donna-in-feltro-nuova-forma-con-cinturi.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p021",
+  "nome": "Coppola",
+  "linea": "Coppola",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "La coppola di casa, taglio classico. Made in Italy.",
+  "ref": "Cappello in feltro forma coppola uomo MADE IN ITALY",
+  "prezzo": 30.33,
+  "img": "prod/p021-cappello-in-feltro-forma-coppola-uomo-made-in-it.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p022",
+  "nome": "Porkpie Diamante",
+  "linea": "Classico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Testa a diamante con grosgrain.",
+  "ref": "Cappello in feltro Porkpie testa diamante con grosgrain",
+  "prezzo": 27.87,
+  "img": "prod/p022-cappello-in-feltro-porkpie-testa-diamante-con-gr.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p023",
+  "nome": "Crimpata",
+  "linea": "Ottico",
+  "cat": "Feltro",
+  "materiale": "Feltro di lana",
+  "nota": "Falda larga crimpata, cinturino ad anelli.",
+  "ref": "Cappello Donna feltro falda larga a crimpare con cinturino anelli",
+  "prezzo": 31.97,
+  "img": "prod/p023-cappello-donna-feltro-falda-larga-a-crimpare-con.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p024",
+  "nome": "Balaclava",
+  "linea": "Inverno",
+  "cat": "Maglieria",
+  "materiale": "Maglia a coste",
+  "nota": "Passamontagna a coste con bordino. Made in Italy.",
+  "ref": "Kagoule passamontagna balaclava a coste con bordino made in italy",
+  "prezzo": 20.49,
+  "img": "prod/p024-kagoule-passamontagna-balaclava-a-coste-con-bord.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p025",
+  "nome": "Degradé Set",
+  "linea": "Inverno",
+  "cat": "Maglieria",
+  "materiale": "Misto lana",
+  "nota": "Set cuffia e sciarpa, effetto degradé. Made in Italy.",
+  "ref": "SET cuffia e sciarpa misto lana effetto degradé Made in Italy",
+  "prezzo": 60.66,
+  "img": "prod/p025-set-cuffia-e-sciarpa-misto-lana-effetto-degrad-m.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p026",
+  "nome": "Fascia Cashmere",
+  "linea": "Inverno",
+  "cat": "Maglieria",
+  "materiale": "Cashmere",
+  "nota": "Fascia in cashmere, lavorazione a maglia. Made in Italy.",
+  "ref": "Fascia a maglia donna cashmere Made in Italy",
+  "prezzo": 31.15,
+  "img": "prod/p026-fascia-a-maglia-donna-cashmere-made-in-italy.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p027",
+  "nome": "Set Lana",
+  "linea": "Inverno",
+  "cat": "Maglieria",
+  "materiale": "Misto lana",
+  "nota": "Cuffia e sciarpa coordinate. Made in Italy.",
+  "ref": "Set cuffia e sciarpa misto lana Made in Italy",
+  "prezzo": 36.89,
+  "img": "prod/p027-set-cuffia-e-sciarpa-misto-lana-made-in-italy.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p028",
+  "nome": "Kagoule Trapuntato",
+  "linea": "Inverno",
+  "cat": "Maglieria",
+  "materiale": "Nylon imbottito",
+  "nota": "Cappuccio-sciarpa trapuntato, imbottito.",
+  "ref": "Cappuccio cappello sciarpa trapuntato donna  imbottito kagoule",
+  "prezzo": 39.34,
+  "img": "prod/p028-cappuccio-cappello-sciarpa-trapuntato-donna-imbo.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p029",
+  "nome": "Set Degradé",
+  "linea": "Inverno",
+  "cat": "Maglieria",
+  "materiale": "Misto lana",
+  "nota": "Cuffia e sciarpa, sfumatura continua. Made in Italy.",
+  "ref": "Set cuffia e sciarpa misto lana Made in Italy effetto degradé",
+  "prezzo": 38.52,
+  "img": "prod/p029-set-cuffia-e-sciarpa-misto-lana-made-in-italy-ef.webp",
+  "taglie": [
+   "Taglia unica"
+  ]
+ },
+ {
+  "id": "p030",
+  "nome": "Rafia Intrecciata",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "100% rafia naturale",
+  "nota": "Falda intrecciata a mano, rafia naturale.",
+  "ref": "Cappello rafia 100% naturale falda intrecciata",
+  "prezzo": 30.33,
+  "img": "prod/p030-cappello-rafia-100-naturale-falda-intrecciata.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p031",
+  "nome": "Rafia Extrafino",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "100% rafia",
+  "nota": "Intreccio extra-fino, il grado più alto della casa.",
+  "ref": "Cappello 100% rafia extra-fino",
+  "prezzo": 69.67,
+  "img": "prod/p031-cappello-100-rafia-extra-fino.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p032",
+  "nome": "Pescatore Lino",
+  "linea": "Riviera",
+  "cat": "Paglia",
+  "materiale": "Rafia e lino",
+  "nota": "Bucket in rafia e lino, tesa morbida.",
+  "ref": "Cappello Donna modello pescatore in rafia e lino",
+  "prezzo": 28.69,
+  "img": "prod/p032-cappello-donna-modello-pescatore-in-rafia-e-lino.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p033",
+  "nome": "Panama Traforato",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia giapponese",
+  "nota": "Traforo aperto, massima traspirazione.",
+  "ref": "Cappello panama giapponese traforato",
+  "prezzo": 53.28,
+  "img": "prod/p033-cappello-panama-giapponese-traforato.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p034",
+  "nome": "Panasoft",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia Panasoft",
+  "nota": "Testa tonda e cresta, ispirazione Montecristi.",
+  "ref": "Cappello Panasoft testa tonda e costa cresta tipo Panama Montecristi fine",
+  "prezzo": 49.18,
+  "img": "prod/p034-cappello-panasoft-testa-tonda-e-costa-cresta-tip.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p035",
+  "nome": "Panama",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia Panama",
+  "nota": "Il Panama della casa, nastro gros grain.",
+  "ref": "Panama - Tirabasso Serafino",
+  "prezzo": 57.38,
+  "img": "prod/p035-panama-tirabasso-serafino.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p036",
+  "nome": "Panama Donna",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia",
+  "nota": "Tre colorazioni, tesa flessibile.",
+  "ref": "Cappello donna tipo Panama disponibile in 3 colori",
+  "prezzo": 20.49,
+  "img": "prod/p036-cappello-donna-tipo-panama-disponibile-in-3-colo.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p037",
+  "nome": "Square",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia intrecciata a mano",
+  "nota": "Ref. SQUARE, intreccio a mano originale.",
+  "ref": "Cappello Panama Uomo ref. SQUARE originale intrecciato a mano",
+  "prezzo": 57.38,
+  "img": "prod/p037-cappello-panama-uomo-ref-square-originale-intrec.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p038",
+  "nome": "Carta Ritorta",
+  "linea": "Multicolor",
+  "cat": "Paglia",
+  "materiale": "Carta ritorta",
+  "nota": "Tinta unita, palette pastello.",
+  "ref": "Cappello Donna tinta unita colori pastello carta ritorta",
+  "prezzo": 20.49,
+  "img": "prod/p038-cappello-donna-tinta-unita-colori-pastello-carta.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p039",
+  "nome": "SS/21",
+  "linea": "Riviera",
+  "cat": "Paglia",
+  "materiale": "Paglia",
+  "nota": "Archivio collezione Spring Summer 21.",
+  "ref": "Collezione SS/21 TIRABASSO",
+  "prezzo": 8.2,
+  "img": "prod/p039-collezione-ss-21-tirabasso.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p040",
+  "nome": "Albicocca",
+  "linea": "Multicolor",
+  "cat": "Paglia",
+  "materiale": "Paglia",
+  "nota": "Colore albicocca, nastro in tono.",
+  "ref": "Albicocca, Tirabasso Serafino",
+  "prezzo": 53.28,
+  "img": "prod/p040-albicocca-tirabasso-serafino.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p041",
+  "nome": "Rafia Naturale",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "100% rafia",
+  "nota": "Rafia naturale extra-fino, tesa larga.",
+  "ref": "Cappello in rafia naturale extra-fino",
+  "prezzo": 69.67,
+  "img": "prod/p041-cappello-in-rafia-naturale-extra-fino.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p042",
+  "nome": "Spring Summer",
+  "linea": "Riviera",
+  "cat": "Paglia",
+  "materiale": "Paglia",
+  "nota": "Archivio collezione Spring Summer.",
+  "ref": "Collezione Spring - Summer  TIRABASSO",
+  "prezzo": 14.75,
+  "img": "prod/p042-collezione-spring-summer-tirabasso.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p043",
+  "nome": "Fedora Paglia",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia",
+  "nota": "Fedora estiva con cinturino in ecopelle.",
+  "ref": "Cappello Uomo paglia Fedora con cinturino in ecopelle",
+  "prezzo": 28.69,
+  "img": "prod/p043-cappello-uomo-paglia-fedora-con-cinturino-in-eco.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p044",
+  "nome": "Traforato",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia di carta",
+  "nota": "Traforo traspirante, nastro gros grain.",
+  "ref": "Cappello Uomo paglia carta traforato traspirante con nastro gros grain",
+  "prezzo": 20.49,
+  "img": "prod/p044-cappello-uomo-paglia-carta-traforato-traspirante.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p045",
+  "nome": "Fedora Carta",
+  "linea": "Safari",
+  "cat": "Paglia",
+  "materiale": "Paglia di carta",
+  "nota": "Fedora leggera con cinturino.",
+  "ref": "Cappello paglia carta Uomo modello Fedora con cinturino ecopelle",
+  "prezzo": 20.49,
+  "img": "prod/p045-cappello-paglia-carta-uomo-modello-fedora-con-ci.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p046",
+  "nome": "Zig Zag",
+  "linea": "Multicolor",
+  "cat": "Paglia",
+  "materiale": "Rafia naturale",
+  "nota": "Cuciture zig zag a contrasto.",
+  "ref": "Cappello paglia rafia Donna 100% naturale con cuciture zig zag",
+  "prezzo": 36.89,
+  "img": "prod/p046-cappello-paglia-rafia-donna-100-naturale-con-cuc.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p047",
+  "nome": "Coppola Juta",
+  "linea": "Coppola",
+  "cat": "Tessuto",
+  "materiale": "Juta / cotone",
+  "nota": "Juta con fodera in cotone. Made in Italy.",
+  "ref": "Coppola Uomo in juta e fodera cotone Made in Italy",
+  "prezzo": 37.7,
+  "img": "prod/p047-coppola-uomo-in-juta-e-fodera-cotone-made-in-ita.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p048",
+  "nome": "Coppola Lino",
+  "linea": "Coppola",
+  "cat": "Tessuto",
+  "materiale": "Lino / cotone",
+  "nota": "Misto lino cotone, produzione italiana.",
+  "ref": "Cappello coppola Uomo berretto misto lino cotone prodotto in italia",
+  "prezzo": 33.61,
+  "img": "prod/p048-cappello-coppola-uomo-berretto-misto-lino-cotone.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p049",
+  "nome": "Coppola Lino Puro",
+  "linea": "Coppola",
+  "cat": "Tessuto",
+  "materiale": "100% lino",
+  "nota": "Lino puro, fodera in cotone.",
+  "ref": "Cappello coppola Uomo berretto 100% lino fodera cotone",
+  "prezzo": 33.61,
+  "img": "prod/p049-cappello-coppola-uomo-berretto-100-lino-fodera-c.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p050",
+  "nome": "Pescatore Nappa",
+  "linea": "Ottico",
+  "cat": "Tessuto",
+  "materiale": "Lana e nappa",
+  "nota": "Bucket 50% lana 50% nappa.",
+  "ref": "Cappello pescatore donna 50% lana e 50% nappa",
+  "prezzo": 37.7,
+  "img": "prod/p050-cappello-pescatore-donna-50-lana-e-50-nappa.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p051",
+  "nome": "Berretto Lino",
+  "linea": "Coppola",
+  "cat": "Tessuto",
+  "materiale": "100% lino",
+  "nota": "Berretto in lino con fodera in cotone.",
+  "ref": "Cappello berretto 100% lino con fodera in cotone",
+  "prezzo": 40.98,
+  "img": "prod/p051-cappello-berretto-100-lino-con-fodera-in-cotone.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p052",
+  "nome": "Tweed Irlandese",
+  "linea": "Classico",
+  "cat": "Tessuto",
+  "materiale": "Lana tweed irlandese",
+  "nota": "Berrettone in tweed irlandese. Made in Italy.",
+  "ref": "Cappello uomo berrettone in lana tweed Irlandese Made in Italy",
+  "prezzo": 50.0,
+  "img": "prod/p052-cappello-uomo-berrettone-in-lana-tweed-irlandese.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p053",
+  "nome": "Tweed Inglese",
+  "linea": "Classico",
+  "cat": "Tessuto",
+  "materiale": "Lana tweed inglese",
+  "nota": "Berrettone in tweed inglese. Made in Italy.",
+  "ref": "Cappello uomo berrettone in lana tweed Inglese Made in Italy",
+  "prezzo": 50.0,
+  "img": "prod/p053-cappello-uomo-berrettone-in-lana-tweed-inglese-m.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p054",
+  "nome": "Coppola Trapuntata",
+  "linea": "Coppola",
+  "cat": "Tessuto",
+  "materiale": "Lana",
+  "nota": "Fodera trapuntata, caldo invernale. Made in Italy.",
+  "ref": "Cappello da Uomo coppola in lana fodera trapuntata Made in Italy",
+  "prezzo": 33.61,
+  "img": "prod/p054-cappello-da-uomo-coppola-in-lana-fodera-trapunta.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p055",
+  "nome": "Coppola Pregiata",
+  "linea": "Coppola",
+  "cat": "Tessuto",
+  "materiale": "Tessuto pregiato",
+  "nota": "Tessuto pregiato, taglio sartoriale.",
+  "ref": "Cappello coppola uomo in tessuto pregiato made in italy",
+  "prezzo": 30.33,
+  "img": "prod/p055-cappello-coppola-uomo-in-tessuto-pregiato-made-i.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p056",
+  "nome": "Baseball Paillettes",
+  "linea": "Multicolor",
+  "cat": "Tessuto",
+  "materiale": "Cotone e paillettes",
+  "nota": "Stampa e paillettes. 100% Made in Italy.",
+  "ref": "Cappello baseball stampato e paillettes 100% Made in Italy",
+  "prezzo": 16.39,
+  "img": "prod/p056-cappello-baseball-stampato-e-paillettes-100-made.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p057",
+  "nome": "Fidel",
+  "linea": "Riviera",
+  "cat": "Tessuto",
+  "materiale": "100% lino",
+  "nota": "Modello Fidel in lino. Made in Italy.",
+  "ref": "Cappello fidel stewart 100% lino made in italy",
+  "prezzo": 28.69,
+  "img": "prod/p057-cappello-fidel-stewart-100-lino-made-in-italy.webp",
+  "taglie": [
+   "55",
+   "56",
+   "57",
+   "58",
+   "59",
+   "60",
+   "61"
+  ]
+ },
+ {
+  "id": "p058",
+  "nome": "Soft 8",
+  "linea": "Navigare",
+  "cat": "Trolley",
+  "materiale": "Nylon morbido",
+  "nota": "Trolley morbido 8 ruote, linea Soft.",
+  "ref": "Valigia Trolley NAVIGARE morbido da viaggio linea SOFT 8 ruote",
+  "prezzo": 59.02,
+  "img": "prod/p058-valigia-trolley-navigare-morbido-da-viaggio-line.webp",
+  "taglie": [
+   "Cabina",
+   "Medio",
+   "Grande"
+  ]
+ },
+ {
+  "id": "p059",
+  "nome": "Soft Set 3",
+  "linea": "Navigare",
+  "cat": "Trolley",
+  "materiale": "Nylon morbido",
+  "nota": "Set di tre trolley coordinati, linea Soft.",
+  "ref": "Set 3 valigie Trolley NAVIGARE morbido da viaggio linea SOFT 8 ruote",
+  "prezzo": 203.28,
+  "img": "prod/p059-set-3-valigie-trolley-navigare-morbido-da-viaggi.webp",
+  "taglie": [
+   "Cabina",
+   "Medio",
+   "Grande"
+  ]
+ },
+ {
+  "id": "p060",
+  "nome": "Linea 1806",
+  "linea": "Navigare",
+  "cat": "Trolley",
+  "materiale": "ABS rigido",
+  "nota": "Trolley rigido 20\" 8 ruote, linea 1806.",
+  "ref": "Valigia Trolley NAVIGARE rigido da viaggio linea 1806 20'' 8 ruote",
+  "prezzo": 55.74,
+  "img": "prod/p060-valigia-trolley-navigare-rigido-da-viaggio-linea.webp",
+  "taglie": [
+   "Cabina",
+   "Medio",
+   "Grande"
+  ]
+ },
+ {
+  "id": "p061",
+  "nome": "Rough 20",
+  "linea": "Navigare",
+  "cat": "Trolley",
+  "materiale": "ABS rigido",
+  "nota": "Trolley rigido Rough 20\", 8 ruote.",
+  "ref": "Valigia Trolley NAVIGARE rigido da viaggio Rough 20'' 8 ruote ESP",
+  "prezzo": 53.28,
+  "img": "prod/p061-valigia-trolley-navigare-rigido-da-viaggio-rough.webp",
+  "taglie": [
+   "Cabina",
+   "Medio",
+   "Grande"
+  ]
+ }
+]

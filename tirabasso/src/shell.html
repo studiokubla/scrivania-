@@ -1,0 +1,142 @@
+<title>Tirabasso Maison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+{{STYLE}}
+</style>
+
+<!-- ══════════════ TICKER ══════════════ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    <span>Made in Italy — Massa Fermana, Marche</span><span>Spedizione gratuita da 120 €</span>
+    <span>Dal 1967 — Performing hat</span><span>Reso esteso 30 giorni</span>
+    <span>Made in Italy — Massa Fermana, Marche</span><span>Spedizione gratuita da 120 €</span>
+    <span>Dal 1967 — Performing hat</span><span>Reso esteso 30 giorni</span>
+  </div>
+</div>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header class="hdr" id="hdr">
+  <div class="hdr__in wrap max">
+    <nav class="nav" aria-label="Principale">
+      <a href="#/collezioni" data-r="/collezioni">Collezioni</a>
+      <a href="#/maison" data-r="/maison">Maison</a>
+      <a href="#/savoir-faire" data-r="/savoir-faire">Savoir-faire</a>
+      <a href="#/jackson" data-r="/jackson">Jackson B2B</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Apri il menu">
+      <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M0 1h22M0 11h22"/></svg>
+    </button>
+    <a href="#/" class="brand" aria-label="Tirabasso — home">
+      <span class="brand__word">Tirabasso</span>
+      <span class="brand__sub">Performing hat</span>
+    </a>
+    <div class="tools">
+      <button id="openSearch" class="t-hide" aria-label="Cerca">Cerca</button>
+      <a href="#/contatti" class="t-hide">Contatti</a>
+      <button id="openCart" class="bag" aria-label="Apri la borsa">Borsa<span class="bag__n" id="bagN" hidden>0</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ MENU MOBILE ══════════════ -->
+<div class="mnav" id="mnav" aria-hidden="true">
+  <div class="mnav__top">
+    <span class="eyebrow">Menu</span>
+    <button id="closeM" aria-label="Chiudi il menu">Chiudi</button>
+  </div>
+  <nav class="mnav__list">
+    <a href="#/collezioni" class="display">Collezioni</a>
+    <a href="#/maison" class="display">Maison</a>
+    <a href="#/savoir-faire" class="display">Savoir-faire</a>
+    <a href="#/jackson" class="display it">Jackson B2B</a>
+    <a href="#/contatti" class="display">Contatti</a>
+  </nav>
+  <div class="mnav__foot">
+    <p class="small">Tirabasso Serafino srl — Massa Fermana (FM), Italia</p>
+    <button id="openSearch2" class="ulink">Cerca nel sito</button>
+  </div>
+</div>
+
+<!-- ══════════════ RICERCA ══════════════ -->
+<div class="search" id="search" aria-hidden="true">
+  <div class="search__top">
+    <span class="eyebrow">Cerca</span>
+    <button id="closeS" aria-label="Chiudi la ricerca">Chiudi</button>
+  </div>
+  <input id="sInput" type="search" placeholder="Feltro, panama, coppola…" autocomplete="off">
+  <div class="search__res" id="sRes"></div>
+</div>
+
+<!-- ══════════════ VIEW ══════════════ -->
+<main id="view"></main>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="ftr">
+  <div class="wrap max ftr__grid">
+    <div>
+      <img src="{{A:logo-tirabasso-light}}" alt="Tirabasso" style="height:78px;width:auto">
+      <p class="small" style="margin-top:18px;max-width:34ch">
+        Tirabasso Serafino srl — Via dell'Industria, Massa Fermana (FM), Marche, Italia.
+        Cappelli e accessori dal 1967.
+      </p>
+    </div>
+    <div>
+      <h4>Collezioni</h4>
+      <ul>
+        <li><a href="#/collezioni?cat=Feltro">Feltro</a></li>
+        <li><a href="#/collezioni?cat=Paglia">Paglia</a></li>
+        <li><a href="#/collezioni?cat=Tessuto">Tessuto</a></li>
+        <li><a href="#/collezioni?cat=Maglieria">Maglieria</a></li>
+        <li><a href="#/collezioni?cat=Borse">Borse</a></li>
+        <li><a href="#/collezioni?cat=Trolley">Viaggio</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Maison</h4>
+      <ul>
+        <li><a href="#/maison">La storia</a></li>
+        <li><a href="#/savoir-faire">Savoir-faire</a></li>
+        <li><a href="#/jackson">Jackson — B2B</a></li>
+        <li><a href="#/contatti">Contatti</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Servizio</h4>
+      <ul>
+        <li><a href="#/contatti">Guida alle taglie</a></li>
+        <li><a href="#/contatti">Spedizioni e resi</a></li>
+        <li><a href="#/contatti">Cura del cappello</a></li>
+        <li><a href="#/contatti">Condizioni di vendita</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap max ftr__bot">
+    <span>© 2026 Tirabasso Serafino srl — Tutti i diritti riservati</span>
+    <span>Demo di progetto — Studio Kubla</span>
+  </div>
+</footer>
+
+<!-- ══════════════ CARRELLO ══════════════ -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Borsa">
+  <div class="drawer__h">
+    <span class="eyebrow">La tua borsa</span>
+    <button id="closeCart" aria-label="Chiudi">Chiudi</button>
+  </div>
+  <div class="drawer__b" id="cartBody"></div>
+  <div class="drawer__f" id="cartFoot" hidden>
+    <div class="tot"><span>Totale</span><b id="cartTot">0,00 €</b></div>
+    <p class="small" style="margin:0">Spedizione calcolata al checkout. Reso esteso 30 giorni.</p>
+    <a href="#/checkout" class="btn block" id="goCheckout">Procedi all'ordine</a>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+{{DATA}}
+{{APP}}
+</script>
